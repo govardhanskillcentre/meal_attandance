@@ -3,608 +3,1194 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>GSC Kitchen – Face Attendance</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<title>GSC Meal Manager</title>
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <style>
-:root{
-  --gd:#1a472a;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;--gf:#f0fdf4;
-  --am:#f59e0b;--rd:#ef4444;
-  --g1:#f3f4f6;--g2:#e5e7eb;--g4:#9ca3af;--g6:#4b5563;--g8:#1f2937;
-  --sh:0 4px 20px rgba(0,0,0,.08);--r:14px;--rs:9px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#f0fdf4;color:var(--g8);min-height:100vh}
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600;800&display=swap');
 
-#setup-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-#setup-box{background:#fff;border-radius:20px;padding:24px;max-width:460px;width:100%}
-#setup-box h2{font-family:'DM Serif Display',serif;font-size:20px;color:var(--gd);margin-bottom:6px}
-#setup-box p{font-size:12px;color:var(--g6);margin-bottom:12px;line-height:1.6}
-#setup-box input{width:100%;padding:10px 13px;border:1.5px solid var(--g2);border-radius:var(--rs);font-size:13px;margin-bottom:9px;font-family:'DM Sans',sans-serif}
-#setup-box input:focus{outline:none;border-color:var(--gl)}
-.s-steps{counter-reset:s;list-style:none;margin-bottom:12px}
-.s-steps li{counter-increment:s;padding:6px 0 6px 32px;position:relative;font-size:12px;color:var(--g6);border-bottom:1px solid var(--g1)}
-.s-steps li::before{content:counter(s);position:absolute;left:0;top:5px;width:20px;height:20px;background:var(--gp);color:var(--gd);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
-.s-steps li a{color:var(--gm);font-weight:600}
-#setup-save{width:100%;padding:12px;background:var(--gd);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
-.api-note{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--rs);padding:9px 11px;margin-bottom:10px;font-size:11px;color:#92400e;line-height:1.6}
-.api-note a{color:#92400e;font-weight:700}
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --accent: #00d4aa;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --border: #1e3a5f;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --warn: #f59e0b;
+    --card: rgba(17,24,39,0.9);
+  }
 
-.wrap{max-width:520px;margin:0 auto;padding-bottom:88px}
-.hdr{background:linear-gradient(135deg,var(--gd),var(--gm));padding:13px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.2)}
-.hdr-l{display:flex;align-items:center;gap:10px}
-.hdr-ic{width:38px;height:38px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px}
-.hdr-t{font-family:'DM Serif Display',serif;color:#fff;font-size:15px}
-.hdr-s{color:rgba(255,255,255,.55);font-size:10px}
-.hdr-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif}
+  * { margin:0; padding:0; box-sizing:border-box; }
 
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g2);display:flex;max-width:520px;margin:0 auto;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.06)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0 7px;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif}
-.ni .ic{font-size:19px;margin-bottom:2px}
-.ni .lb{font-size:10px;color:var(--g4);font-weight:500}
-.ni.active .lb{color:var(--gd);font-weight:700}
+  body {
+    font-family: 'Exo 2', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-.pg{display:none;padding:13px}
-.pg.active{display:block}
+  /* ── LOCK SCREEN ── */
+  #lockScreen {
+    position: fixed; inset:0; z-index:9999;
+    background: linear-gradient(135deg, #0a0f1e 0%, #0f1f3d 50%, #0a0f1e 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2rem;
+  }
+  #lockScreen .logo {
+    text-align:center;
+  }
+  #lockScreen .logo span.big {
+    font-family:'Rajdhani',sans-serif;
+    font-size:4rem; font-weight:700; letter-spacing:6px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  #lockScreen .logo p {
+    color:var(--text2); font-size:0.85rem; letter-spacing:3px; text-transform:uppercase; margin-top:4px;
+  }
+  .lock-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius:16px;
+    padding:2.5rem 2rem;
+    width:320px;
+    box-shadow: 0 0 60px rgba(0,212,170,0.08);
+  }
+  .lock-card h3 { font-family:'Rajdhani',sans-serif; font-size:1.2rem; color:var(--text2); letter-spacing:2px; margin-bottom:1.2rem; text-align:center; }
+  .lock-card input {
+    width:100%; padding:0.8rem 1rem;
+    background: var(--bg); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-family:'Exo 2',sans-serif;
+    font-size:1rem; outline:none; margin-bottom:1rem;
+    transition:border-color 0.2s;
+  }
+  .lock-card input:focus { border-color:var(--accent); }
+  .btn-primary {
+    width:100%; padding:0.85rem;
+    background: linear-gradient(90deg, var(--accent), #00a884);
+    border:none; border-radius:8px;
+    color:#0a0f1e; font-family:'Rajdhani',sans-serif;
+    font-size:1.1rem; font-weight:700; letter-spacing:2px;
+    cursor:pointer; transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { opacity:0.9; transform:translateY(-1px); }
+  .btn-primary:active { transform:translateY(0); }
+  #lockError { color:var(--danger); font-size:0.85rem; text-align:center; margin-top:0.5rem; min-height:1rem; }
 
-/* MEAL */
-.meal-sel{background:#fff;border-radius:var(--r);padding:13px;margin-bottom:11px;box-shadow:var(--sh)}
-.meal-lbl{font-size:11px;color:var(--g6);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.meal-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
-.mb{padding:10px 5px;border:2px solid var(--g2);border-radius:var(--rs);background:#fff;cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all .15s}
-.mb .mi{font-size:19px;display:block;margin-bottom:2px}
-.mb .mn{font-size:11px;font-weight:600;color:var(--g6)}
-.mb.sel{border-color:var(--gl);background:var(--gf)}
-.mb.sel .mn{color:var(--gd)}
+  /* ── MAIN APP ── */
+  #app { display:none; flex-direction:column; min-height:100vh; }
 
-/* VIDEO */
-.vcrd{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
-.vwrap{position:relative;width:100%;background:#0a0a0a;aspect-ratio:4/3}
-.vwrap video{width:100%;height:100%;object-fit:cover;display:block}
-.vov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px}
-.fg{width:148px;height:148px;border:2.5px solid rgba(255,255,255,.7);border-radius:50%;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(82,183,136,.5)}50%{box-shadow:0 0 0 14px rgba(82,183,136,0)}}
-.hint{color:rgba(255,255,255,.85);font-size:11px;background:rgba(0,0,0,.45);padding:5px 12px;border-radius:20px;text-align:center;max-width:80%}
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom:1px solid var(--border);
+    padding:0.6rem 1.5rem;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+  }
+  header .brand {
+    font-family:'Rajdhani',sans-serif; font-size:1.5rem; font-weight:700; letter-spacing:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  header .brand span { font-size:0.7rem; letter-spacing:2px; color:var(--text2); display:block; line-height:1; margin-top:-2px; font-family:'Exo 2',sans-serif; background:none; -webkit-text-fill-color:var(--text2); }
+  header .time-badge {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:20px; padding:0.3rem 1rem;
+    font-size:0.85rem; color:var(--accent); font-family:'Rajdhani',sans-serif; letter-spacing:1px;
+  }
 
-/* AI SPINNER */
-#ai-proc{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(0,0,0,.6)}
-#ai-proc.on{display:flex}
-.ai-spin{width:44px;height:44px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--gl);border-radius:50%;animation:sp .55s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.ai-txt{color:#fff;font-size:13px;font-weight:600}
+  /* NAV TABS */
+  nav.tabs {
+    background:var(--surface);
+    border-bottom:1px solid var(--border);
+    display:flex; overflow-x:auto;
+  }
+  nav.tabs button {
+    flex:1; min-width:80px;
+    padding:0.8rem 0.5rem;
+    background:none; border:none; border-bottom:3px solid transparent;
+    color:var(--text2); font-family:'Rajdhani',sans-serif;
+    font-size:1rem; font-weight:600; letter-spacing:1px;
+    cursor:pointer; transition: all 0.2s;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  nav.tabs button .icon { font-size:1.3rem; }
+  nav.tabs button:hover { color:var(--text); }
+  nav.tabs button.active { color:var(--accent); border-bottom-color:var(--accent); }
 
-/* ★ NAME OVERLAY ★ */
-#name-ov{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.62);animation:fdin .2s ease}
-#name-ov.on{display:flex}
-@keyframes fdin{from{opacity:0}to{opacity:1}}
-.name-box{background:rgba(20,60,34,.93);border:2px solid var(--gl);border-radius:18px;padding:20px 26px;text-align:center;max-width:84%}
-.name-lbl{font-size:10px;color:var(--gl);font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px}
-.name-main{font-family:'DM Serif Display',serif;font-size:28px;color:#fff;line-height:1.15;margin-bottom:4px}
-.name-id{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px}
-.name-conf{font-size:11px;color:var(--gl);margin-bottom:14px}
-.name-btns{display:flex;gap:9px;justify-content:center}
-.btn-yes{padding:10px 22px;background:var(--gl);color:var(--gd);border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
-.btn-no{padding:10px 16px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:9px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  /* PAGES */
+  .page { display:none; padding:1.2rem; flex:1; }
+  .page.active { display:block; }
 
-/* NO FACE */
-#noface-ov{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.62)}
-#noface-ov.on{display:flex}
-.noface-box{background:rgba(80,20,20,.9);border:2px solid var(--rd);border-radius:16px;padding:18px 22px;text-align:center;max-width:82%}
-.nf-icon{font-size:34px;margin-bottom:7px}
-.nf-title{color:#fca5a5;font-size:15px;font-weight:700;margin-bottom:4px}
-.nf-msg{color:rgba(255,255,255,.65);font-size:12px;margin-bottom:13px;line-height:1.5}
-.btn-retry{padding:9px 22px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:9px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+  /* ── CARDS & COMMON ── */
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:1.2rem; margin-bottom:1rem;
+  }
+  .card h3 { font-family:'Rajdhani',sans-serif; font-size:1.1rem; letter-spacing:1px; color:var(--accent); margin-bottom:0.8rem; }
+  .form-row { margin-bottom:0.8rem; }
+  .form-row label { display:block; font-size:0.8rem; color:var(--text2); margin-bottom:0.3rem; letter-spacing:1px; text-transform:uppercase; }
+  .form-row input, .form-row select {
+    width:100%; padding:0.7rem 0.9rem;
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-family:'Exo 2',sans-serif;
+    font-size:0.95rem; outline:none; transition:border-color 0.2s;
+  }
+  .form-row input:focus, .form-row select:focus { border-color:var(--accent); }
+  .btn { padding:0.65rem 1.2rem; border:none; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:600; letter-spacing:1px; cursor:pointer; transition: all 0.2s; }
+  .btn-accent { background:var(--accent); color:#0a0f1e; }
+  .btn-accent:hover { opacity:0.85; }
+  .btn-danger { background:var(--danger); color:#fff; }
+  .btn-warn { background:var(--warn); color:#0a0f1e; }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--text2); }
+  .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+  .badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.75rem; font-weight:600; letter-spacing:1px; }
+  .badge-green { background:rgba(34,197,94,0.15); color:var(--success); border:1px solid rgba(34,197,94,0.3); }
+  .badge-red { background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid rgba(239,68,68,0.3); }
+  .badge-yellow { background:rgba(245,158,11,0.15); color:var(--warn); border:1px solid rgba(245,158,11,0.3); }
+  .status-msg { padding:0.5rem 0.8rem; border-radius:6px; font-size:0.85rem; margin-top:0.5rem; }
+  .status-msg.success { background:rgba(34,197,94,0.12); color:var(--success); border:1px solid rgba(34,197,94,0.2); }
+  .status-msg.error { background:rgba(239,68,68,0.12); color:var(--danger); border:1px solid rgba(239,68,68,0.2); }
+  .status-msg.info { background:rgba(0,212,170,0.08); color:var(--accent); border:1px solid rgba(0,212,170,0.2); }
 
-/* CONTROLS */
-.sctrl{padding:11px;display:flex;gap:9px}
-.bp{flex:1;padding:12px;background:var(--gd);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
-.bp:disabled{background:var(--g4);cursor:not-allowed}
-.bs{flex:1;padding:12px;background:var(--g1);color:var(--g8);border:1px solid var(--g2);border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  /* ── HOME PAGE ── */
+  #homePage { padding:0; }
+  .meal-selector {
+    display:flex; gap:0.6rem; padding:1rem;
+    background:var(--surface); border-bottom:1px solid var(--border);
+  }
+  .meal-btn {
+    flex:1; padding:0.7rem 0.3rem;
+    background:var(--surface2); border:2px solid var(--border);
+    border-radius:10px; color:var(--text2);
+    font-family:'Rajdhani',sans-serif; font-size:0.95rem; font-weight:600; letter-spacing:1px;
+    cursor:pointer; transition:all 0.2s; text-align:center;
+  }
+  .meal-btn .meal-icon { font-size:1.4rem; display:block; }
+  .meal-btn.active { border-color:var(--accent); color:var(--accent); background:rgba(0,212,170,0.08); }
+  .meal-btn:hover:not(.active) { border-color:var(--text2); }
 
-/* MANUAL */
-.man-sec{background:#fff;border-radius:var(--r);padding:13px;box-shadow:var(--sh);margin-top:11px}
-.man-title{font-size:11px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
-.s-list{max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
-.spk{padding:9px 11px;background:var(--g1);border:1px solid var(--g2);border-radius:var(--rs);text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;display:flex;align-items:center;gap:9px;width:100%}
-.spk:hover{background:var(--gp);border-color:var(--gl)}
-.sav{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:14px}
+  #cameraSection { position:relative; }
+  #videoFeed {
+    width:100%; max-height:62vh; object-fit:cover; display:block;
+    background:#000;
+  }
+  #faceCanvas {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    pointer-events:none;
+  }
+  #scanOverlay {
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:0.5rem;
+  }
+  #scanOverlay.hidden { display:none; }
+  .scan-frame {
+    width:180px; height:180px;
+    border:2px solid var(--accent);
+    border-radius:8px;
+    box-shadow: 0 0 0 4000px rgba(0,0,0,0.4);
+    animation: pulse-border 1.5s infinite;
+  }
+  @keyframes pulse-border {
+    0%,100% { border-color:var(--accent); box-shadow:0 0 0 4000px rgba(0,0,0,0.4), 0 0 20px rgba(0,212,170,0.3); }
+    50% { border-color:#00ffcc; box-shadow:0 0 0 4000px rgba(0,0,0,0.4), 0 0 30px rgba(0,255,200,0.6); }
+  }
+  #scanOverlay p { color:#fff; font-family:'Rajdhani',sans-serif; letter-spacing:2px; font-size:0.9rem; text-shadow:0 1px 4px rgba(0,0,0,0.8); }
 
-/* TOAST */
-.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-14px);background:var(--gd);color:#fff;padding:10px 20px;border-radius:28px;font-size:13px;font-weight:600;opacity:0;transition:all .28s;z-index:9998;white-space:nowrap;pointer-events:none}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+  #detectionResult {
+    padding:0.8rem 1rem;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    min-height:60px;
+    display:flex; align-items:center; gap:0.8rem;
+  }
+  #detectionResult .det-icon { font-size:2rem; }
+  #detectionResult .det-info { flex:1; }
+  #detectionResult .det-name { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; }
+  #detectionResult .det-sub { font-size:0.8rem; color:var(--text2); }
 
-/* HISTORY */
-.sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px}
-.sc{background:#fff;border-radius:var(--rs);padding:11px 7px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.sc .si{font-size:17px;margin-bottom:3px}
-.sc .sn{font-size:21px;font-weight:700;color:var(--gd);font-family:'DM Serif Display',serif}
-.sc .sl{font-size:10px;color:var(--g4);font-weight:500}
-.dfilter{display:flex;gap:9px;margin-bottom:12px}
-.dfilter input{flex:1;padding:9px 12px;border:1.5px solid var(--g2);border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif}
-.exp-btn{padding:9px 13px;background:var(--gd);color:#fff;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
-.ar{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border-radius:var(--rs);margin-bottom:6px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-.aa{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:15px}
-.ai2{flex:1}
-.an{font-size:12px;font-weight:600}
-.am2{font-size:10px;color:var(--g4)}
-.aml{background:var(--gp);color:var(--gd);font-size:10px;font-weight:700;padding:2px 7px;border-radius:18px}
-.abs-row{background:#fff1f2;border-left:3px solid var(--rd)}
-.abs-row .an{color:#9f1239}
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-.sec-t{font-family:'DM Serif Display',serif;font-size:17px;color:var(--gd)}
-.bdg{background:var(--gp);color:var(--gd);font-size:11px;font-weight:700;padding:3px 10px;border-radius:18px}
+  .cam-controls {
+    display:flex; gap:0.6rem; padding:0.8rem 1rem;
+    background:var(--surface); border-top:1px solid var(--border);
+  }
+  .cam-controls .btn { flex:1; }
 
-/* STUDENTS */
-.rc{background:#fff;border-radius:var(--r);padding:15px;box-shadow:var(--sh);margin-bottom:12px}
-.rc h3{font-family:'DM Serif Display',serif;font-size:15px;color:var(--gd);margin-bottom:12px}
-.fg2{margin-bottom:10px}
-.fl{font-size:11px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
-.fi{width:100%;padding:10px 12px;border:1.5px solid var(--g2);border-radius:var(--rs);font-size:13px;font-family:'DM Sans',sans-serif;background:#fff}
-.fi:focus{outline:none;border-color:var(--gl)}
+  /* ── STUDENT PAGE ── */
+  .student-list-wrap { max-height:300px; overflow-y:auto; }
+  table.student-table {
+    width:100%; border-collapse:collapse;
+    font-size:0.88rem;
+  }
+  table.student-table th {
+    background:var(--surface2); padding:0.5rem 0.7rem;
+    text-align:left; font-family:'Rajdhani',sans-serif;
+    font-size:0.85rem; letter-spacing:1px; color:var(--text2);
+    border-bottom:1px solid var(--border);
+    position:sticky; top:0;
+  }
+  table.student-table td {
+    padding:0.5rem 0.7rem;
+    border-bottom:1px solid rgba(30,58,95,0.5);
+    vertical-align:middle;
+  }
+  table.student-table tr:hover td { background:rgba(0,212,170,0.04); }
+  .avatar {
+    width:32px; height:32px; border-radius:50%;
+    background:linear-gradient(135deg,var(--accent3),var(--accent));
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem;
+    color:#fff; vertical-align:middle;
+  }
 
-/* REG CAMERA */
-.rcam-wrap{position:relative;width:100%;background:#0a0a0a;border-radius:var(--rs);overflow:hidden;aspect-ratio:4/3;display:none;margin-bottom:8px}
-.rcam-wrap.on{display:block}
-.rcam-wrap video{width:100%;height:100%;object-fit:cover;display:block}
-.rcam-fg{position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);width:120px;height:120px;border:2.5px solid rgba(255,255,255,.72);border-radius:50%;pointer-events:none;animation:pulse 2s ease-in-out infinite}
-.rprev{width:100%;border-radius:var(--rs);margin-bottom:8px;max-height:180px;object-fit:cover;display:none}
-.rprev.on{display:block}
-.rcam-ctrl{display:flex;gap:7px;margin-bottom:10px}
-.rcb{flex:1;padding:10px;border:none;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
-.rcb-open{background:var(--gd);color:#fff}
-.rcb-snap{background:var(--gl);color:var(--gd)}
-.rcb-stop{background:var(--g1);color:var(--g8);border:1px solid var(--g2)}
-.rcb-ret{background:var(--g1);color:var(--g8);border:1px solid var(--g2)}
+  /* Registration face preview */
+  #regVideoWrap { position:relative; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  #regVideo { width:100%; display:block; background:#000; height:180px; object-fit:cover; }
+  #regCanvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  .progress-bar-wrap { background:var(--bg); border-radius:6px; overflow:hidden; height:18px; border:1px solid var(--border); margin-top:0.5rem; position:relative; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent3),var(--accent)); transition: width 0.1s; border-radius:6px; }
+  .progress-bar-label { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:0.7rem; font-family:'Rajdhani',sans-serif; letter-spacing:1px; color:#fff; font-weight:700; }
 
-.scard{background:#fff;border-radius:var(--rs);padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px rgba(0,0,0,.05);margin-bottom:8px}
-.sav2{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:21px}
-.sinfo{flex:1}
-.sname{font-size:13px;font-weight:600}
-.sid{font-size:11px;color:var(--g4)}
-.bdel{background:#fff1f2;border:none;color:var(--rd);border-radius:7px;padding:6px 9px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif}
+  /* ── TRACK PAGE ── */
+  .track-date-row { display:flex; align-items:center; gap:0.7rem; margin-bottom:1rem; }
+  .track-date-row input[type="date"] {
+    flex:1; padding:0.65rem 0.9rem;
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-family:'Exo 2',sans-serif;
+    font-size:0.95rem; outline:none;
+  }
+  .meal-summary-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:0.7rem; margin-bottom:1rem; }
+  .meal-card {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:10px; padding:0.8rem 0.5rem; text-align:center;
+  }
+  .meal-card .meal-label { font-size:0.75rem; color:var(--text2); letter-spacing:1px; text-transform:uppercase; font-family:'Rajdhani',sans-serif; }
+  .meal-card .meal-count { font-family:'Rajdhani',sans-serif; font-size:2rem; font-weight:700; color:var(--accent); line-height:1; margin:0.2rem 0; }
+  .meal-card .meal-sub { font-size:0.72rem; color:var(--text2); }
+  .absent-section h4 { font-family:'Rajdhani',sans-serif; font-size:0.95rem; letter-spacing:1px; color:var(--accent2); margin-bottom:0.5rem; }
+  .absent-chip {
+    display:inline-block; margin:0.2rem;
+    background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25);
+    border-radius:20px; padding:0.2rem 0.7rem;
+    font-size:0.8rem; color:var(--danger);
+  }
 
-.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:4px}
-.empty{text-align:center;padding:32px 14px;color:var(--g4)}
-.empty-ic{font-size:40px;margin-bottom:9px}
-.empty p{font-size:13px}
-canvas{display:none}
+  /* ── SETUP PAGE ── */
+  .setup-status { display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; }
+  .dot { width:8px; height:8px; border-radius:50%; }
+  .dot.green { background:var(--success); box-shadow:0 0 6px var(--success); }
+  .dot.red { background:var(--danger); box-shadow:0 0 6px var(--danger); }
+  .dot.grey { background:var(--text2); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width:5px; height:5px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:500;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-overlay.hidden { display:none; }
+  .modal-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:1.5rem; width:340px; max-width:95vw;
+  }
+  .modal-box h3 { font-family:'Rajdhani',sans-serif; font-size:1.2rem; letter-spacing:1px; margin-bottom:1rem; color:var(--accent); }
+  .modal-actions { display:flex; gap:0.6rem; margin-top:1rem; }
+  .modal-actions .btn { flex:1; }
+
+  /* loading spinner */
+  .spinner {
+    width:20px; height:20px; border:2px solid var(--border);
+    border-top-color:var(--accent); border-radius:50%;
+    animation: spin 0.6s linear infinite; display:inline-block; vertical-align:middle;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* mobile safe bottom padding */
+  main { flex:1; padding-bottom:env(safe-area-inset-bottom,0); }
 </style>
 </head>
 <body>
 
-<!-- SETUP -->
-<div id="setup-ov">
-  <div id="setup-box">
-    <h2>⚙️ First Time Setup</h2>
-    <p>Enter your Anthropic API key to enable face recognition.</p>
-    <div class="api-note">
-      🔑 Get free API key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys → Create Key
+<!-- ═══════════════════════════════════════
+     LOCK SCREEN
+═══════════════════════════════════════ -->
+<div id="lockScreen">
+  <div class="logo">
+    <span class="big">GSC</span>
+    <p>Govardhan Skill Centre</p>
+  </div>
+  <div class="lock-card">
+    <h3>🔐 MEAL MANAGER</h3>
+    <div class="form-row">
+      <label>App Password</label>
+      <input type="password" id="pwdInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')unlock()"/>
     </div>
-    <input type="text" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off"/>
-    <p style="margin-top:4px;margin-bottom:10px">Google Sheet URL (optional — for cloud backup):</p>
-    <ol class="s-steps">
-      <li>Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> → New → Name: <strong>GSC Attendance</strong></li>
-      <li><strong>Extensions → Apps Script</strong> → Paste code from <strong>apps-script.gs</strong> → Save</li>
-      <li><strong>Deploy → New Deployment → Web App → Anyone → Deploy</strong> → Copy URL</li>
-    </ol>
-    <input type="url" id="sheet-url-input" placeholder="https://script.google.com/macros/s/.../exec (optional)"/>
-    <button id="setup-save" onclick="saveSetup()">Save &amp; Start App</button>
+    <button class="btn-primary" onclick="unlock()">UNLOCK</button>
+    <div id="lockError"></div>
   </div>
 </div>
 
-<div class="wrap">
-  <div class="hdr">
-    <div class="hdr-l">
-      <div class="hdr-ic">🍽️</div>
-      <div><div class="hdr-t">GSC Kitchen</div><div class="hdr-s">Face Attendance System</div></div>
-    </div>
-    <button class="hdr-btn" onclick="document.getElementById('setup-ov').style.display='flex'">⚙️ Setup</button>
-  </div>
+<!-- ═══════════════════════════════════════
+     MAIN APP
+═══════════════════════════════════════ -->
+<div id="app">
+  <header>
+    <div class="brand">GSC <span>Meal Manager</span></div>
+    <div class="time-badge" id="clockBadge">--:--</div>
+  </header>
 
-  <!-- SCAN -->
-  <div class="pg active" id="pg-scan">
-    <div class="meal-sel">
-      <div class="meal-lbl">Step 1 — Select Meal</div>
-      <div class="meal-row">
-        <button class="mb" onclick="selMeal(this,'Breakfast')"><span class="mi">🌅</span><span class="mn">Breakfast</span></button>
-        <button class="mb" onclick="selMeal(this,'Lunch')"><span class="mi">☀️</span><span class="mn">Lunch</span></button>
-        <button class="mb" onclick="selMeal(this,'Dinner')"><span class="mi">🌙</span><span class="mn">Dinner</span></button>
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('home')" id="tab-home">
+      <span class="icon">🏠</span> Home
+    </button>
+    <button class="tab-btn" onclick="switchTab('student')" id="tab-student">
+      <span class="icon">👤</span> Student
+    </button>
+    <button class="tab-btn" onclick="switchTab('track')" id="tab-track">
+      <span class="icon">📊</span> Track
+    </button>
+    <button class="tab-btn" onclick="switchTab('setup')" id="tab-setup">
+      <span class="icon">⚙️</span> Setup
+    </button>
+  </nav>
+
+  <main>
+
+    <!-- ══════════ HOME PAGE ══════════ -->
+    <div class="page active" id="homePage">
+      <div class="meal-selector">
+        <button class="meal-btn active" id="mbtn-breakfast" onclick="selectMeal('breakfast')">
+          <span class="meal-icon">🌅</span> Breakfast
+        </button>
+        <button class="meal-btn" id="mbtn-lunch" onclick="selectMeal('lunch')">
+          <span class="meal-icon">🍱</span> Lunch
+        </button>
+        <button class="meal-btn" id="mbtn-dinner" onclick="selectMeal('dinner')">
+          <span class="meal-icon">🌙</span> Dinner
+        </button>
+      </div>
+
+      <div id="cameraSection">
+        <video id="videoFeed" autoplay playsinline muted></video>
+        <canvas id="faceCanvas"></canvas>
+        <div id="scanOverlay">
+          <div class="scan-frame"></div>
+          <p>POINT CAMERA AT FACE</p>
+        </div>
+      </div>
+
+      <div id="detectionResult">
+        <span class="det-icon" id="detIcon">📷</span>
+        <div class="det-info">
+          <div class="det-name" id="detName">Camera Ready</div>
+          <div class="det-sub" id="detSub">Select meal type and start scanning</div>
+        </div>
+        <div id="detBadge"></div>
+      </div>
+
+      <div class="cam-controls">
+        <button class="btn btn-accent" id="startCamBtn" onclick="startCamera()">▶ Start Camera</button>
+        <button class="btn btn-ghost" id="stopCamBtn" onclick="stopCamera()" style="display:none">⏹ Stop</button>
+        <button class="btn btn-warn" id="markBtn" onclick="markPresent()" style="display:none">✅ Mark Present</button>
       </div>
     </div>
 
-    <div class="vcrd">
-      <div class="vwrap" id="vwrap">
-        <video id="scan-vid" autoplay playsinline muted></video>
-        <canvas id="scan-cv"></canvas>
-        <div class="vov" id="scan-idle">
-          <div class="fg"></div>
-          <div class="hint" id="scan-hint">Select a meal then open camera</div>
+    <!-- ══════════ STUDENT PAGE ══════════ -->
+    <div class="page" id="studentPage">
+      <!-- Student List -->
+      <div class="card">
+        <h3>📋 Student List <span id="stuCount" style="font-size:0.85rem;color:var(--text2)">(0)</span></h3>
+        <div class="student-list-wrap">
+          <table class="student-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Face</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody">
+              <tr><td colspan="4" style="text-align:center;color:var(--text2);padding:1rem">No students yet</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div id="ai-proc">
-          <div class="ai-spin"></div>
-          <div class="ai-txt">Recognising face…</div>
+      </div>
+
+      <!-- Register Student -->
+      <div class="card">
+        <h3>➕ Register Student</h3>
+        <div class="form-row">
+          <label>Student ID</label>
+          <input type="text" id="regId" placeholder="e.g. GSC001"/>
         </div>
-        <div id="name-ov">
-          <div class="name-box">
-            <div class="name-lbl">✅ Face Recognised</div>
-            <div class="name-main" id="ov-name">—</div>
-            <div class="name-id" id="ov-id"></div>
-            <div class="name-conf" id="ov-conf"></div>
-            <div class="name-btns">
-              <button class="btn-yes" id="btn-confirm-ov">✅ Mark Present</button>
-              <button class="btn-no" onclick="closeOv()">✕ Cancel</button>
-            </div>
+        <div class="form-row">
+          <label>Student Name</label>
+          <input type="text" id="regName" placeholder="Full name"/>
+        </div>
+        <div style="margin-bottom:0.8rem">
+          <div id="regVideoWrap" style="display:none">
+            <video id="regVideo" autoplay playsinline muted></video>
+            <canvas id="regCanvas"></canvas>
+          </div>
+          <div class="progress-bar-wrap" id="regProgressWrap" style="display:none">
+            <div class="progress-bar-fill" id="regProgressFill" style="width:0%"></div>
+            <span class="progress-bar-label" id="regProgressLabel">0%</span>
+          </div>
+          <p id="regStatus" style="font-size:0.8rem;color:var(--text2);margin-top:0.4rem;text-align:center"></p>
+        </div>
+        <div style="display:flex;gap:0.6rem">
+          <button class="btn btn-ghost" onclick="startFaceReg()" id="startRegBtn">📷 Open Camera</button>
+          <button class="btn btn-accent" onclick="captureAndRegister()" id="captureRegBtn" style="display:none">🎯 Capture Face</button>
+          <button class="btn btn-danger" onclick="stopFaceReg()" id="stopRegBtn" style="display:none">✖ Cancel</button>
+        </div>
+        <div id="regMsg"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ TRACK PAGE ══════════ -->
+    <div class="page" id="trackPage">
+      <div class="track-date-row">
+        <input type="date" id="trackDate" onchange="loadTrackData()"/>
+        <button class="btn btn-accent" onclick="loadTrackData()">🔄 Load</button>
+      </div>
+
+      <div class="meal-summary-grid">
+        <div class="meal-card">
+          <div class="meal-label">🌅 Breakfast</div>
+          <div class="meal-count" id="tc-breakfast">0</div>
+          <div class="meal-sub">Present</div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-label">🍱 Lunch</div>
+          <div class="meal-count" id="tc-lunch">0</div>
+          <div class="meal-sub">Present</div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-label">🌙 Dinner</div>
+          <div class="meal-count" id="tc-dinner">0</div>
+          <div class="meal-sub">Present</div>
+        </div>
+      </div>
+
+      <div class="card" id="absentCard">
+        <h3>❌ Absent Students</h3>
+        <div id="absentTabs" style="display:flex;gap:0.5rem;margin-bottom:0.8rem">
+          <button class="btn btn-ghost" style="flex:1;font-size:0.85rem" onclick="showAbsent('breakfast')">🌅 B</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:0.85rem" onclick="showAbsent('lunch')">🍱 L</button>
+          <button class="btn btn-ghost" style="flex:1;font-size:0.85rem" onclick="showAbsent('dinner')">🌙 D</button>
+        </div>
+        <div id="absentList">Select a meal to see absences</div>
+      </div>
+
+      <div class="card">
+        <h3>📤 Sync to Sheet</h3>
+        <p style="font-size:0.82rem;color:var(--text2);margin-bottom:0.8rem">Push today's attendance to your Google Sheet</p>
+        <button class="btn btn-accent" onclick="syncToSheet()">⬆ Push to Google Sheet</button>
+        <div id="syncMsg"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ SETUP PAGE ══════════ -->
+    <div class="page" id="setupPage">
+      <!-- Google Sheet Link -->
+      <div class="card">
+        <h3>🔗 Google Sheet (Database)</h3>
+        <div class="form-row">
+          <label>Web App URL (Apps Script)</label>
+          <input type="url" id="sheetUrl" placeholder="https://script.google.com/macros/s/.../exec"/>
+        </div>
+        <div style="display:flex;gap:0.6rem;align-items:center">
+          <button class="btn btn-accent" onclick="saveSheetUrl()">💾 Save</button>
+          <button class="btn btn-ghost" onclick="testSheetConnection()">🔌 Test</button>
+          <div class="setup-status" id="sheetStatus">
+            <div class="dot grey" id="sheetDot"></div>
+            <span id="sheetStatusTxt">Not configured</span>
           </div>
         </div>
-        <div id="noface-ov">
-          <div class="noface-box">
-            <div class="nf-icon">😶</div>
-            <div class="nf-title">No Face Detected</div>
-            <div class="nf-msg" id="nf-msg">Try better lighting and face the camera directly.</div>
-            <button class="btn-retry" onclick="closeOv()">↩ Try Again</button>
-          </div>
+        <div id="sheetMsg"></div>
+        <div style="margin-top:0.8rem;padding:0.8rem;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+          <p style="font-size:0.78rem;color:var(--text2);line-height:1.6">
+            <strong style="color:var(--accent)">Setup Guide:</strong><br>
+            1. Open Google Sheets → Extensions → Apps Script<br>
+            2. Paste the provided Apps Script code<br>
+            3. Deploy → Web App → Anyone access<br>
+            4. Paste the deployment URL above
+          </p>
         </div>
       </div>
-      <div class="sctrl">
-        <input type="file" id="file-in" accept="image/*" capture="user" style="display:none" onchange="handleFile(event)"/>
-        <button class="bs" onclick="document.getElementById('file-in').click()">🖼️ Upload</button>
-        <button class="bp" id="btn-cam" onclick="toggleCam()">📷 Open Camera</button>
-        <button class="bp" id="btn-snap" style="display:none" onclick="snapPhoto()">📸 Capture</button>
+
+      <!-- Sync from Sheet -->
+      <div class="card">
+        <h3>⬇ Pull Data from Sheet</h3>
+        <p style="font-size:0.82rem;color:var(--text2);margin-bottom:0.8rem">Pull student list from Google Sheet into app</p>
+        <button class="btn btn-accent" onclick="pullFromSheet()">📥 Pull Students</button>
+        <div id="pullMsg"></div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="card">
+        <h3>🔐 Change App Password</h3>
+        <div class="form-row">
+          <label>Current Password</label>
+          <input type="password" id="curPwd" placeholder="Current password"/>
+        </div>
+        <div class="form-row">
+          <label>New Password</label>
+          <input type="password" id="newPwd" placeholder="New password"/>
+        </div>
+        <div class="form-row">
+          <label>Confirm New Password</label>
+          <input type="password" id="confPwd" placeholder="Confirm password"/>
+        </div>
+        <button class="btn btn-accent" onclick="changePassword()">🔄 Update Password</button>
+        <div id="pwdMsg"></div>
+      </div>
+
+      <!-- App Info -->
+      <div class="card">
+        <h3>ℹ App Info</h3>
+        <p style="font-size:0.82rem;color:var(--text2);line-height:1.7">
+          <strong style="color:var(--text)">Version:</strong> 1.0.0<br>
+          <strong style="color:var(--text)">Students registered:</strong> <span id="infoStudentCount">0</span><br>
+          <strong style="color:var(--text)">Attendance records:</strong> <span id="infoAttendCount">0</span><br>
+          <strong style="color:var(--text)">Face detection:</strong> <span id="infoFaceModel" style="color:var(--warn)">Loading...</span>
+        </p>
+        <button class="btn btn-danger" style="margin-top:0.8rem;font-size:0.85rem" onclick="clearAllData()">🗑 Clear All Data</button>
       </div>
     </div>
 
-    <div class="man-sec">
-      <div class="man-title">Or select student manually</div>
-      <div class="s-list" id="man-list"></div>
-    </div>
-  </div>
+  </main>
+</div>
 
-  <!-- HISTORY -->
-  <div class="pg" id="pg-history">
-    <div class="dfilter">
-      <input type="date" id="fdate" onchange="loadHist()"/>
-      <button class="exp-btn" onclick="exportCSV()">⬇️ CSV</button>
+<!-- MODAL for delete confirm -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalMsg" style="color:var(--text2);font-size:0.9rem"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" id="modalConfirmBtn">Confirm</button>
     </div>
-    <div class="sg">
-      <div class="sc"><div class="si">🌅</div><div class="sn" id="sb">0</div><div class="sl">Breakfast</div></div>
-      <div class="sc"><div class="si">☀️</div><div class="sn" id="sl2">0</div><div class="sl">Lunch</div></div>
-      <div class="sc"><div class="si">🌙</div><div class="sn" id="sd">0</div><div class="sl">Dinner</div></div>
-    </div>
-    <div class="sec-hdr"><div class="sec-t">Attendance</div><span class="bdg" id="att-cnt">0</span></div>
-    <div id="att-list"></div>
-  </div>
-
-  <!-- STUDENTS -->
-  <div class="pg" id="pg-students">
-    <div class="rc">
-      <h3>➕ Register New Student</h3>
-      <div class="fg2"><label class="fl">Student Name</label><input class="fi" id="rname" placeholder="e.g. Rahul Sharma" type="text"/></div>
-      <div class="fg2"><label class="fl">Student ID / Roll No</label><input class="fi" id="rid" placeholder="e.g. GSC001" type="text"/></div>
-      <label class="fl" style="margin-bottom:7px">Student Photo</label>
-      <div class="rcam-wrap" id="rcam-wrap">
-        <video id="reg-vid" autoplay playsinline muted></video>
-        <div class="rcam-fg"></div>
-      </div>
-      <img id="reg-prev" class="rprev" alt=""/>
-      <canvas id="reg-cv"></canvas>
-      <div class="rcam-ctrl">
-        <button class="rcb rcb-open" id="rcb-open" onclick="openRegCam()">📷 Open Camera</button>
-        <button class="rcb rcb-snap" id="rcb-snap" style="display:none" onclick="snapReg()">📸 Capture</button>
-        <button class="rcb rcb-stop" id="rcb-stop" style="display:none" onclick="stopRegCam()">✕ Stop</button>
-        <button class="rcb rcb-ret" id="rcb-ret" style="display:none" onclick="retakeReg()">↩ Retake</button>
-      </div>
-      <button class="bp" onclick="registerStudent()" id="reg-btn">✅ Register Student</button>
-    </div>
-    <div class="sec-hdr"><div class="sec-t">Students</div><span class="bdg" id="s-cnt">0</span></div>
-    <div id="s-list"></div>
-  </div>
-
-  <div class="bnav">
-    <button class="ni active" id="ni-scan" onclick="showPg('scan')"><span class="ic">📷</span><span class="lb">Scan</span></button>
-    <button class="ni" id="ni-history" onclick="showPg('history')"><span class="ic">📋</span><span class="lb">History</span></button>
-    <button class="ni" id="ni-students" onclick="showPg('students')"><span class="ic">👥</span><span class="lb">Students</span></button>
   </div>
 </div>
-<div class="toast" id="toast"></div>
 
 <script>
-let SHEET_URL= localStorage.getItem('gsc_sheet')||'';
-let API_KEY  = localStorage.getItem('gsc_apikey')||'';
-let students = JSON.parse(localStorage.getItem('gsc_students')||'[]');
-let attendance=JSON.parse(localStorage.getItem('gsc_att')||'[]');
-let selMealVal=null, scanStream=null, regStream=null, regPhoto=null;
+// ══════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════
+const DEFAULT_PASSWORD = 'akm460@@';
+let APP_PASSWORD = localStorage.getItem('gsc_pwd') || DEFAULT_PASSWORD;
+let SHEET_URL = localStorage.getItem('gsc_sheet_url') || '';
 
-window.onload=()=>{
-  if(API_KEY) document.getElementById('setup-ov').style.display='none';
-  document.getElementById('fdate').value=today();
-  renderManual(); renderStudents(); loadHist();
-};
-function today(){return new Date().toISOString().split('T')[0];}
+// Students: [{id, name, descriptor: Float32Array serialized as array}]
+let students = JSON.parse(localStorage.getItem('gsc_students') || '[]');
+// Attendance: {date: {breakfast:[ids], lunch:[ids], dinner:[ids]}}
+let attendance = JSON.parse(localStorage.getItem('gsc_attendance') || '{}');
 
-function saveSetup(){
-  const k=document.getElementById('api-key-input').value.trim();
-  const u=document.getElementById('sheet-url-input').value.trim();
-  if(!k||!k.startsWith('sk-ant')){alert('Enter a valid Anthropic API key (starts with sk-ant)');return;}
-  API_KEY=k; SHEET_URL=u;
-  localStorage.setItem('gsc_apikey',k);
-  if(u) localStorage.setItem('gsc_sheet',u);
-  document.getElementById('setup-ov').style.display='none';
-  toast('✅ Setup saved!');
-}
+let currentMeal = 'breakfast';
+let cameraStream = null;
+let detectionInterval = null;
+let lastDetectedDescriptor = null;
+let lastDetectedStudent = null;
+let faceModelsLoaded = false;
+let faceModelsLoading = false;
 
-function showPg(p){
-  document.querySelectorAll('.pg').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(el=>el.classList.remove('active'));
-  document.getElementById('pg-'+p).classList.add('active');
-  document.getElementById('ni-'+p).classList.add('active');
-  if(p==='history') loadHist();
-  if(p==='students') renderStudents();
-}
+// Registration state
+let regStream = null;
+let regInterval = null;
+let regSamples = [];
+const REG_TARGET_SAMPLES = 30;
 
-function selMeal(btn,meal){
-  document.querySelectorAll('.mb').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel'); selMealVal=meal;
-  document.getElementById('scan-hint').textContent=meal+' selected — open camera or upload';
-}
-
-// ── SCAN CAMERA ───────────────────────────────────────────────────────────────
-async function toggleCam(){
-  if(!selMealVal){toast('⚠️ Select a meal first!');return;}
-  if(!scanStream){
-    try{
-      scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:640,height:480}});
-      document.getElementById('scan-vid').srcObject=scanStream;
-      document.getElementById('scan-idle').style.display='none';
-      document.getElementById('btn-cam').style.display='none';
-      document.getElementById('btn-snap').style.display='flex';
-    }catch(e){toast('❌ Camera: '+e.message);}
+// ══════════════════════════════════════════════
+//  LOCK / UNLOCK
+// ══════════════════════════════════════════════
+function unlock() {
+  const v = document.getElementById('pwdInput').value;
+  if (v === APP_PASSWORD) {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('app').style.flexDirection = 'column';
+    initApp();
+  } else {
+    document.getElementById('lockError').textContent = '❌ Wrong password';
+    document.getElementById('pwdInput').value = '';
+    setTimeout(() => document.getElementById('lockError').textContent = '', 2000);
   }
 }
-function stopScanCam(){
-  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
-  document.getElementById('scan-vid').srcObject=null;
-  document.getElementById('scan-idle').style.display='flex';
-  document.getElementById('btn-cam').style.display='flex';
-  document.getElementById('btn-snap').style.display='none';
-}
-function snapPhoto(){
-  const vid=document.getElementById('scan-vid');
-  const cv=document.getElementById('scan-cv');
-  cv.width=vid.videoWidth||640; cv.height=vid.videoHeight||480;
-  cv.getContext('2d').drawImage(vid,0,0);
-  stopScanCam();
-  analyzePhoto(cv.toDataURL('image/jpeg',0.82));
-}
-function handleFile(e){
-  if(!selMealVal){toast('⚠️ Select a meal first!');return;}
-  const f=e.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=ev=>analyzePhoto(ev.target.result);
-  r.readAsDataURL(f); e.target.value='';
+document.getElementById('pwdInput').addEventListener('keydown', e => { if(e.key==='Enter') unlock(); });
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function initApp() {
+  setInterval(updateClock, 1000);
+  updateClock();
+  setTodayDate();
+  renderStudentTable();
+  loadTrackData();
+  updateInfoPanel();
+  loadSheetUrlInput();
+  autoDetectMeal();
+  loadFaceModels();
 }
 
-// ── AI ANALYSIS — uses claude-haiku (fastest) ─────────────────────────────────
-async function analyzePhoto(dataUrl){
-  if(!API_KEY){toast('⚠️ No API key — open Setup');return;}
-  closeOv(); show('ai-proc');
-  const base64=dataUrl.split(',')[1];
-  const sList=students.length ? students.map(s=>s.name+'|'+s.id).join(', ') : 'NONE';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':API_KEY,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-ipc':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:120,
-        messages:[{role:'user',content:[
-          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:base64}},
-          {type:'text',text:'Students: '+sList+'\nIs there a human face? Which student?\nReply ONLY as JSON:\n{"face":true/false,"name":"exact name or null","id":"id or null","conf":"high/medium/low","why":"5 words"}'}
-        ]}]
-      })
-    });
-    hide('ai-proc');
-    if(!res.ok){
-      const err=await res.json().catch(()=>({}));
-      document.getElementById('nf-msg').textContent='API error: '+(err?.error?.message||res.statusText);
-      show('noface-ov'); return;
-    }
-    const data=await res.json();
-    const txt=data.content?.find(b=>b.type==='text')?.text||'{}';
-    let ai;
-    try{ai=JSON.parse(txt.replace(/```json|```/g,'').trim());}
-    catch{ai={face:false,why:'Parse error'};}
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockBadge').textContent =
+    now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+}
 
-    if(!ai.face){
-      document.getElementById('nf-msg').textContent=ai.why||'No face detected. Try again with better lighting.';
-      show('noface-ov'); return;
-    }
-    const matched=students.find(s=>s.name===ai.name||s.id===ai.id);
-    if(matched){
-      document.getElementById('ov-name').textContent=matched.name;
-      document.getElementById('ov-id').textContent=matched.id;
-      document.getElementById('ov-conf').textContent='Confidence: '+ai.conf;
-      document.getElementById('btn-confirm-ov').onclick=()=>markAtt(matched.name,matched.id);
-      show('name-ov');
-    } else {
-      document.getElementById('nf-msg').textContent=ai.name
-        ? '"'+ai.name+'" not in database. Register them first or select manually.'
-        : 'Face found but unknown. Select manually below.';
-      show('noface-ov');
-    }
-  }catch(e){
-    hide('ai-proc');
-    document.getElementById('nf-msg').textContent=e.message.includes('fetch')
-      ? 'Network error. Check internet connection.'
-      : e.message;
-    show('noface-ov');
+function setTodayDate() {
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('trackDate').value = today;
+}
+
+function autoDetectMeal() {
+  const h = new Date().getHours();
+  if (h >= 6 && h < 11) selectMeal('breakfast');
+  else if (h >= 11 && h < 16) selectMeal('lunch');
+  else selectMeal('dinner');
+}
+
+function saveStudents() {
+  localStorage.setItem('gsc_students', JSON.stringify(students));
+}
+
+function saveAttendance() {
+  localStorage.setItem('gsc_attendance', JSON.stringify(attendance));
+}
+
+function loadSheetUrlInput() {
+  document.getElementById('sheetUrl').value = SHEET_URL;
+  if (SHEET_URL) updateSheetStatus(true, 'Configured');
+}
+
+// ══════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tab + 'Page').classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'track') loadTrackData();
+  if (tab === 'setup') updateInfoPanel();
+  if (tab !== 'home') stopCamera();
+}
+
+// ══════════════════════════════════════════════
+//  FACE-API MODEL LOADING
+// ══════════════════════════════════════════════
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
+
+async function loadFaceModels() {
+  if (faceModelsLoaded || faceModelsLoading) return;
+  faceModelsLoading = true;
+  document.getElementById('infoFaceModel').textContent = 'Loading...';
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+    faceModelsLoaded = true;
+    document.getElementById('infoFaceModel').textContent = 'Ready ✅';
+    document.getElementById('infoFaceModel').style.color = 'var(--success)';
+  } catch(e) {
+    document.getElementById('infoFaceModel').textContent = 'Failed ❌';
+    document.getElementById('infoFaceModel').style.color = 'var(--danger)';
+    console.error('Model load error:', e);
   }
+  faceModelsLoading = false;
 }
 
-function show(id){document.getElementById(id).classList.add('on');}
-function hide(id){document.getElementById(id).classList.remove('on');}
-function closeOv(){hide('name-ov');hide('noface-ov');hide('ai-proc');}
-
-// ── MARK ──────────────────────────────────────────────────────────────────────
-async function markAtt(name,id){
-  if(!selMealVal){toast('⚠️ Select a meal first!');return;}
-  closeOv();
-  const d=today();
-  if(attendance.find(a=>a.date===d&&a.studentId===id&&a.meal===selMealVal)){
-    toast('⚠️ '+name+' already marked for '+selMealVal+'!'); return;
-  }
-  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  const rec={date:d,studentName:name,studentId:id,meal:selMealVal,time};
-  attendance.push(rec);
-  localStorage.setItem('gsc_att',JSON.stringify(attendance));
-  toast('✅ '+name+' — '+selMealVal+' marked!');
-  if(SHEET_URL) fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'addAttendance',...rec})}).catch(()=>{});
-}
-
-function renderManual(){
-  const el=document.getElementById('man-list');
-  if(!students.length){el.innerHTML='<p style="font-size:12px;color:var(--g4)">No students yet — add in Students tab</p>';return;}
-  el.innerHTML=students.map(s=>`
-    <button class="spk" onclick="markAtt('${s.name.replace(/'/g,"\\'")}','${s.id}')">
-      ${s.photo?`<img src="${s.photo}" class="sav" style="object-fit:cover"/>`:`<div class="sav">👤</div>`}
-      <div><div style="font-weight:600">${s.name}</div><div style="font-size:10px;color:var(--g4)">${s.id}</div></div>
-    </button>`).join('');
-}
-
-// ── HISTORY ───────────────────────────────────────────────────────────────────
-function loadHist(){
-  const d=document.getElementById('fdate').value;
-  const recs=attendance.filter(a=>a.date===d);
-  document.getElementById('sb').textContent=recs.filter(r=>r.meal==='Breakfast').length;
-  document.getElementById('sl2').textContent=recs.filter(r=>r.meal==='Lunch').length;
-  document.getElementById('sd').textContent=recs.filter(r=>r.meal==='Dinner').length;
-  document.getElementById('att-cnt').textContent=recs.length+' present';
-  const presIds=new Set(recs.map(r=>r.studentId));
-  const absent=students.filter(s=>!presIds.has(s.id));
-  const list=document.getElementById('att-list');
-  if(!recs.length&&!absent.length){list.innerHTML='<div class="empty"><div class="empty-ic">📋</div><p>No records for this date</p></div>';return;}
-  let html='';
-  [{m:'Breakfast',i:'🌅'},{m:'Lunch',i:'☀️'},{m:'Dinner',i:'🌙'}].forEach(({m,i})=>{
-    const mr=recs.filter(r=>r.meal===m); if(!mr.length) return;
-    html+=`<p style="font-size:11px;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.5px;margin:11px 0 5px">${i} ${m}</p>`;
-    mr.forEach(r=>{
-      const s=students.find(st=>st.id===r.studentId);
-      const av=s?.photo?`<img src="${s.photo}" class="aa" style="object-fit:cover"/>`:`<div class="aa">👤</div>`;
-      html+=`<div class="ar">${av}<div class="ai2"><div class="an">${r.studentName}</div><div class="am2">${r.studentId} · ${r.time}</div></div><span class="aml">${m}</span></div>`;
-    });
+// ══════════════════════════════════════════════
+//  MEAL SELECTION
+// ══════════════════════════════════════════════
+function selectMeal(meal) {
+  currentMeal = meal;
+  ['breakfast','lunch','dinner'].forEach(m => {
+    document.getElementById('mbtn-'+m).classList.toggle('active', m === meal);
   });
-  if(absent.length){
-    html+=`<p style="font-size:11px;font-weight:700;color:#9f1239;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 5px">❌ Absent (${absent.length})</p>`;
-    absent.forEach(s=>{html+=`<div class="ar abs-row"><div class="aa" style="background:#fff1f2">👤</div><div class="ai2"><div class="an">${s.name}</div><div class="am2">${s.id}</div></div></div>`;});
+}
+
+// ══════════════════════════════════════════════
+//  HOME CAMERA & DETECTION
+// ══════════════════════════════════════════════
+async function startCamera() {
+  if (!faceModelsLoaded) {
+    await loadFaceModels();
+    if (!faceModelsLoaded) { alert('Face models not loaded yet. Try again.'); return; }
   }
-  list.innerHTML=html;
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user', width:{ ideal:640 }, height:{ ideal:480 } } });
+    const video = document.getElementById('videoFeed');
+    video.srcObject = cameraStream;
+    await video.play();
+    document.getElementById('startCamBtn').style.display = 'none';
+    document.getElementById('stopCamBtn').style.display = '';
+    document.getElementById('scanOverlay').classList.remove('hidden');
+    startDetectionLoop();
+  } catch(e) {
+    alert('Camera error: ' + e.message);
+  }
 }
 
-function exportCSV(){
-  const d=document.getElementById('fdate').value;
-  const recs=attendance.filter(a=>a.date===d);
-  if(!recs.length){toast('No records to export');return;}
-  const rows=[['Date','Name','ID','Meal','Time'],...recs.map(r=>[r.date,r.studentName,r.studentId,r.meal,r.time])];
-  const blob=new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='GSC_'+d+'.csv';a.click();
-  toast('✅ CSV downloaded!');
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  clearInterval(detectionInterval);
+  detectionInterval = null;
+  const video = document.getElementById('videoFeed');
+  video.srcObject = null;
+  clearCanvas('faceCanvas');
+  document.getElementById('startCamBtn').style.display = '';
+  document.getElementById('stopCamBtn').style.display = 'none';
+  document.getElementById('markBtn').style.display = 'none';
+  document.getElementById('scanOverlay').classList.remove('hidden');
+  setDetResult('📷', 'Camera Ready', 'Select meal type and start scanning', '');
+  lastDetectedStudent = null;
 }
 
-// ── REG CAMERA ────────────────────────────────────────────────────────────────
-async function openRegCam(){
-  try{
-    regStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:640,height:480}});
-    document.getElementById('reg-vid').srcObject=regStream;
-    document.getElementById('rcam-wrap').classList.add('on');
-    document.getElementById('reg-prev').classList.remove('on');
-    document.getElementById('rcb-open').style.display='none';
-    document.getElementById('rcb-snap').style.display='flex';
-    document.getElementById('rcb-stop').style.display='flex';
-    document.getElementById('rcb-ret').style.display='none';
-  }catch(e){toast('❌ Camera: '+e.message);}
-}
-function stopRegCam(){
-  if(regStream){regStream.getTracks().forEach(t=>t.stop());regStream=null;}
-  document.getElementById('reg-vid').srcObject=null;
-  document.getElementById('rcam-wrap').classList.remove('on');
-  document.getElementById('rcb-open').style.display='flex';
-  document.getElementById('rcb-snap').style.display='none';
-  document.getElementById('rcb-stop').style.display='none';
-}
-function snapReg(){
-  const vid=document.getElementById('reg-vid');
-  const cv=document.getElementById('reg-cv');
-  cv.width=vid.videoWidth||640; cv.height=vid.videoHeight||480;
-  cv.getContext('2d').drawImage(vid,0,0);
-  const mini=document.createElement('canvas');mini.width=120;mini.height=120;
-  const ctx=mini.getContext('2d');
-  const s=Math.min(cv.width,cv.height);
-  ctx.drawImage(cv,(cv.width-s)/2,(cv.height-s)/2,s,s,0,0,120,120);
-  regPhoto=mini.toDataURL('image/jpeg',0.75);
-  stopRegCam();
-  const prev=document.getElementById('reg-prev');
-  prev.src=regPhoto; prev.classList.add('on');
-  document.getElementById('rcb-ret').style.display='flex';
-  document.getElementById('rcb-open').style.display='none';
-  toast('✅ Photo captured!');
-}
-function retakeReg(){
-  regPhoto=null;
-  document.getElementById('reg-prev').classList.remove('on');
-  document.getElementById('rcb-ret').style.display='none';
-  document.getElementById('rcb-open').style.display='flex';
+function clearCanvas(id) {
+  const canvas = document.getElementById(id);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// ── REGISTER ──────────────────────────────────────────────────────────────────
-async function registerStudent(){
-  const name=document.getElementById('rname').value.trim();
-  const id=document.getElementById('rid').value.trim().toUpperCase();
-  if(!name){toast('⚠️ Enter student name');return;}
-  if(!id){toast('⚠️ Enter student ID');return;}
-  if(students.find(s=>s.id===id)){toast('⚠️ ID already exists');return;}
-  const btn=document.getElementById('reg-btn');
-  btn.innerHTML='<span class="spin"></span> Saving…'; btn.disabled=true;
-  const student={name,id,photo:regPhoto||null,addedOn:today()};
-  students.push(student);
-  localStorage.setItem('gsc_students',JSON.stringify(students));
-  if(SHEET_URL) fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'addStudent',name,id,addedOn:student.addedOn})}).catch(()=>{});
-  document.getElementById('rname').value='';
-  document.getElementById('rid').value='';
-  regPhoto=null;
-  document.getElementById('reg-prev').classList.remove('on');
-  document.getElementById('rcb-ret').style.display='none';
-  document.getElementById('rcb-open').style.display='flex';
-  btn.innerHTML='✅ Register Student'; btn.disabled=false;
-  renderStudents(); renderManual();
-  toast('✅ '+name+' registered!');
+function startDetectionLoop() {
+  const video = document.getElementById('videoFeed');
+  const canvas = document.getElementById('faceCanvas');
+  detectionInterval = setInterval(async () => {
+    if (!video.srcObject) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    try {
+      const detections = await faceapi
+        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({ inputSize:320, scoreThreshold:0.4 }))
+        .withFaceLandmarks(true)
+        .withFaceDescriptors();
+
+      if (detections.length === 0) {
+        document.getElementById('scanOverlay').classList.remove('hidden');
+        setDetResult('🔍', 'Scanning...', 'No face detected', '');
+        lastDetectedStudent = null;
+        document.getElementById('markBtn').style.display = 'none';
+        return;
+      }
+      document.getElementById('scanOverlay').classList.add('hidden');
+
+      // Draw boxes
+      for (const det of detections) {
+        const box = det.detection.box;
+        ctx.strokeStyle = '#00d4aa';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        ctx.fillStyle = 'rgba(0,212,170,0.1)';
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+      }
+
+      // Match first face
+      const descriptor = detections[0].descriptor;
+      lastDetectedDescriptor = descriptor;
+      const match = findBestMatch(descriptor);
+
+      if (match) {
+        const today = new Date().toISOString().slice(0,10);
+        const alreadyMarked = attendance[today]?.[currentMeal]?.includes(match.id);
+        if (alreadyMarked) {
+          setDetResult('✅', match.name, `ID: ${match.id} — Already marked for ${currentMeal}`, 'green');
+          document.getElementById('markBtn').style.display = 'none';
+        } else {
+          setDetResult('✅', match.name, `ID: ${match.id} — Confidence: ${(100 - match.distance*100).toFixed(0)}%`, 'green');
+          lastDetectedStudent = match;
+          document.getElementById('markBtn').style.display = '';
+        }
+        // Green box for matched
+        const box = detections[0].detection.box;
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        ctx.fillStyle = 'rgba(34,197,94,0.07)';
+        ctx.fillRect(box.x, box.y, box.width, box.height);
+        ctx.fillStyle = '#22c55e';
+        ctx.font = 'bold 14px Exo 2';
+        ctx.fillText(match.name, box.x, box.y > 18 ? box.y - 5 : box.y + box.height + 15);
+      } else {
+        setDetResult('❓', 'No Match Found', 'Face not registered', 'red');
+        lastDetectedStudent = null;
+        document.getElementById('markBtn').style.display = 'none';
+        const box = detections[0].detection.box;
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 13px Exo 2';
+        ctx.fillText('NOT MATCHED', box.x, box.y > 18 ? box.y - 5 : box.y + box.height + 15);
+      }
+    } catch(e) { /* detection frame error */ }
+  }, 400);
 }
 
-function renderStudents(){
-  document.getElementById('s-cnt').textContent=students.length;
-  const el=document.getElementById('s-list');
-  if(!students.length){el.innerHTML='<div class="empty"><div class="empty-ic">👥</div><p>No students registered yet</p></div>';return;}
-  el.innerHTML=students.map((s,i)=>`
-    <div class="scard">
-      ${s.photo?`<img src="${s.photo}" class="sav2" style="object-fit:cover"/>`:`<div class="sav2">👤</div>`}
-      <div class="sinfo"><div class="sname">${s.name}</div><div class="sid">${s.id} · ${s.addedOn||''}</div></div>
-      <button class="bdel" onclick="delStudent(${i})">🗑️</button>
-    </div>`).join('');
-}
-function delStudent(i){
-  if(!confirm('Remove '+students[i].name+'?')) return;
-  students.splice(i,1);
-  localStorage.setItem('gsc_students',JSON.stringify(students));
-  renderStudents(); renderManual(); toast('Student removed');
+function setDetResult(icon, name, sub, type) {
+  document.getElementById('detIcon').textContent = icon;
+  document.getElementById('detName').textContent = name;
+  document.getElementById('detSub').textContent = sub;
+  const badge = document.getElementById('detBadge');
+  badge.innerHTML = '';
+  if (type === 'green') { badge.innerHTML = '<span class="badge badge-green">MATCHED</span>'; }
+  else if (type === 'red') { badge.innerHTML = '<span class="badge badge-red">UNKNOWN</span>'; }
 }
 
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('on');
-  setTimeout(()=>t.classList.remove('on'),2800);
+function findBestMatch(descriptor) {
+  if (students.length === 0) return null;
+  let best = null, bestDist = 0.55;
+  for (const s of students) {
+    if (!s.descriptor) continue;
+    const d = faceapi.euclideanDistance(descriptor, new Float32Array(s.descriptor));
+    if (d < bestDist) { bestDist = d; best = { ...s, distance: d }; }
+  }
+  return best;
 }
+
+function markPresent() {
+  if (!lastDetectedStudent) return;
+  const today = new Date().toISOString().slice(0,10);
+  if (!attendance[today]) attendance[today] = { breakfast:[], lunch:[], dinner:[] };
+  if (!attendance[today][currentMeal]) attendance[today][currentMeal] = [];
+  if (!attendance[today][currentMeal].includes(lastDetectedStudent.id)) {
+    attendance[today][currentMeal].push(lastDetectedStudent.id);
+    saveAttendance();
+    setDetResult('✅', lastDetectedStudent.name, `Marked Present — ${currentMeal} ✔`, 'green');
+    lastDetectedStudent = null;
+    document.getElementById('markBtn').style.display = 'none';
+    vibrate();
+  }
+}
+
+function vibrate() {
+  if (navigator.vibrate) navigator.vibrate(100);
+}
+
+// ══════════════════════════════════════════════
+//  STUDENT PAGE
+// ══════════════════════════════════════════════
+function renderStudentTable() {
+  const tbody = document.getElementById('studentTableBody');
+  document.getElementById('stuCount').textContent = `(${students.length})`;
+  if (students.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:1rem">No students yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = students.map(s => `
+    <tr>
+      <td>${s.id}</td>
+      <td>
+        <div class="avatar">${s.name.charAt(0).toUpperCase()}</div>
+        <span style="margin-left:6px">${s.name}</span>
+      </td>
+      <td>${s.descriptor ? '<span class="badge badge-green">✅ Done</span>' : '<span class="badge badge-red">❌ No</span>'}</td>
+      <td>
+        <button class="btn btn-danger" style="padding:0.3rem 0.6rem;font-size:0.78rem" onclick="deleteStudent('${s.id}')">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function startFaceReg() {
+  if (!faceModelsLoaded) {
+    document.getElementById('regStatus').textContent = 'Loading face models...';
+    await loadFaceModels();
+  }
+  try {
+    regStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:{ideal:320}, height:{ideal:240} } });
+    const v = document.getElementById('regVideo');
+    v.srcObject = regStream;
+    await v.play();
+    document.getElementById('regVideoWrap').style.display = '';
+    document.getElementById('regProgressWrap').style.display = '';
+    document.getElementById('startRegBtn').style.display = 'none';
+    document.getElementById('captureRegBtn').style.display = '';
+    document.getElementById('stopRegBtn').style.display = '';
+    regSamples = [];
+    updateRegProgress(0);
+    document.getElementById('regStatus').textContent = '📷 Camera on — click Capture Face to start collecting samples';
+    startRegLoop();
+  } catch(e) {
+    document.getElementById('regStatus').textContent = '❌ Camera error: ' + e.message;
+  }
+}
+
+function startRegLoop() {
+  const v = document.getElementById('regVideo');
+  const canvas = document.getElementById('regCanvas');
+  regInterval = setInterval(async () => {
+    if (!v.srcObject) return;
+    canvas.width = v.videoWidth;
+    canvas.height = v.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    try {
+      const det = await faceapi
+        .detectSingleFace(v, new faceapi.TinyFaceDetectorOptions({ inputSize:160, scoreThreshold:0.5 }))
+        .withFaceLandmarks(true).withFaceDescriptor();
+      if (det) {
+        const box = det.detection.box;
+        ctx.strokeStyle = regSamples.length >= REG_TARGET_SAMPLES ? '#22c55e' : '#00d4aa';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
+        document.getElementById('regStatus').textContent = `✅ Face detected — ${regSamples.length}/${REG_TARGET_SAMPLES} samples`;
+      } else {
+        document.getElementById('regStatus').textContent = '👁 No face detected — center your face';
+      }
+    } catch(e) {}
+  }, 300);
+}
+
+async function captureAndRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const id = document.getElementById('regId').value.trim();
+  if (!name || !id) { showMsg('regMsg', 'Enter Student ID and Name first', 'error'); return; }
+  if (students.find(s => s.id === id)) { showMsg('regMsg', 'Student ID already exists', 'error'); return; }
+
+  const v = document.getElementById('regVideo');
+  document.getElementById('regStatus').textContent = '🎯 Collecting face samples...';
+  document.getElementById('captureRegBtn').disabled = true;
+
+  regSamples = [];
+  const collect = setInterval(async () => {
+    try {
+      const det = await faceapi
+        .detectSingleFace(v, new faceapi.TinyFaceDetectorOptions({ inputSize:160, scoreThreshold:0.5 }))
+        .withFaceLandmarks(true).withFaceDescriptor();
+      if (det) {
+        regSamples.push(det.descriptor);
+        updateRegProgress(regSamples.length / REG_TARGET_SAMPLES * 100);
+        document.getElementById('regStatus').textContent = `Capturing: ${regSamples.length}/${REG_TARGET_SAMPLES}`;
+        if (regSamples.length >= REG_TARGET_SAMPLES) {
+          clearInterval(collect);
+          // Average descriptor
+          const avg = avgDescriptors(regSamples);
+          students.push({ id, name, descriptor: Array.from(avg) });
+          saveStudents();
+          renderStudentTable();
+          updateInfoPanel();
+          stopFaceReg();
+          document.getElementById('regId').value = '';
+          document.getElementById('regName').value = '';
+          showMsg('regMsg', `✅ ${name} registered successfully!`, 'success');
+          document.getElementById('captureRegBtn').disabled = false;
+        }
+      }
+    } catch(e) {}
+  }, 150);
+}
+
+function avgDescriptors(descs) {
+  const len = descs[0].length;
+  const out = new Float32Array(len);
+  for (const d of descs) for (let i=0;i<len;i++) out[i] += d[i];
+  for (let i=0;i<len;i++) out[i] /= descs.length;
+  return out;
+}
+
+function updateRegProgress(pct) {
+  document.getElementById('regProgressFill').style.width = pct + '%';
+  document.getElementById('regProgressLabel').textContent = Math.round(pct) + '%';
+}
+
+function stopFaceReg() {
+  clearInterval(regInterval);
+  if (regStream) { regStream.getTracks().forEach(t => t.stop()); regStream = null; }
+  document.getElementById('regVideo').srcObject = null;
+  document.getElementById('regVideoWrap').style.display = 'none';
+  document.getElementById('regProgressWrap').style.display = 'none';
+  document.getElementById('startRegBtn').style.display = '';
+  document.getElementById('captureRegBtn').style.display = 'none';
+  document.getElementById('stopRegBtn').style.display = 'none';
+  document.getElementById('regStatus').textContent = '';
+  updateRegProgress(0);
+}
+
+function deleteStudent(id) {
+  showConfirm('Delete Student?', `This will remove the student and their face data permanently.`, () => {
+    students = students.filter(s => s.id !== id);
+    saveStudents();
+    renderStudentTable();
+    updateInfoPanel();
+  });
+}
+
+// ══════════════════════════════════════════════
+//  TRACK PAGE
+// ══════════════════════════════════════════════
+function loadTrackData() {
+  const date = document.getElementById('trackDate').value;
+  const rec = attendance[date] || { breakfast:[], lunch:[], dinner:[] };
+  document.getElementById('tc-breakfast').textContent = (rec.breakfast||[]).length;
+  document.getElementById('tc-lunch').textContent = (rec.lunch||[]).length;
+  document.getElementById('tc-dinner').textContent = (rec.dinner||[]).length;
+}
+
+function showAbsent(meal) {
+  const date = document.getElementById('trackDate').value;
+  const present = (attendance[date]?.[meal] || []);
+  const absent = students.filter(s => !present.includes(s.id));
+  const el = document.getElementById('absentList');
+  if (absent.length === 0) {
+    el.innerHTML = `<span class="badge badge-green">✅ All present for ${meal}</span>`;
+  } else {
+    el.innerHTML = absent.map(s => `<span class="absent-chip">${s.name} (${s.id})</span>`).join('');
+  }
+}
+
+// ══════════════════════════════════════════════
+//  SETUP PAGE
+// ══════════════════════════════════════════════
+function saveSheetUrl() {
+  const url = document.getElementById('sheetUrl').value.trim();
+  SHEET_URL = url;
+  localStorage.setItem('gsc_sheet_url', url);
+  showMsg('sheetMsg', '✅ URL saved', 'success');
+  updateSheetStatus(true, 'Configured');
+}
+
+async function testSheetConnection() {
+  if (!SHEET_URL) { showMsg('sheetMsg', 'No URL configured', 'error'); return; }
+  showMsg('sheetMsg', '🔄 Testing...', 'info');
+  try {
+    const res = await fetch(SHEET_URL + '?action=ping', { mode:'no-cors' });
+    showMsg('sheetMsg', '✅ Connection reached (no-cors mode)', 'success');
+    updateSheetStatus(true, 'Reachable');
+  } catch(e) {
+    showMsg('sheetMsg', '❌ Failed: ' + e.message, 'error');
+    updateSheetStatus(false, 'Failed');
+  }
+}
+
+function updateSheetStatus(ok, msg) {
+  document.getElementById('sheetDot').className = 'dot ' + (ok ? 'green' : 'red');
+  document.getElementById('sheetStatusTxt').textContent = msg;
+}
+
+async function syncToSheet() {
+  if (!SHEET_URL) { showMsg('syncMsg', '❌ Configure Google Sheet URL in Setup first', 'error'); return; }
+  const date = document.getElementById('trackDate').value;
+  const rec = attendance[date] || { breakfast:[], lunch:[], dinner:[] };
+  showMsg('syncMsg', '<span class="spinner"></span> Syncing...', 'info');
+  try {
+    const payload = {
+      action: 'sync',
+      date,
+      breakfast: rec.breakfast || [],
+      lunch: rec.lunch || [],
+      dinner: rec.dinner || [],
+      students: students.map(s => ({ id:s.id, name:s.name }))
+    };
+    await fetch(SHEET_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    showMsg('syncMsg', '✅ Data pushed (check your Sheet)', 'success');
+  } catch(e) {
+    showMsg('syncMsg', '❌ Sync error: ' + e.message, 'error');
+  }
+}
+
+async function pullFromSheet() {
+  if (!SHEET_URL) { showMsg('pullMsg', '❌ Configure Google Sheet URL first', 'error'); return; }
+  showMsg('pullMsg', '<span class="spinner"></span> Pulling...', 'info');
+  try {
+    const res = await fetch(SHEET_URL + '?action=getStudents');
+    const data = await res.json();
+    if (data.students && Array.isArray(data.students)) {
+      for (const s of data.students) {
+        if (!students.find(x => x.id === s.id)) {
+          students.push({ id:s.id, name:s.name, descriptor:null });
+        }
+      }
+      saveStudents();
+      renderStudentTable();
+      updateInfoPanel();
+      showMsg('pullMsg', `✅ Pulled ${data.students.length} students`, 'success');
+    } else {
+      showMsg('pullMsg', '⚠ No student data in sheet response', 'error');
+    }
+  } catch(e) {
+    showMsg('pullMsg', '❌ Pull error: ' + e.message, 'error');
+  }
+}
+
+function changePassword() {
+  const cur = document.getElementById('curPwd').value;
+  const nw = document.getElementById('newPwd').value;
+  const cf = document.getElementById('confPwd').value;
+  if (cur !== APP_PASSWORD) { showMsg('pwdMsg','❌ Current password wrong','error'); return; }
+  if (nw.length < 4) { showMsg('pwdMsg','❌ New password too short (min 4)','error'); return; }
+  if (nw !== cf) { showMsg('pwdMsg','❌ Passwords do not match','error'); return; }
+  APP_PASSWORD = nw;
+  localStorage.setItem('gsc_pwd', nw);
+  showMsg('pwdMsg','✅ Password updated','success');
+  document.getElementById('curPwd').value = '';
+  document.getElementById('newPwd').value = '';
+  document.getElementById('confPwd').value = '';
+}
+
+function clearAllData() {
+  showConfirm('Clear All Data?', 'This deletes all students, face data, and attendance records. Cannot undo.', () => {
+    students = [];
+    attendance = {};
+    saveStudents();
+    saveAttendance();
+    renderStudentTable();
+    loadTrackData();
+    updateInfoPanel();
+  });
+}
+
+function updateInfoPanel() {
+  document.getElementById('infoStudentCount').textContent = students.length;
+  let total = 0;
+  for (const d of Object.values(attendance)) {
+    total += (d.breakfast||[]).length + (d.lunch||[]).length + (d.dinner||[]).length;
+  }
+  document.getElementById('infoAttendCount').textContent = total;
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function showMsg(id, msg, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<div class="status-msg ${type}">${msg}</div>`;
+  if (type !== 'info') setTimeout(() => el.innerHTML = '', 4000);
+}
+
+let modalCallback = null;
+function showConfirm(title, msg, cb) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMsg').textContent = msg;
+  document.getElementById('confirmModal').classList.remove('hidden');
+  modalCallback = cb;
+}
+document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+  closeModal(); if (modalCallback) modalCallback(); modalCallback = null;
+});
+function closeModal() { document.getElementById('confirmModal').classList.add('hidden'); }
 </script>
 </body>
 </html>
