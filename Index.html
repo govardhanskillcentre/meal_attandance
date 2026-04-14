@@ -179,6 +179,29 @@ tbody tr:hover td{background:var(--g50);}
 .dot-r{background:var(--red);}
 .dot-y{background:var(--amber);}
 
+/* ── FOOD MENU BAR ── */
+.food-bar{background:var(--card);border-bottom:1.5px solid var(--border);padding:.55rem .75rem;flex-shrink:0;}
+.food-row{display:flex;align-items:center;gap:.5rem;}
+.food-label{font-size:.68rem;font-weight:700;color:var(--g700);white-space:nowrap;min-width:60px;}
+.food-input{flex:1;padding:.45rem .75rem;background:var(--g50);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:500;outline:none;transition:border-color .2s;}
+.food-input:focus{border-color:var(--g500);}
+.food-save-btn{padding:.42rem .7rem;background:var(--g100);border:1px solid var(--g200);border-radius:var(--r-sm);color:var(--g700);font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;}
+.food-save-btn:active{background:var(--g200);}
+
+/* track sort bar */
+.sort-bar{display:flex;gap:.35rem;margin-bottom:.65rem;align-items:center;}
+.sort-lbl{font-size:.68rem;font-weight:700;color:var(--text3);white-space:nowrap;}
+.sort-btn{padding:.35rem .65rem;background:var(--bg);border:1.5px solid var(--border2);border-radius:20px;font-size:.7rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;}
+.sort-btn.sel{background:var(--g100);border-color:var(--g400);color:var(--g700);}
+
+/* food summary card */
+.food-summary{background:var(--g50);border:1px solid var(--g100);border-radius:var(--r-sm);padding:.6rem .75rem;margin-bottom:.6rem;}
+.food-summary .fs-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;}
+.food-summary .fs-row:last-child{margin-bottom:0;}
+.food-summary .fs-meal{font-size:.7rem;font-weight:700;color:var(--g700);min-width:68px;}
+.food-summary .fs-item{font-size:.8rem;color:var(--text);font-weight:600;flex:1;}
+.food-summary .fs-cnt{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--g600);background:var(--g100);border:1px solid var(--g200);border-radius:8px;padding:.1rem .45rem;}
+
 /* ── MODAL ── */
 .mov{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;}
 .mov.hidden{display:none;}
@@ -243,6 +266,16 @@ tbody tr:hover td{background:var(--g50);}
         <span class="mi">🌙</span>Dinner<div class="mhint">4 PM+</div>
       </button>
     </div>
+    <!-- Food menu for today's meal -->
+    <div class="food-bar" id="foodBar">
+      <div class="food-row">
+        <span class="food-label" id="foodMealLbl">🌅 Menu:</span>
+        <input class="food-input" id="foodInput" placeholder="Today's food items (e.g. Poha, Tea)"/>
+        <button class="food-save-btn" onclick="saveFood()">Save</button>
+      </div>
+      <div id="foodSaved" style="font-size:.68rem;color:var(--g600);font-weight:600;margin-top:.3rem;min-height:.8rem"></div>
+    </div>
+
     <div id="camArea">
       <div id="noCam">
         <div class="nc-c">📷</div>
@@ -323,6 +356,13 @@ tbody tr:hover td{background:var(--g50);}
         <div class="sc3"><div class="si">🍱</div><div class="sn" id="tcl">0</div><div class="sl2">Lunch</div><div class="ss" id="tsl">-</div></div>
         <div class="sc3"><div class="si">🌙</div><div class="sn" id="tcd">0</div><div class="sl2">Dinner</div><div class="ss" id="tsd">-</div></div>
       </div>
+      <!-- Food summary for the day -->
+      <div class="food-summary" id="foodSummaryCard">
+        <div class="fs-row"><span class="fs-meal">🌅 Breakfast</span><span class="fs-item" id="fs-b">—</span><span class="fs-cnt" id="fc-b">0</span></div>
+        <div class="fs-row"><span class="fs-meal">🍱 Lunch</span><span class="fs-item" id="fs-l">—</span><span class="fs-cnt" id="fc-l">0</span></div>
+        <div class="fs-row"><span class="fs-meal">🌙 Dinner</span><span class="fs-item" id="fs-d">—</span><span class="fs-cnt" id="fc-d">0</span></div>
+      </div>
+
       <div class="card">
         <div class="ch">
           <div class="ct">Attendance</div>
@@ -333,6 +373,12 @@ tbody tr:hover td{background:var(--g50);}
           <button class="mt" id="tt-l" onclick="stm('l')">🍱 Lunch</button>
           <button class="mt" id="tt-d" onclick="stm('d')">🌙 Dinner</button>
           <button class="mt" id="tt-all" onclick="stm('all')">📋 All</button>
+        </div>
+        <div class="sort-bar">
+          <span class="sort-lbl">Sort:</span>
+          <button class="sort-btn sel" id="sb-all" onclick="setSort('all')">All</button>
+          <button class="sort-btn" id="sb-present" onclick="setSort('present')">✅ Present</button>
+          <button class="sort-btn" id="sb-absent" onclick="setSort('absent')">❌ Absent</button>
         </div>
         <div id="attL" style="max-height:290px;overflow-y:auto;border-radius:var(--r-sm);border:1px solid var(--border)"></div>
       </div>
@@ -416,15 +462,16 @@ tbody tr:hover td{background:var(--g50);}
    face descriptor (128 floats) sent as comma-separated string in URL param.
 ═══════════════════════════════ */
 
-const SHEET = 'https://script.google.com/macros/s/AKfycbxbyFHZugUddfEs2va-2huCDhVpoYPGixrgZoLoO0Dn2P1Cm1mai1VOD_XZxZGCMS5_/exec';
+const SHEET = 'https://script.google.com/macros/s/AKfycbz-JR6FYo6m3Yv3xDcq2j9Dw9LWirv0wd-cxG7Vr9Xkva5TiD9fP78n0sMXM83hxo34/exec';
 const MODELS = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
 
 let pwd = 'akm460@@';
 let students = [];   // {id, name, desc:Float32Array}
 let att = {};        // {date:{b:[],l:[],d:[]}}
+let food = {};       // {date:{b:'Poha',l:'Rice',d:'Roti'}}
 let faceOK = false;
 let stream = null, facing = 'user', loop = null;
-let meal = 'b', tmeal = 'b';
+let meal = 'b', tmeal = 'b', sortMode = 'all';
 let rStream = null, rLoop = null, rSamp = [];
 let lastMark = {}, mCb = null;
 const NSAMP = 30;
@@ -498,9 +545,34 @@ function selMeal(m){
   meal=m;
   ['b','l','d'].forEach(x=>document.getElementById('mb-'+x).classList.toggle('sel',x===m));
   document.getElementById('hmp').textContent=MI[m]+' '+ML[m];
+  // Update food bar
+  document.getElementById('foodMealLbl').textContent=MI[m]+' Menu:';
+  const d=today(), saved=(food[d]&&food[d][m])||'';
+  document.getElementById('foodInput').value=saved;
+  document.getElementById('foodInput').placeholder=`Today's ${ML[m]} menu (e.g. Rice, Dal)`;
+  document.getElementById('foodSaved').textContent=saved?`✅ Saved: ${saved}`:'';
 }
 
-// ── TABS ──────────────────────────────────
+function saveFood(){
+  const d=today(), val=document.getElementById('foodInput').value.trim();
+  if(!food[d])food[d]={b:'',l:'',d:''};
+  food[d][meal]=val;
+  saveFood_store();
+  document.getElementById('foodSaved').textContent=val?`✅ Saved: ${val}`:'Cleared';
+  setTimeout(()=>{ document.getElementById('foodSaved').textContent=val?`✅ ${val}`:''; },2000);
+  // Push to sheet
+  api({action:'saveFood',date:d,meal,menu:val}).catch(()=>{});
+}
+
+function saveFood_store(){ localStorage.setItem('gsc_food',JSON.stringify(food)); }
+
+function setSort(m){
+  sortMode=m;
+  ['all','present','absent'].forEach(x=>document.getElementById('sb-'+x).classList.toggle('sel',x===m));
+  renderAttL();
+}
+
+
 function goTab(t){
   ['home','student','track','setup'].forEach(p=>{
     document.getElementById(p+'Page').classList.toggle('act',p===t);
@@ -754,6 +826,17 @@ async function loadTrack(fromSheet){
         saveAtt();
       }
     }catch(e){}
+    // Pull food menu for this date
+    try{
+      const fr=await api({action:'getFood',date});
+      if(fr.status==='ok'&&fr.food){
+        if(!food[date])food[date]={b:'',l:'',d:''};
+        food[date].b=fr.food.b||'';
+        food[date].l=fr.food.l||'';
+        food[date].d=fr.food.d||'';
+        saveFood_store();
+      }
+    }catch(e){}
   }
   const rec=att[date]||{b:[],l:[],d:[]};
   const n=students.length;
@@ -763,6 +846,14 @@ async function loadTrack(fromSheet){
   document.getElementById('tsb').textContent=(n-(rec.b||[]).length)+' absent';
   document.getElementById('tsl').textContent=(n-(rec.l||[]).length)+' absent';
   document.getElementById('tsd').textContent=(n-(rec.d||[]).length)+' absent';
+  // Food summary
+  const fd=food[date]||{b:'',l:'',d:''};
+  document.getElementById('fs-b').textContent=fd.b||'—';
+  document.getElementById('fs-l').textContent=fd.l||'—';
+  document.getElementById('fs-d').textContent=fd.d||'—';
+  document.getElementById('fc-b').textContent=(rec.b||[]).length;
+  document.getElementById('fc-l').textContent=(rec.l||[]).length;
+  document.getElementById('fc-d').textContent=(rec.d||[]).length;
   renderAttL();
 }
 
@@ -771,23 +862,34 @@ function renderAttL(){
   const rec=att[date]||{b:[],l:[],d:[]};
   const el=document.getElementById('attL');
   if(!students.length){el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.8rem">No students</div>';return;}
-  let html='';
-  students.forEach(s=>{
+  let list=students.map(s=>{
     const pb=(rec.b||[]).includes(s.id);
     const pl=(rec.l||[]).includes(s.id);
     const pd=(rec.d||[]).includes(s.id);
+    const isPresent=tmeal==='all'?(pb||pl||pd):tmeal==='b'?pb:tmeal==='l'?pl:pd;
+    return{s,pb,pl,pd,isPresent};
+  });
+  // Sort: present first or absent first
+  if(sortMode==='present') list=list.filter(x=>x.isPresent).concat(list.filter(x=>!x.isPresent));
+  else if(sortMode==='absent') list=list.filter(x=>!x.isPresent).concat(list.filter(x=>x.isPresent));
+  // Filter if needed
+  const show = sortMode==='present'?list.filter(x=>x.isPresent)
+              :sortMode==='absent'?list.filter(x=>!x.isPresent)
+              :list;
+  let html='';
+  show.forEach(({s,pb,pl,pd,isPresent})=>{
     let badges='';
     if(tmeal==='all'||tmeal==='b') badges+=pb?'<span class="badge bg">🌅</span>':'<span class="badge br">🌅</span>';
     if(tmeal==='all'||tmeal==='l') badges+=pl?'<span class="badge bg">🍱</span>':'<span class="badge br">🍱</span>';
     if(tmeal==='all'||tmeal==='d') badges+=pd?'<span class="badge bg">🌙</span>':'<span class="badge br">🌙</span>';
-    const absent=(tmeal==='all'&&!pb&&!pl&&!pd)||(tmeal==='b'&&!pb)||(tmeal==='l'&&!pl)||(tmeal==='d'&&!pd);
-    html+=`<div class="ai" style="${absent?'background:#fef2f2;':''}" >
+    html+=`<div class="ai" style="${!isPresent?'background:#fef2f2;':''}">
       <div class="ai-av">${s.name[0].toUpperCase()}</div>
       <div class="ai-info"><div class="ai-nm">${s.name}</div><div class="ai-id">${s.id}</div></div>
       <div class="ai-meals">${badges}</div>
     </div>`;
   });
-  el.innerHTML=html||'<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.8rem">No records</div>';
+  if(!show.length) html='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.8rem">No records for this filter</div>';
+  el.innerHTML=html;
 }
 
 // ── SETUP ─────────────────────────────────
@@ -914,6 +1016,7 @@ function closeMod(){document.getElementById('modal').classList.add('hidden');}
 // init
 students=loadStu();
 att=JSON.parse(localStorage.getItem('gsc_a')||'{}');
+food=JSON.parse(localStorage.getItem('gsc_food')||'{}');
 </script>
 </body>
 </html>
