@@ -6,282 +6,252 @@
 <title>GSC Meal Manager</title>
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap');
 :root{
   --bg:#f0faf2;--card:#fff;--g50:#f0fdf4;--g100:#dcfce7;--g200:#bbf7d0;
   --g300:#86efac;--g400:#4ade80;--g500:#22c55e;--g600:#16a34a;--g700:#15803d;
-  --g800:#166534;--text:#0f172a;--text2:#475569;--text3:#94a3b8;
-  --border:#d1fae5;--border2:#a7f3d0;
-  --red:#ef4444;--red-bg:#fef2f2;--amber:#f59e0b;--amber-bg:#fffbeb;
-  --sh:0 1px 3px rgba(0,0,0,.06);--sh-md:0 4px 16px rgba(22,163,74,.1);
-  --sh-lg:0 8px 32px rgba(22,163,74,.15);--r:14px;--r-sm:10px;--r-lg:20px;
+  --g800:#166534;--text:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --bdr:#d1fae5;--bdr2:#a7f3d0;
+  --red:#ef4444;--redbg:#fef2f2;--amb:#f59e0b;--ambbg:#fffbeb;
+  --sh:0 1px 3px rgba(0,0,0,.06);--shm:0 4px 16px rgba(22,163,74,.1);
+  --shl:0 8px 32px rgba(22,163,74,.15);--r:14px;--rs:10px;--rl:20px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;overflow:hidden;background:var(--bg);}
 body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);display:flex;flex-direction:column;}
-::-webkit-scrollbar{width:3px;height:3px;}
-::-webkit-scrollbar-thumb{background:var(--g300);border-radius:4px;}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:4px}
 
-/* ── LOADER ── */
-#loader{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
-.ll{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--g700),var(--g400));display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:var(--sh-lg);animation:bob 2s ease-in-out infinite;}
-@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.lb{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--g800);}
-.lt{width:200px;height:4px;background:var(--g100);border-radius:4px;overflow:hidden;}
-.lf{height:100%;background:linear-gradient(90deg,var(--g600),var(--g400));border-radius:4px;width:0;transition:width .3s;}
-#lmsg{font-size:.74rem;color:var(--g600);font-weight:600;}
+/* LOADER */
+#loader{position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.ll{width:68px;height:68px;border-radius:20px;background:linear-gradient(135deg,var(--g700),var(--g400));display:flex;align-items:center;justify-content:center;font-size:1.9rem;box-shadow:var(--shl);animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.lbar{width:190px;height:4px;background:var(--g100);border-radius:4px;overflow:hidden}
+.lfill{height:100%;background:linear-gradient(90deg,var(--g600),var(--g400));border-radius:4px;width:0;transition:width .4s}
+#lmsg{font-size:.72rem;color:var(--g600);font-weight:600}
 
-/* ── LOCK ── */
-#lock{position:fixed;inset:0;z-index:9000;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;gap:1.5rem;}
-.lk-ico{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,var(--g700),var(--g500));display:flex;align-items:center;justify-content:center;font-size:2.2rem;box-shadow:var(--sh-lg);}
-.lk-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--g800);text-align:center;}
-.lk-sub{font-size:.8rem;color:var(--text3);text-align:center;margin-top:-1rem;}
-.lk-card{width:100%;max-width:330px;background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:1.6rem;box-shadow:var(--sh-lg);}
-.fl{margin-bottom:.9rem;}
-.fl label{display:block;font-size:.7rem;font-weight:700;color:var(--g700);letter-spacing:.5px;text-transform:uppercase;margin-bottom:.35rem;}
-.fi{width:100%;padding:.78rem 1rem;background:var(--g50);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:500;outline:none;transition:border-color .2s,box-shadow .2s;}
-.fi:focus{border-color:var(--g500);box-shadow:0 0 0 3px rgba(34,197,94,.1);}
-.bp{width:100%;padding:.82rem;background:linear-gradient(135deg,var(--g600),var(--g500));border:none;border-radius:var(--r-sm);color:#fff;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,.28);transition:all .2s;}
-.bp:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(22,163,74,.38);}
-#lkerr{color:var(--red);font-size:.8rem;text-align:center;margin-top:.5rem;min-height:.9rem;font-weight:600;}
+/* LOCK */
+#lock{position:fixed;inset:0;z-index:9000;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;gap:1.5rem}
+.lk-ic{width:78px;height:78px;border-radius:22px;background:linear-gradient(135deg,var(--g700),var(--g500));display:flex;align-items:center;justify-content:center;font-size:2.1rem;box-shadow:var(--shl)}
+.lk-ti{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--g800)}
+.lk-sb{font-size:.78rem;color:var(--t3);margin-top:-1rem}
+.lk-cd{width:100%;max-width:320px;background:var(--card);border:1.5px solid var(--bdr2);border-radius:var(--rl);padding:1.5rem;box-shadow:var(--shl)}
+.fi{width:100%;padding:.75rem 1rem;background:var(--g50);border:1.5px solid var(--bdr);border-radius:var(--rs);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.95rem;font-weight:500;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:.8rem}
+.fi:focus{border-color:var(--g500);box-shadow:0 0 0 3px rgba(34,197,94,.1)}
+.bprim{width:100%;padding:.8rem;background:linear-gradient(135deg,var(--g600),var(--g500));border:none;border-radius:var(--rs);color:#fff;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,.28);transition:all .2s}
+.bprim:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(22,163,74,.38)}
+#lkerr{color:var(--red);font-size:.78rem;text-align:center;margin-top:.5rem;min-height:.9rem;font-weight:600}
 
-/* ── APP SHELL ── */
-#app{display:none;flex-direction:column;height:100%;}
-header{background:var(--card);border-bottom:1.5px solid var(--border);padding:.5rem .9rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:var(--sh);}
-.brand{display:flex;align-items:center;gap:.55rem;}
-.brand-ico{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--g600),var(--g400));display:flex;align-items:center;justify-content:center;font-size:.95rem;}
-.brand-txt{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:var(--g800);}
-.brand-txt small{display:block;font-size:.56rem;font-weight:600;color:var(--text3);font-family:'Plus Jakarta Sans',sans-serif;}
-.hpills{display:flex;align-items:center;gap:.4rem;}
-.mpill{display:flex;align-items:center;gap:.25rem;background:var(--g100);border:1px solid var(--g200);border-radius:20px;padding:.25rem .7rem;font-size:.7rem;font-weight:700;color:var(--g700);}
-.tpill{background:var(--g50);border:1px solid var(--border);border-radius:20px;padding:.25rem .65rem;font-size:.72rem;font-weight:700;color:var(--g600);font-family:'Syne',sans-serif;}
+/* APP */
+#app{display:none;flex-direction:column;height:100%}
+header{background:var(--card);border-bottom:1.5px solid var(--bdr);padding:.48rem .9rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:var(--sh)}
+.brd{display:flex;align-items:center;gap:.5rem}
+.brd-ic{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--g600),var(--g400));display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.brd-tx{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;color:var(--g800)}
+.brd-tx small{display:block;font-size:.54rem;font-weight:600;color:var(--t3);font-family:'Plus Jakarta Sans',sans-serif}
+.hpils{display:flex;gap:.4rem;align-items:center}
+.mpil{background:var(--g100);border:1px solid var(--g200);border-radius:20px;padding:.22rem .65rem;font-size:.68rem;font-weight:700;color:var(--g700)}
+.tpil{background:var(--g50);border:1px solid var(--bdr);border-radius:20px;padding:.22rem .6rem;font-size:.7rem;font-weight:700;color:var(--g600);font-family:'Syne',sans-serif}
 
-nav.bn{background:var(--card);border-top:1.5px solid var(--border);display:flex;flex-shrink:0;box-shadow:0 -1px 6px rgba(0,0,0,.04);}
-nav.bn button{flex:1;padding:.52rem .2rem .42rem;background:none;border:none;border-top:2.5px solid transparent;color:var(--text3);font-family:'Plus Jakarta Sans',sans-serif;font-size:.58rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px;}
-nav.bn button .ni{font-size:1.2rem;}
-nav.bn button.act{color:var(--g600);border-top-color:var(--g500);}
+nav.bn{background:var(--card);border-top:1.5px solid var(--bdr);display:flex;flex-shrink:0;box-shadow:0 -1px 6px rgba(0,0,0,.04)}
+nav.bn button{flex:1;padding:.5rem .2rem .4rem;background:none;border:none;border-top:2.5px solid transparent;color:var(--t3);font-family:'Plus Jakarta Sans',sans-serif;font-size:.58rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.bn button .ni{font-size:1.2rem}
+nav.bn button.act{color:var(--g600);border-top-color:var(--g500)}
 
-.page{display:none;flex:1;overflow:hidden;flex-direction:column;}
-.page.act{display:flex;}
-.scroll{flex:1;overflow-y:auto;padding:.85rem;}
+.page{display:none;flex:1;overflow:hidden;flex-direction:column}
+.page.act{display:flex}
+.scrl{flex:1;overflow-y:auto;padding:.85rem}
 
-/* ── CARDS ── */
-.card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:.75rem;box-shadow:var(--sh);}
-.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;}
-.ct{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;color:var(--g700);letter-spacing:.3px;text-transform:uppercase;}
-.cbg{font-size:.65rem;font-weight:700;background:var(--g100);color:var(--g700);border:1px solid var(--g200);border-radius:20px;padding:.12rem .5rem;}
-.fl{margin-bottom:.75rem;}
-.smsg{padding:.5rem .75rem;border-radius:var(--r-sm);font-size:.78rem;font-weight:600;margin-top:.45rem;}
-.smsg.ok{background:var(--g50);color:var(--g700);border:1px solid var(--g200);}
-.smsg.err{background:var(--red-bg);color:var(--red);border:1px solid #fecaca;}
-.smsg.inf{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
-.badge{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:20px;font-size:.66rem;font-weight:700;white-space:nowrap;}
-.bg{background:var(--g100);color:var(--g700);border:1px solid var(--g200);}
-.br{background:var(--red-bg);color:var(--red);border:1px solid #fecaca;}
-.ba{background:var(--amber-bg);color:#92400e;border:1px solid #fde68a;}
-.btn{padding:.55rem .9rem;border:none;border-radius:var(--r-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.35rem;}
-.btn-g{background:linear-gradient(135deg,var(--g600),var(--g500));color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.22);}
-.btn-g:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,163,74,.32);}
-.btn-o{background:transparent;border:1.5px solid var(--g500);color:var(--g600);}
-.btn-o:hover{background:var(--g50);}
-.btn-gh{background:var(--bg);border:1.5px solid var(--border2);color:var(--text2);}
-.btn-gh:hover{border-color:var(--g400);color:var(--g600);}
-.btn-r{background:var(--red-bg);border:1.5px solid #fecaca;color:var(--red);}
-.btn-sm{padding:.38rem .7rem;font-size:.74rem;}
-.btn-fw{width:100%;justify-content:center;}
-.sp{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--g500);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg);}}
+/* CARDS */
+.card{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:.95rem;margin-bottom:.75rem;box-shadow:var(--sh)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.ct{font-family:'Syne',sans-serif;font-size:.76rem;font-weight:700;color:var(--g700);letter-spacing:.3px;text-transform:uppercase}
+.cbg{font-size:.63rem;font-weight:700;background:var(--g100);color:var(--g700);border:1px solid var(--g200);border-radius:20px;padding:.1rem .48rem}
+.fl{margin-bottom:.72rem}
+.fl label{display:block;font-size:.68rem;font-weight:700;color:var(--t2);letter-spacing:.4px;text-transform:uppercase;margin-bottom:.28rem}
+.smsg{padding:.48rem .72rem;border-radius:var(--rs);font-size:.77rem;font-weight:600;margin-top:.4rem}
+.smsg.ok{background:var(--g50);color:var(--g700);border:1px solid var(--g200)}
+.smsg.err{background:var(--redbg);color:var(--red);border:1px solid #fecaca}
+.smsg.inf{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.bdg{display:inline-flex;align-items:center;padding:.13rem .48rem;border-radius:20px;font-size:.64rem;font-weight:700;white-space:nowrap}
+.bg{background:var(--g100);color:var(--g700);border:1px solid var(--g200)}
+.br{background:var(--redbg);color:var(--red);border:1px solid #fecaca}
+.ba{background:var(--ambbg);color:#92400e;border:1px solid #fde68a}
+.btn{padding:.52rem .88rem;border:none;border-radius:var(--rs);font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.3rem}
+.btg{background:linear-gradient(135deg,var(--g600),var(--g500));color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.22)}
+.btg:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(22,163,74,.32)}
+.bto{background:transparent;border:1.5px solid var(--g500);color:var(--g600)}
+.bto:hover{background:var(--g50)}
+.btgh{background:var(--bg);border:1.5px solid var(--bdr2);color:var(--t2)}
+.btgh:hover{border-color:var(--g400);color:var(--g600)}
+.btr{background:var(--redbg);border:1.5px solid #fecaca;color:var(--red)}
+.btsm{padding:.35rem .65rem;font-size:.72rem}
+.btfw{width:100%;justify-content:center}
+.sp{display:inline-block;width:13px;height:13px;border:2px solid var(--bdr2);border-top-color:var(--g500);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── HOME ── */
-#homePage{background:var(--bg);}
-.meal-bar{background:var(--card);border-bottom:1.5px solid var(--border);padding:.65rem;display:flex;gap:.45rem;flex-shrink:0;}
-.mb{flex:1;padding:.6rem .2rem;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-family:'Plus Jakarta Sans',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;}
-.mb .mi{font-size:1.25rem;display:block;margin-bottom:2px;}
-.mb .mhint{font-size:.56rem;color:var(--text3);margin-top:1px;}
-.mb.sel{border-color:var(--g500);color:var(--g700);background:var(--g50);box-shadow:0 2px 8px rgba(22,163,74,.1);}
-.mb.now{border-color:var(--g400);background:var(--g100);}
+/* HOME */
+#homePage{background:var(--bg)}
+.mbar{background:var(--card);border-bottom:1.5px solid var(--bdr);padding:.6rem;display:flex;gap:.42rem;flex-shrink:0}
+.mb{flex:1;padding:.55rem .2rem;background:var(--bg);border:1.5px solid var(--bdr2);border-radius:var(--rs);color:var(--t2);font-family:'Plus Jakarta Sans',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.mb .mi{font-size:1.2rem;display:block;margin-bottom:1px}
+.mb .mh{font-size:.54rem;color:var(--t3);margin-top:1px}
+.mb.sel{border-color:var(--g500);color:var(--g700);background:var(--g50);box-shadow:0 2px 8px rgba(22,163,74,.1)}
+.mb.now{border-color:var(--g400);background:var(--g100)}
+.fbar{background:var(--card);border-bottom:1.5px solid var(--bdr);padding:.5rem .7rem;flex-shrink:0;display:flex;align-items:center;gap:.5rem}
+.fbarlbl{font-size:.68rem;font-weight:700;color:var(--g700);white-space:nowrap;min-width:58px}
+.fbarinp{flex:1;padding:.4rem .7rem;background:var(--g50);border:1.5px solid var(--bdr);border-radius:var(--rs);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.8rem;outline:none;transition:border-color .2s}
+.fbarinp:focus{border-color:var(--g500)}
+.fbarsbtn{padding:.38rem .65rem;background:var(--g100);border:1px solid var(--g200);border-radius:var(--rs);color:var(--g700);font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap}
 
-#camArea{flex:1;position:relative;background:#000;overflow:hidden;}
-#vid{width:100%;height:100%;object-fit:cover;display:none;}
-#cvs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
-#noCam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;background:var(--bg);}
-.nc-c{width:80px;height:80px;border-radius:50%;background:var(--g100);border:2px dashed var(--g300);display:flex;align-items:center;justify-content:center;font-size:2rem;}
-.nc-t{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--g700);}
-.nc-s{font-size:.76rem;color:var(--text3);text-align:center;max-width:200px;line-height:1.5;}
-.nc-btn{padding:.75rem 1.8rem;background:linear-gradient(135deg,var(--g600),var(--g500));border:none;border-radius:var(--r);color:#fff;font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;box-shadow:var(--sh-md);transition:all .2s;}
-.nc-btn:hover{transform:translateY(-2px);box-shadow:var(--sh-lg);}
+/* CAMERA */
+#camArea{flex:1;position:relative;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#vid{width:100%;height:100%;object-fit:cover;display:none}
+#cvs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#noCam{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.85rem;background:var(--bg)}
+.ncic{width:76px;height:76px;border-radius:50%;background:var(--g100);border:2px dashed var(--g300);display:flex;align-items:center;justify-content:center;font-size:1.9rem}
+.ncti{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;color:var(--g700)}
+.ncsb{font-size:.74rem;color:var(--t3);text-align:center;max-width:200px;line-height:1.5}
+.ncbt{padding:.72rem 1.7rem;background:linear-gradient(135deg,var(--g600),var(--g500));border:none;border-radius:var(--r);color:#fff;font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;box-shadow:var(--shm);transition:all .2s}
+#sg{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:180px;height:180px;display:none;pointer-events:none}
+.sc{position:absolute;width:20px;height:20px}
+.sc.tl{top:0;left:0;border-top:3px solid var(--g400);border-left:3px solid var(--g400);border-radius:4px 0 0 0}
+.sc.tr{top:0;right:0;border-top:3px solid var(--g400);border-right:3px solid var(--g400);border-radius:0 4px 0 0}
+.sc.bl{bottom:0;left:0;border-bottom:3px solid var(--g400);border-left:3px solid var(--g400);border-radius:0 0 0 4px}
+.sc.br{bottom:0;right:0;border-bottom:3px solid var(--g400);border-right:3px solid var(--g400);border-radius:0 0 4px 0}
+.sl{position:absolute;left:3px;right:3px;height:2px;background:linear-gradient(90deg,transparent,var(--g400),transparent);animation:scanl 2s ease-in-out infinite;box-shadow:0 0 8px var(--g400)}
+@keyframes scanl{0%{top:3px}100%{top:calc(100% - 5px)}}
+#hud{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(255,255,255,.97) 30%);padding:2rem .9rem .65rem;display:none}
+.hudc{background:var(--card);border:1.5px solid var(--bdr2);border-radius:var(--r);padding:.72rem .9rem;display:flex;align-items:center;gap:.72rem;box-shadow:var(--shm)}
+.hudav{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--g700),var(--g500));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.hudnm{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;color:var(--text)}
+.hudsb{font-size:.68rem;color:var(--t2);margin-top:1px}
+#cctrl{position:absolute;top:.6rem;right:.6rem;display:none;flex-direction:column;gap:.4rem}
+.cbt{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);border:1px solid var(--bdr2);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:var(--sh);backdrop-filter:blur(6px)}
+.cbt.stop{border-color:#fecaca;background:rgba(254,242,242,.92)}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.55}}
+.flash{animation:flash .4s ease}
 
-/* scan corners */
-#sg{position:absolute;top:50%;left:50%;transform:translate(-50%,-58%);width:185px;height:185px;display:none;pointer-events:none;}
-.sc{position:absolute;width:22px;height:22px;}
-.sc.tl{top:0;left:0;border-top:3px solid var(--g400);border-left:3px solid var(--g400);border-radius:4px 0 0 0;}
-.sc.tr{top:0;right:0;border-top:3px solid var(--g400);border-right:3px solid var(--g400);border-radius:0 4px 0 0;}
-.sc.bl{bottom:0;left:0;border-bottom:3px solid var(--g400);border-left:3px solid var(--g400);border-radius:0 0 0 4px;}
-.sc.br{bottom:0;right:0;border-bottom:3px solid var(--g400);border-right:3px solid var(--g400);border-radius:0 0 4px 0;}
-.sl{position:absolute;left:3px;right:3px;height:2px;background:linear-gradient(90deg,transparent,var(--g400),transparent);animation:scan 2s ease-in-out infinite;box-shadow:0 0 8px var(--g400);}
-@keyframes scan{0%{top:3px;}100%{top:calc(100% - 5px);}}
+/* STUDENT */
+.stuwrap{overflow-x:auto;max-height:230px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead th{background:var(--g50);padding:.42rem .62rem;text-align:left;font-size:.67rem;font-weight:700;color:var(--g700);letter-spacing:.3px;text-transform:uppercase;border-bottom:1.5px solid var(--bdr2);position:sticky;top:0}
+tbody td{padding:.42rem .62rem;border-bottom:1px solid var(--bdr);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--g50)}
+.av{width:25px;height:25px;border-radius:7px;background:linear-gradient(135deg,var(--g700),var(--g400));display:inline-flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:800;color:#fff;vertical-align:middle;margin-right:4px}
+.camsel{display:flex;gap:.4rem;margin-bottom:.6rem}
+.camopt{flex:1;padding:.45rem .3rem;background:var(--bg);border:1.5px solid var(--bdr2);border-radius:var(--rs);color:var(--t2);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.camopt.sel{border-color:var(--g500);color:var(--g700);background:var(--g50)}
+#rCW{position:relative;border-radius:var(--rs);overflow:hidden;border:1.5px solid var(--bdr2);margin-bottom:.5rem}
+#rVid{width:100%;height:150px;object-fit:cover;background:#000;display:block}
+#rCvs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pb{background:var(--g100);border-radius:6px;height:14px;overflow:hidden;position:relative;border:1px solid var(--g200)}
+.pbf{height:100%;background:linear-gradient(90deg,var(--g700),var(--g500),var(--g300));border-radius:6px;transition:width .1s}
+.pbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-family:'Syne',sans-serif;color:var(--g800);font-weight:700}
 
-#hud{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(255,255,255,.97) 30%);padding:2.2rem .9rem .7rem;display:none;}
-.hud-c{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r);padding:.75rem .9rem;display:flex;align-items:center;gap:.75rem;box-shadow:var(--sh-md);}
-.hud-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--g700),var(--g500));display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;}
-.hud-nm{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);}
-.hud-sb{font-size:.7rem;color:var(--text2);margin-top:1px;}
+/* TRACK */
+.dbar{display:flex;gap:.45rem;margin-bottom:.72rem;align-items:center}
+.dbar input[type=date]{flex:1;padding:.6rem .8rem;background:var(--card);border:1.5px solid var(--bdr2);border-radius:var(--rs);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.86rem;font-weight:600;outline:none}
+.dbar input:focus{border-color:var(--g500)}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:background .3s}
+.sg3{display:grid;grid-template-columns:repeat(3,1fr);gap:.52rem;margin-bottom:.72rem}
+.sc3{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:.68rem .38rem;text-align:center;box-shadow:var(--sh)}
+.sc3 .si{font-size:1.15rem}
+.sc3 .sn{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;color:var(--g600);line-height:1}
+.sc3 .sl{font-size:.59rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;margin-top:.1rem}
+.sc3 .ss{font-size:.62rem;color:var(--g700);font-weight:600;margin-top:.1rem}
+.mtabs{display:flex;gap:.32rem;margin-bottom:.6rem}
+.mt{flex:1;padding:.42rem .2rem;text-align:center;background:var(--bg);border:1.5px solid var(--bdr2);border-radius:var(--rs);color:var(--t2);font-size:.68rem;font-weight:700;cursor:pointer;transition:all .2s}
+.mt.sel{border-color:var(--g500);color:var(--g700);background:var(--g50)}
+.srtbar{display:flex;gap:.3rem;margin-bottom:.6rem;align-items:center}
+.srtlbl{font-size:.66rem;font-weight:700;color:var(--t3);white-space:nowrap}
+.srtbtn{padding:.32rem .6rem;background:var(--bg);border:1.5px solid var(--bdr2);border-radius:20px;font-size:.68rem;font-weight:700;color:var(--t2);cursor:pointer;transition:all .15s}
+.srtbtn.sel{background:var(--g100);border-color:var(--g400);color:var(--g700)}
+.ai{display:flex;align-items:center;gap:.6rem;padding:.52rem .6rem;border-bottom:1px solid var(--bdr);transition:background .15s}
+.ai:last-child{border-bottom:none}
+.ai-av{width:29px;height:29px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--g700),var(--g400));display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff}
+.ai-nm{font-size:.8rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-id{font-size:.66rem;color:var(--t3)}
+.fsum{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:.55rem .7rem;margin-bottom:.65rem}
+.fsrow{display:flex;align-items:center;gap:.45rem;margin-bottom:.22rem}
+.fsrow:last-child{margin-bottom:0}
+.fsml{font-size:.68rem;font-weight:700;color:var(--g700);min-width:65px}
+.fsit{font-size:.78rem;color:var(--text);font-weight:600;flex:1}
+.fscnt{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;color:var(--g600);background:var(--g100);border:1px solid var(--g200);border-radius:7px;padding:.08rem .42rem}
 
-#cctrl{position:absolute;top:.65rem;right:.65rem;display:none;flex-direction:column;gap:.45rem;}
-.cbt{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:var(--sh);backdrop-filter:blur(6px);}
-.cbt.stop{border-color:#fecaca;background:rgba(254,242,242,.92);}
+/* SETUP */
+.cdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.cdot-g{background:var(--g500);box-shadow:0 0 5px rgba(34,197,94,.5)}
+.cdot-r{background:var(--red)}
+.cdot-y{background:var(--amb)}
 
-@keyframes flash{0%,100%{opacity:1;}50%{opacity:.55;}}
-.flash{animation:flash .4s ease;}
-
-/* ── STUDENT ── */
-.stu-wrap{overflow-x:auto;max-height:240px;overflow-y:auto;}
-table{width:100%;border-collapse:collapse;font-size:.81rem;}
-thead th{background:var(--g50);padding:.45rem .65rem;text-align:left;font-size:.68rem;font-weight:700;color:var(--g700);letter-spacing:.3px;text-transform:uppercase;border-bottom:1.5px solid var(--border2);position:sticky;top:0;}
-tbody td{padding:.45rem .65rem;border-bottom:1px solid var(--border);vertical-align:middle;}
-tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover td{background:var(--g50);}
-.av{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--g700),var(--g400));display:inline-flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff;vertical-align:middle;margin-right:4px;}
-
-/* reg cam */
-#rCW{position:relative;border-radius:var(--r-sm);overflow:hidden;border:1.5px solid var(--border2);margin-bottom:.55rem;}
-#rVid{width:100%;height:155px;object-fit:cover;background:#000;display:block;}
-#rCvs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
-.pb{background:var(--g100);border-radius:6px;height:15px;overflow:hidden;position:relative;border:1px solid var(--g200);}
-.pbf{height:100%;background:linear-gradient(90deg,var(--g700),var(--g500),var(--g300));border-radius:6px;transition:width .1s;}
-.pbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.66rem;font-family:'Syne',sans-serif;color:var(--g800);font-weight:700;}
-
-/* ── TRACK ── */
-.dbar{display:flex;gap:.45rem;margin-bottom:.75rem;}
-.dbar input[type=date]{flex:1;padding:.62rem .82rem;background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;font-weight:600;outline:none;}
-.dbar input:focus{border-color:var(--g500);}
-.sg3{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-bottom:.75rem;}
-.sc3{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:.75rem .4rem;text-align:center;box-shadow:var(--sh);}
-.sc3 .si{font-size:1.2rem;}
-.sc3 .sn{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--g600);line-height:1;}
-.sc3 .sl2{font-size:.6rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-top:.1rem;}
-.sc3 .ss{font-size:.63rem;color:var(--g700);font-weight:600;margin-top:.1rem;}
-.mtabs{display:flex;gap:.35rem;margin-bottom:.65rem;}
-.mt{flex:1;padding:.45rem .2rem;text-align:center;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:.7rem;font-weight:700;cursor:pointer;transition:all .2s;}
-.mt.sel{border-color:var(--g500);color:var(--g700);background:var(--g50);}
-.ai{display:flex;align-items:center;gap:.65rem;padding:.55rem .65rem;border-bottom:1px solid var(--border);transition:background .15s;}
-.ai:last-child{border-bottom:none;}
-.ai:hover{background:var(--g50);}
-.ai-av{width:30px;height:30px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--g700),var(--g400));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;}
-.ai-info{flex:1;min-width:0;}
-.ai-nm{font-size:.82rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ai-id{font-size:.68rem;color:var(--text3);}
-.ai-meals{display:flex;gap:.2rem;}
-
-/* ── SETUP ── */
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.dot-g{background:var(--g500);box-shadow:0 0 5px rgba(34,197,94,.5);}
-.dot-r{background:var(--red);}
-.dot-y{background:var(--amber);}
-
-/* ── FOOD MENU BAR ── */
-.food-bar{background:var(--card);border-bottom:1.5px solid var(--border);padding:.55rem .75rem;flex-shrink:0;}
-.food-row{display:flex;align-items:center;gap:.5rem;}
-.food-label{font-size:.68rem;font-weight:700;color:var(--g700);white-space:nowrap;min-width:60px;}
-.food-input{flex:1;padding:.45rem .75rem;background:var(--g50);border:1.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:500;outline:none;transition:border-color .2s;}
-.food-input:focus{border-color:var(--g500);}
-.food-save-btn{padding:.42rem .7rem;background:var(--g100);border:1px solid var(--g200);border-radius:var(--r-sm);color:var(--g700);font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap;}
-.food-save-btn:active{background:var(--g200);}
-
-/* track sort bar */
-.sort-bar{display:flex;gap:.35rem;margin-bottom:.65rem;align-items:center;}
-.sort-lbl{font-size:.68rem;font-weight:700;color:var(--text3);white-space:nowrap;}
-.sort-btn{padding:.35rem .65rem;background:var(--bg);border:1.5px solid var(--border2);border-radius:20px;font-size:.7rem;font-weight:700;color:var(--text2);cursor:pointer;transition:all .15s;}
-.sort-btn.sel{background:var(--g100);border-color:var(--g400);color:var(--g700);}
-
-/* food summary card */
-.food-summary{background:var(--g50);border:1px solid var(--g100);border-radius:var(--r-sm);padding:.6rem .75rem;margin-bottom:.6rem;}
-.food-summary .fs-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem;}
-.food-summary .fs-row:last-child{margin-bottom:0;}
-.food-summary .fs-meal{font-size:.7rem;font-weight:700;color:var(--g700);min-width:68px;}
-.food-summary .fs-item{font-size:.8rem;color:var(--text);font-weight:600;flex:1;}
-.food-summary .fs-cnt{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--g600);background:var(--g100);border:1px solid var(--g200);border-radius:8px;padding:.1rem .45rem;}
-
-/* ── MODAL ── */
-.mov{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;}
-.mov.hidden{display:none;}
-.mbox{background:var(--card);border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:1.4rem;width:100%;max-width:310px;box-shadow:var(--sh-lg);}
-.mbox h3{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--g800);margin-bottom:.45rem;}
-.mbox p{font-size:.81rem;color:var(--text2);line-height:1.5;}
-.macts{display:flex;gap:.45rem;margin-top:.9rem;}
-.macts .btn{flex:1;justify-content:center;}
+/* MODAL */
+.mov{position:fixed;inset:0;background:rgba(15,23,42,.35);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.mov.hid{display:none}
+.mbox{background:var(--card);border:1.5px solid var(--bdr2);border-radius:var(--rl);padding:1.4rem;width:100%;max-width:308px;box-shadow:var(--shl)}
+.mbox h3{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--g800);margin-bottom:.42rem}
+.mbox p{font-size:.8rem;color:var(--t2);line-height:1.5}
+.macts{display:flex;gap:.42rem;margin-top:.88rem}
+.macts .btn{flex:1;justify-content:center}
 </style>
 </head>
 <body>
 
+<!-- LOADER -->
 <div id="loader">
   <div class="ll">🍽️</div>
   <div style="text-align:center">
-    <div class="lb">GSC Meals</div>
-    <div style="font-size:.72rem;color:var(--text3)">Govardhan Skill Centre</div>
+    <div style="font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:800;color:var(--g800)">GSC Meals</div>
+    <div style="font-size:.7rem;color:var(--t3)">Govardhan Skill Centre</div>
   </div>
-  <div class="lt"><div class="lf" id="lf"></div></div>
+  <div class="lbar"><div class="lfill" id="lf"></div></div>
   <div id="lmsg">Starting...</div>
 </div>
 
+<!-- LOCK -->
 <div id="lock">
-  <div class="lk-ico">🔐</div>
-  <div>
-    <div class="lk-title">GSC Meal Manager</div>
-    <div class="lk-sub">Secure login required</div>
-  </div>
-  <div class="lk-card">
-    <div class="fl">
-      <label>Password</label>
-      <input class="fi" type="password" id="pi" placeholder="Enter app password"
-             onkeydown="if(event.key==='Enter')unlock()"/>
-    </div>
-    <button class="bp" onclick="unlock()">Unlock</button>
+  <div class="lk-ic">🔐</div>
+  <div class="lk-ti">GSC Meal Manager</div>
+  <div class="lk-sb">Secure login required</div>
+  <div class="lk-cd">
+    <input class="fi" type="password" id="pwdIn" placeholder="Enter password" onkeydown="if(event.key==='Enter')unlock()"/>
+    <button class="bprim" onclick="unlock()">Unlock</button>
     <div id="lkerr"></div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <header>
-    <div class="brand">
-      <div class="brand-ico">🍽️</div>
-      <div class="brand-txt">GSC Meals<small>Govardhan Skill Centre</small></div>
+    <div class="brd">
+      <div class="brd-ic">🍽️</div>
+      <div class="brd-tx">GSC Meals<small>Govardhan Skill Centre</small></div>
     </div>
-    <div class="hpills">
-      <div class="mpill" id="hmp">🌅 Breakfast</div>
-      <div class="tpill" id="hcl">--:--</div>
+    <div class="hpils">
+      <div class="mpil" id="hmp">🌅 Breakfast</div>
+      <div class="tpil" id="hcl">--:--</div>
     </div>
   </header>
 
   <!-- HOME -->
   <div class="page act" id="homePage">
-    <div class="meal-bar">
-      <button class="mb sel" id="mb-b" onclick="selMeal('b')">
-        <span class="mi">🌅</span>Breakfast<div class="mhint">8–10 AM</div>
-      </button>
-      <button class="mb" id="mb-l" onclick="selMeal('l')">
-        <span class="mi">🍱</span>Lunch<div class="mhint">1–3 PM</div>
-      </button>
-      <button class="mb" id="mb-d" onclick="selMeal('d')">
-        <span class="mi">🌙</span>Dinner<div class="mhint">8–9 PM</div>
-      </button>
+    <div class="mbar">
+      <button class="mb sel" id="mb-b" onclick="selMeal('b')"><span class="mi">🌅</span>Breakfast<div class="mh">8–10 AM</div></button>
+      <button class="mb" id="mb-l" onclick="selMeal('l')"><span class="mi">🍱</span>Lunch<div class="mh">1–3 PM</div></button>
+      <button class="mb" id="mb-d" onclick="selMeal('d')"><span class="mi">🌙</span>Dinner<div class="mh">8–9 PM</div></button>
     </div>
-    <!-- Food menu for today's meal -->
-    <div class="food-bar" id="foodBar">
-      <div class="food-row">
-        <span class="food-label" id="foodMealLbl">🌅 Menu:</span>
-        <input class="food-input" id="foodInput" placeholder="Today's food items (e.g. Poha, Tea)"/>
-        <button class="food-save-btn" onclick="saveFood()">Save</button>
-      </div>
-      <div id="foodSaved" style="font-size:.68rem;color:var(--g600);font-weight:600;margin-top:.3rem;min-height:.8rem"></div>
+    <div class="fbar">
+      <span class="fbarlbl" id="fbarLbl">🌅 Menu:</span>
+      <input class="fbarinp" id="fbarInp" placeholder="Today's breakfast menu"/>
+      <button class="fbarsbtn" onclick="saveFood()">Save</button>
     </div>
-
+    <div style="background:var(--card);padding:.3rem .9rem;font-size:.68rem;color:var(--g600);font-weight:600;min-height:1.2rem;border-bottom:1px solid var(--bdr);flex-shrink:0" id="fbarSaved"></div>
     <div id="camArea">
       <div id="noCam">
-        <div class="nc-c">📷</div>
-        <div class="nc-t">Face Scanner</div>
-        <div class="nc-s">Auto-marks attendance when a registered face is detected.</div>
-        <button class="nc-btn" onclick="startCam()">▶ Start Camera</button>
+        <div class="ncic">📷</div>
+        <div class="ncti">Face Scanner</div>
+        <div class="ncsb">Auto-marks attendance when a registered face is detected</div>
+        <button class="ncbt" onclick="startCam()">▶ Start Camera</button>
       </div>
       <video id="vid" autoplay playsinline muted></video>
       <canvas id="cvs"></canvas>
@@ -291,53 +261,52 @@ tbody tr:hover td{background:var(--g50);}
         <div class="sl"></div>
       </div>
       <div id="hud">
-        <div class="hud-c">
-          <div class="hud-av" id="hav">👤</div>
+        <div class="hudc">
+          <div class="hudav" id="hudAv">👤</div>
           <div style="flex:1">
-            <div class="hud-nm" id="hnm">Scanning...</div>
-            <div class="hud-sb" id="hsb">Point at a registered face</div>
+            <div class="hudnm" id="hudNm">Scanning...</div>
+            <div class="hudsb" id="hudSb">Point at a registered face</div>
           </div>
-          <div id="hbdg"></div>
+          <div id="hudBdg"></div>
         </div>
       </div>
       <div id="cctrl">
-        <div class="cbt" onclick="flipCam()">🔄</div>
-        <div class="cbt stop" onclick="stopCam()">⏹</div>
+        <div class="cbt" onclick="flipCam()" title="Flip">🔄</div>
+        <div class="cbt stop" onclick="stopCam()" title="Stop">⏹</div>
       </div>
     </div>
   </div>
 
   <!-- STUDENT -->
   <div class="page" id="studentPage">
-    <div class="scroll">
+    <div class="scrl">
       <div class="card">
-        <div class="ch">
-          <div class="ct">Student List</div>
-          <span class="cbg" id="scnt">0</span>
-        </div>
-        <div class="stu-wrap">
+        <div class="ch"><div class="ct">Student List</div><span class="cbg" id="scnt">0</span></div>
+        <div class="stuwrap">
           <table>
             <thead><tr><th>Name</th><th>ID</th><th>Face</th><th></th></tr></thead>
-            <tbody id="stb"><tr><td colspan="4" style="text-align:center;padding:.8rem;color:var(--text3)">No students yet</td></tr></tbody>
+            <tbody id="stb"><tr><td colspan="4" style="text-align:center;padding:.8rem;color:var(--t3)">No students yet</td></tr></tbody>
           </table>
         </div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Register Student</div></div>
-        <div class="fl"><label>Student ID</label><input class="fi" id="rId" placeholder="e.g. GSC001"/></div>
-        <div class="fl"><label>Full Name</label><input class="fi" id="rName" placeholder="Student full name"/></div>
-        <div id="rCS" style="display:none">
-          <div id="rCW"><video id="rVid" autoplay playsinline muted></video><canvas id="rCvs"></canvas></div>
-          <div class="pb" style="margin:.45rem 0">
-            <div class="pbf" id="pf" style="width:0%"></div>
-            <div class="pbl" id="pl">0%</div>
+        <div class="fl"><label>Student ID</label><input class="fi" id="rId" placeholder="e.g. GSC001" style="margin-bottom:0"/></div>
+        <div class="fl" style="margin-top:.6rem"><label>Full Name</label><input class="fi" id="rName" placeholder="Student full name" style="margin-bottom:0"/></div>
+        <div id="rCS" style="display:none;margin-top:.6rem">
+          <!-- Camera choice for registration -->
+          <div class="camsel">
+            <button class="camopt sel" id="regCam-front" onclick="setRegCam('user')">📱 Front Camera</button>
+            <button class="camopt" id="regCam-back" onclick="setRegCam('environment')">📷 Back Camera</button>
           </div>
-          <p id="rst" style="font-size:.72rem;color:var(--text2);text-align:center;margin-bottom:.3rem;font-weight:600;min-height:1rem"></p>
+          <div id="rCW"><video id="rVid" autoplay playsinline muted></video><canvas id="rCvs"></canvas></div>
+          <div class="pb" style="margin:.45rem 0"><div class="pbf" id="pFill" style="width:0%"></div><div class="pbl" id="pLbl">0%</div></div>
+          <p id="rStat" style="font-size:.7rem;color:var(--t2);text-align:center;margin-bottom:.3rem;font-weight:600;min-height:.9rem"></p>
         </div>
-        <div style="display:flex;gap:.45rem;flex-wrap:wrap">
-          <button class="btn btn-gh btn-sm" id="bOC" onclick="startReg()">📷 Open Camera</button>
-          <button class="btn btn-g btn-sm" id="bCap" onclick="captureReg()" style="display:none">🎯 Capture</button>
-          <button class="btn btn-r btn-sm" id="bCR" onclick="stopReg()" style="display:none">✖</button>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem">
+          <button class="btn btgh btsm" id="bOC" onclick="startReg()">📷 Open Camera</button>
+          <button class="btn btg btsm" id="bCap" onclick="captureReg()" style="display:none">🎯 Capture Face</button>
+          <button class="btn btr btsm" id="bCR" onclick="stopReg()" style="display:none">✖</button>
         </div>
         <div id="rMsg"></div>
       </div>
@@ -346,92 +315,83 @@ tbody tr:hover td{background:var(--g50);}
 
   <!-- TRACK -->
   <div class="page" id="trackPage">
-    <div class="scroll">
+    <div class="scrl">
       <div class="dbar">
-        <input type="date" id="tDate"/>
-        <button class="btn btn-g btn-sm" onclick="loadTrack(true)">🔄 Sync</button>
-        <div id="tSyncDot" style="width:8px;height:8px;border-radius:50%;background:var(--g300);flex-shrink:0;align-self:center;transition:background .3s" title="Auto-syncing every 8s"></div>
+        <input type="date" id="tDate" onchange="loadTrack(true)"/>
+        <button class="btn btg btsm" onclick="loadTrack(true)">🔄</button>
+        <div class="sdot cdot-y" id="syncDot" title="Sync status"></div>
+      </div>
+      <div class="fsum">
+        <div class="fsrow"><span class="fsml">🌅 Breakfast</span><span class="fsit" id="fs-b">—</span><span class="fscnt" id="fc-b">0</span></div>
+        <div class="fsrow"><span class="fsml">🍱 Lunch</span><span class="fsit" id="fs-l">—</span><span class="fscnt" id="fc-l">0</span></div>
+        <div class="fsrow"><span class="fsml">🌙 Dinner</span><span class="fsit" id="fs-d">—</span><span class="fscnt" id="fc-d">0</span></div>
       </div>
       <div class="sg3">
-        <div class="sc3"><div class="si">🌅</div><div class="sn" id="tcb">0</div><div class="sl2">Breakfast</div><div class="ss" id="tsb">-</div></div>
-        <div class="sc3"><div class="si">🍱</div><div class="sn" id="tcl">0</div><div class="sl2">Lunch</div><div class="ss" id="tsl">-</div></div>
-        <div class="sc3"><div class="si">🌙</div><div class="sn" id="tcd">0</div><div class="sl2">Dinner</div><div class="ss" id="tsd">-</div></div>
+        <div class="sc3"><div class="si">🌅</div><div class="sn" id="tcb">0</div><div class="sl">Breakfast</div><div class="ss" id="tsb">— absent</div></div>
+        <div class="sc3"><div class="si">🍱</div><div class="sn" id="tcl">0</div><div class="sl">Lunch</div><div class="ss" id="tsl">— absent</div></div>
+        <div class="sc3"><div class="si">🌙</div><div class="sn" id="tcd">0</div><div class="sl">Dinner</div><div class="ss" id="tsd">— absent</div></div>
       </div>
-      <!-- Food summary for the day -->
-      <div class="food-summary" id="foodSummaryCard">
-        <div class="fs-row"><span class="fs-meal">🌅 Breakfast</span><span class="fs-item" id="fs-b">—</span><span class="fs-cnt" id="fc-b">0</span></div>
-        <div class="fs-row"><span class="fs-meal">🍱 Lunch</span><span class="fs-item" id="fs-l">—</span><span class="fs-cnt" id="fc-l">0</span></div>
-        <div class="fs-row"><span class="fs-meal">🌙 Dinner</span><span class="fs-item" id="fs-d">—</span><span class="fs-cnt" id="fc-d">0</span></div>
-      </div>
-
       <div class="card">
         <div class="ch">
           <div class="ct">Attendance</div>
-          <span id="tdate-lbl" style="font-size:.7rem;color:var(--text3);font-weight:600"></span>
+          <span id="tDateLbl" style="font-size:.68rem;color:var(--t3);font-weight:600"></span>
         </div>
         <div class="mtabs">
-          <button class="mt sel" id="tt-b" onclick="stm('b')">🌅 Breakfast</button>
-          <button class="mt" id="tt-l" onclick="stm('l')">🍱 Lunch</button>
-          <button class="mt" id="tt-d" onclick="stm('d')">🌙 Dinner</button>
-          <button class="mt" id="tt-all" onclick="stm('all')">📋 All</button>
+          <button class="mt sel" id="tt-b" onclick="setTM('b')">🌅 B</button>
+          <button class="mt" id="tt-l" onclick="setTM('l')">🍱 L</button>
+          <button class="mt" id="tt-d" onclick="setTM('d')">🌙 D</button>
+          <button class="mt" id="tt-all" onclick="setTM('all')">📋 All</button>
         </div>
-        <div class="sort-bar">
-          <span class="sort-lbl">Sort:</span>
-          <button class="sort-btn sel" id="sb-all" onclick="setSort('all')">All</button>
-          <button class="sort-btn" id="sb-present" onclick="setSort('present')">✅ Present</button>
-          <button class="sort-btn" id="sb-absent" onclick="setSort('absent')">❌ Absent</button>
+        <div class="srtbar">
+          <span class="srtlbl">Show:</span>
+          <button class="srtbtn sel" id="sb-all" onclick="setSort('all')">All</button>
+          <button class="srtbtn" id="sb-present" onclick="setSort('present')">✅ Present</button>
+          <button class="srtbtn" id="sb-absent" onclick="setSort('absent')">❌ Absent</button>
         </div>
-        <div id="attL" style="max-height:290px;overflow-y:auto;border-radius:var(--r-sm);border:1px solid var(--border)"></div>
+        <div id="attL" style="max-height:280px;overflow-y:auto;border-radius:var(--rs);border:1px solid var(--bdr)"></div>
       </div>
     </div>
   </div>
 
   <!-- SETUP -->
   <div class="page" id="setupPage">
-    <div class="scroll">
+    <div class="scrl">
       <div class="card">
         <div class="ch"><div class="ct">Google Sheet</div></div>
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem">
-          <div class="dot dot-y" id="sdot"></div>
-          <span id="stxt" style="font-size:.8rem;color:var(--text2);font-weight:600">Checking...</span>
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
+          <div class="cdot cdot-y" id="sdot"></div>
+          <span id="stxt" style="font-size:.78rem;color:var(--t2);font-weight:600">Checking...</span>
         </div>
-        <div style="display:flex;gap:.45rem;flex-wrap:wrap">
-          <button class="btn btn-o btn-sm" onclick="testSheet()">🔌 Test</button>
-          <button class="btn btn-g btn-sm" onclick="pullAll()">📥 Pull All Data</button>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+          <button class="btn bto btsm" onclick="testSheet()">🔌 Test</button>
+          <button class="btn btg btsm" onclick="pullAll()">📥 Pull All Data</button>
         </div>
         <div id="shMsg"></div>
-        <div style="margin-top:.75rem;background:var(--g50);border:1px solid var(--g100);border-radius:var(--r-sm);padding:.75rem">
-          <p style="font-size:.73rem;color:var(--g700);line-height:1.7;font-weight:500">
-            <b>How face sync works:</b><br>
-            Register on any device → face descriptor saved to <b>FaceData</b> sheet → other devices pull it → recognition works everywhere. All data in one Sheet.
-          </p>
-        </div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">Change Password</div></div>
-        <div class="fl"><label>Current</label><input class="fi" type="password" id="cP" placeholder="Current password"/></div>
-        <div class="fl"><label>New</label><input class="fi" type="password" id="nP" placeholder="New password"/></div>
-        <div class="fl"><label>Confirm</label><input class="fi" type="password" id="cnP" placeholder="Confirm new"/></div>
-        <button class="btn btn-g btn-fw" onclick="changePwd()">Update Password</button>
+        <div class="fl"><label>Current</label><input class="fi" type="password" id="cP" placeholder="Current password" style="margin-bottom:0"/></div>
+        <div class="fl" style="margin-top:.55rem"><label>New</label><input class="fi" type="password" id="nP" placeholder="New password" style="margin-bottom:0"/></div>
+        <div class="fl" style="margin-top:.55rem"><label>Confirm</label><input class="fi" type="password" id="cnP" placeholder="Confirm new" style="margin-bottom:0"/></div>
+        <button class="btn btg btfw" style="margin-top:.6rem" onclick="changePwd()">Update Password</button>
         <div id="pwdMsg"></div>
       </div>
       <div class="card">
         <div class="ch"><div class="ct">App Info</div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.45rem;margin-bottom:.6rem">
-          <div style="background:var(--bg);border-radius:var(--r-sm);padding:.55rem .75rem">
-            <div style="font-size:.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">Students</div>
-            <div style="font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:700;color:var(--g600)" id="iStu">0</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.42rem;margin-bottom:.55rem">
+          <div style="background:var(--bg);border-radius:var(--rs);padding:.52rem .72rem">
+            <div style="font-size:.6rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">Students</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g600)" id="iStu">0</div>
           </div>
-          <div style="background:var(--bg);border-radius:var(--r-sm);padding:.55rem .75rem">
-            <div style="font-size:.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.3px">Records</div>
-            <div style="font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:700;color:var(--g600)" id="iAtt">0</div>
+          <div style="background:var(--bg);border-radius:var(--rs);padding:.52rem .72rem">
+            <div style="font-size:.6rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px">Records</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g600)" id="iAtt">0</div>
           </div>
         </div>
-        <div style="font-size:.76rem;color:var(--text2);line-height:1.7">
-          Face model: <b id="iFace" style="color:var(--amber)">Loading...</b><br>
-          Version: 4.0 · All writes via GET (cross-origin safe)
+        <div style="font-size:.75rem;color:var(--t2);line-height:1.7">
+          Face model: <b id="iFace" style="color:var(--amb)">Loading...</b>
         </div>
-        <button class="btn btn-r btn-sm" style="margin-top:.65rem" onclick="clearLocal()">🗑 Clear Cache</button>
+        <button class="btn btr btsm" style="margin-top:.6rem" onclick="clearLocal()">🗑 Clear Local Cache</button>
       </div>
     </div>
   </div>
@@ -444,715 +404,767 @@ tbody tr:hover td{background:var(--g50);}
   </nav>
 </div>
 
-<div class="mov hidden" id="modal">
+<div class="mov hid" id="modal">
   <div class="mbox">
     <h3 id="mT">Confirm</h3><p id="mM"></p>
     <div class="macts">
-      <button class="btn btn-gh" onclick="closeMod()">Cancel</button>
-      <button class="btn btn-r" id="mOk">Confirm</button>
+      <button class="btn btgh" onclick="closeMod()">Cancel</button>
+      <button class="btn btr" id="mOk">Confirm</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════
-   THE ROOT FIX:
-   All sheet writes use GET requests with URL params.
-   Apps Script doGet() handles both reads AND writes.
-   No POST, no no-cors, no body — 100% cross-origin safe.
-   face descriptor (128 floats) sent as comma-separated string in URL param.
-═══════════════════════════════ */
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+var SHEET  = 'https://script.google.com/macros/s/AKfycbz-JR6FYo6m3Yv3xDcq2j9Dw9LWirv0wd-cxG7Vr9Xkva5TiD9fP78n0sMXM83hxo34/exec';
+var MODELS = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
 
-const SHEET = 'https://script.google.com/macros/s/AKfycbz-JR6FYo6m3Yv3xDcq2j9Dw9LWirv0wd-cxG7Vr9Xkva5TiD9fP78n0sMXM83hxo34/exec';
-const MODELS = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+var appPwd   = 'akm460@@';
+var students = [];      // [{id,name,desc:Float32Array}]
+var att      = {};      // {date:{b:[ids],l:[ids],d:[ids]}}
+var foodMenu = {};      // {date:{b,l,d}}
+var faceOK   = false;
+var camStream = null, camFacing = 'user', detLoop = null;
+var curMeal = 'b', trackMeal = 'b', sortMode = 'all';
+var regStream = null, regLoop = null, regSamples = [], regFacing = 'user';
+var lastMark = {}, modalCb = null, trackPoll = null;
+var NSAMP = 30;
+var ML = {b:'Breakfast', l:'Lunch', d:'Dinner'};
+var MI = {b:'🌅', l:'🍱', d:'🌙'};
 
-let pwd = 'akm460@@';
-let students = [];   // {id, name, desc:Float32Array}
-let att = {};        // {date:{b:[],l:[],d:[]}}
-let food = {};       // {date:{b:'Poha',l:'Rice',d:'Roti'}}
-let faceOK = false;
-let stream = null, facing = 'user', loop = null;
-let meal = 'b', tmeal = 'b', sortMode = 'all';
-let rStream = null, rLoop = null, rSamp = [];
-let lastMark = {}, mCb = null;
-let trackPollInterval = null;
-const NSAMP = 30;
-const ML = {b:'Breakfast',l:'Lunch',d:'Dinner'};
-const MI = {b:'🌅',l:'🍱',d:'🌙'};
-
-// ── BOOT ──────────────────────────────────
-window.addEventListener('load', async () => {
-  setL(10,'Loading face models...');
-  try {
-    await faceapi.nets.tinyFaceDetector.loadFromUri(MODELS);
-    setL(45,'Loading landmarks...');
-    await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS);
-    setL(75,'Loading recognition...');
-    await faceapi.nets.faceRecognitionNet.loadFromUri(MODELS);
-    faceOK = true;
-    setFaceInfo('Ready ✅','var(--g600)');
-  } catch(e) { setFaceInfo('Failed ❌','var(--red)'); }
-  setL(88,'Connecting to Sheet...');
-  try {
-    const pr = await api({action:'getPassword'});
-    if (pr.password) pwd = pr.password;
-    setL(94,'Loading students & faces...');
-    await doPullAll(true);
-  } catch(e) {}
-  setL(100,'Ready!');
-  await sleep(350);
-  document.getElementById('loader').style.display='none';
-  document.getElementById('lock').style.display='flex';
+// ═══════════════════════════════════════════════
+//  BOOT — load models then pull all from sheet
+// ═══════════════════════════════════════════════
+window.addEventListener('load', function() {
+  bootSeq();
 });
 
-function setL(p,m){ document.getElementById('lf').style.width=p+'%'; document.getElementById('lmsg').textContent=m; }
-const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+async function bootSeq() {
+  setL(8, 'Loading face models...');
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODELS);
+    setL(38, 'Loading landmarks...');
+    await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS);
+    setL(68, 'Loading recognition...');
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODELS);
+    faceOK = true;
+    setFI('Ready ✅', 'var(--g600)');
+  } catch(e) {
+    setFI('Failed — check internet', 'var(--red)');
+  }
+  setL(80, 'Loading from Google Sheet...');
+  // Load local cache first so app is usable immediately
+  students  = loadStu();
+  att       = JSON.parse(localStorage.getItem('gsc_a')  || '{}');
+  foodMenu  = JSON.parse(localStorage.getItem('gsc_f')  || '{}');
+  appPwd    = localStorage.getItem('gsc_pwd') || 'akm460@@';
+  // Pull fresh from sheet
+  try {
+    var pr = await sheetGet('getPassword');
+    if (pr.password) { appPwd = pr.password; localStorage.setItem('gsc_pwd', pr.password); }
+    setL(88, 'Pulling students & faces...');
+    await pullFromSheet(true);
+  } catch(e) {}
+  setL(100, 'Ready!');
+  await sleep(300);
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('lock').style.display = 'flex';
+}
 
-// ── LOCK ──────────────────────────────────
-function unlock(){
-  if(document.getElementById('pi').value===pwd){
-    document.getElementById('lock').style.display='none';
-    const a=document.getElementById('app');
-    a.style.display='flex'; a.style.height='100%';
+function setL(p, m) {
+  document.getElementById('lf').style.width = p + '%';
+  document.getElementById('lmsg').textContent = m;
+}
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+// ═══════════════════════════════════════════════
+//  LOCK
+// ═══════════════════════════════════════════════
+function unlock() {
+  var v = document.getElementById('pwdIn').value;
+  if (v === appPwd) {
+    document.getElementById('lock').style.display = 'none';
+    var a = document.getElementById('app');
+    a.style.display = 'flex'; a.style.height = '100%';
     initApp();
   } else {
-    document.getElementById('lkerr').textContent='❌ Wrong password';
-    document.getElementById('pi').value='';
-    setTimeout(()=>document.getElementById('lkerr').textContent='',2500);
+    document.getElementById('lkerr').textContent = '❌ Wrong password';
+    document.getElementById('pwdIn').value = '';
+    setTimeout(function(){ document.getElementById('lkerr').textContent = ''; }, 2500);
   }
 }
-document.getElementById('pi').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
+document.getElementById('pwdIn').addEventListener('keydown', function(e){ if(e.key==='Enter') unlock(); });
 
-// ── INIT ──────────────────────────────────
-function initApp(){
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+function initApp() {
   setInterval(function(){
-    var n=new Date();
-    document.getElementById('hcl').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  },1000);
-  document.getElementById('tDate').value=today(); // set date FIRST
+    document.getElementById('hcl').textContent =
+      new Date().toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+  }, 1000);
+  document.getElementById('tDate').value = today();
   autoMeal();
   renderStu();
-  loadTrack(false); // local only on init
+  loadTrack(false);
   updInfo();
   testSheet();
 }
 
-function autoMeal(){
-  const h=new Date().getHours();
-  // breakfast: 8-10, lunch: 13-15, dinner: 20-21, else nearest
-  let m;
-  if(h>=8&&h<10) m='b';
-  else if(h>=13&&h<15) m='l';
-  else if(h>=20&&h<=21) m='d';
-  else if(h<13) m='b';   // morning default
-  else if(h<20) m='l';   // afternoon/evening default
-  else m='d';
+function autoMeal() {
+  var h = new Date().getHours();
+  var m;
+  if      (h >= 8  && h < 10) m = 'b';
+  else if (h >= 13 && h < 15) m = 'l';
+  else if (h >= 20 && h <= 21) m = 'd';
+  else if (h < 13) m = 'b';
+  else if (h < 20) m = 'l';
+  else m = 'd';
   selMeal(m);
-  // highlight current time window button
-  document.getElementById('mb-b').classList.toggle('now', h>=8&&h<10);
-  document.getElementById('mb-l').classList.toggle('now', h>=13&&h<15);
-  document.getElementById('mb-d').classList.toggle('now', h>=20&&h<=21);
+  document.getElementById('mb-b').classList.toggle('now', h >= 8  && h < 10);
+  document.getElementById('mb-l').classList.toggle('now', h >= 13 && h < 15);
+  document.getElementById('mb-d').classList.toggle('now', h >= 20 && h <= 21);
 }
 
-function selMeal(m){
-  meal=m;
-  ['b','l','d'].forEach(x=>document.getElementById('mb-'+x).classList.toggle('sel',x===m));
-  document.getElementById('hmp').textContent=MI[m]+' '+ML[m];
-  // Update food bar
-  document.getElementById('foodMealLbl').textContent=MI[m]+' Menu:';
-  const d=today(), saved=(food[d]&&food[d][m])||'';
-  document.getElementById('foodInput').value=saved;
-  document.getElementById('foodInput').placeholder=`Today's ${ML[m]} menu (e.g. Rice, Dal)`;
-  document.getElementById('foodSaved').textContent=saved?`✅ Saved: ${saved}`:'';
-}
-
-function saveFood(){
-  const d=today(), val=document.getElementById('foodInput').value.trim();
-  if(!food[d])food[d]={b:'',l:'',d:''};
-  food[d][meal]=val;
-  saveFood_store();
-  document.getElementById('foodSaved').textContent=val?`✅ Saved: ${val}`:'Cleared';
-  setTimeout(()=>{ document.getElementById('foodSaved').textContent=val?`✅ ${val}`:''; },2000);
-  // Push to sheet
-  api({action:'saveFood',date:d,meal,menu:val}).catch(()=>{});
-}
-
-function saveFood_store(){ localStorage.setItem('gsc_food',JSON.stringify(food)); }
-
-function setSort(m){
-  sortMode=m;
-  ['all','present','absent'].forEach(x=>document.getElementById('sb-'+x).classList.toggle('sel',x===m));
-  renderAttL();
-}
-
-
-function goTab(t){
-  ['home','student','track','setup'].forEach(p=>{
-    document.getElementById(p+'Page').classList.toggle('act',p===t);
-    document.getElementById('tn-'+p).classList.toggle('act',p===t);
+function selMeal(m) {
+  curMeal = m;
+  ['b','l','d'].forEach(function(x){
+    document.getElementById('mb-'+x).classList.toggle('sel', x===m);
   });
-  if(t!=='home') stopCam();
-  if(t==='track'){
+  document.getElementById('hmp').textContent = MI[m] + ' ' + ML[m];
+  // Update food bar
+  document.getElementById('fbarLbl').textContent = MI[m] + ' Menu:';
+  var d = today();
+  var saved = (foodMenu[d] && foodMenu[d][m]) || '';
+  document.getElementById('fbarInp').value = saved;
+  document.getElementById('fbarInp').placeholder = "Today's " + ML[m] + " menu";
+  document.getElementById('fbarSaved').textContent = saved ? '✅ ' + saved : '';
+}
+
+// ═══════════════════════════════════════════════
+//  FOOD MENU
+// ═══════════════════════════════════════════════
+function saveFood() {
+  var d = today();
+  var val = document.getElementById('fbarInp').value.trim();
+  if (!foodMenu[d]) foodMenu[d] = {b:'', l:'', d:''};
+  foodMenu[d][curMeal] = val;
+  localStorage.setItem('gsc_f', JSON.stringify(foodMenu));
+  document.getElementById('fbarSaved').textContent = val ? '✅ ' + val : 'Cleared';
+  setTimeout(function(){ document.getElementById('fbarSaved').textContent = val ? '✅ '+val : ''; }, 2000);
+  sheetGet('saveFood', {date:d, meal:curMeal, menu:val}).catch(function(){});
+}
+
+// ═══════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════
+function goTab(t) {
+  ['home','student','track','setup'].forEach(function(p){
+    document.getElementById(p+'Page').classList.toggle('act', p===t);
+    document.getElementById('tn-'+p).classList.toggle('act', p===t);
+  });
+  if (t !== 'home') stopCam();
+  if (t === 'track') {
     loadTrack(true);
-    clearInterval(trackPollInterval);
-    trackPollInterval=setInterval(()=>loadTrack(true),8000);
+    clearInterval(trackPoll);
+    trackPoll = setInterval(function(){ loadTrack(true); }, 7000);
   } else {
-    clearInterval(trackPollInterval);
-    trackPollInterval=null;
+    clearInterval(trackPoll); trackPoll = null;
   }
-  if(t==='setup') updInfo();
+  if (t === 'setup') updInfo();
 }
 
-// ── CAMERA ────────────────────────────────
-async function startCam(){
-  if(!faceOK){alert('Face models loading, please wait.');return;}
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:640},height:{ideal:480}}});
-    const v=document.getElementById('vid');
-    v.srcObject=stream; await v.play();
-    document.getElementById('noCam').style.display='none';
-    v.style.display='block';
-    document.getElementById('sg').style.display='block';
-    document.getElementById('hud').style.display='block';
-    document.getElementById('cctrl').style.display='flex';
-    startLoop();
-  }catch(e){alert('Camera: '+e.message);}
+// ═══════════════════════════════════════════════
+//  CAMERA — SCAN
+// ═══════════════════════════════════════════════
+async function startCam() {
+  if (!faceOK) { alert('Face models still loading. Wait a moment.'); return; }
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: camFacing, width:{ideal:640}, height:{ideal:480}}
+    });
+    var v = document.getElementById('vid');
+    v.srcObject = camStream; await v.play();
+    document.getElementById('noCam').style.display = 'none';
+    v.style.display = 'block';
+    document.getElementById('sg').style.display = 'block';
+    document.getElementById('hud').style.display = 'block';
+    document.getElementById('cctrl').style.display = 'flex';
+    startDetLoop();
+  } catch(e) { alert('Camera error: ' + e.message); }
 }
 
-function stopCam(){
-  clearInterval(loop);loop=null;
-  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
-  const v=document.getElementById('vid');v.srcObject=null;v.style.display='none';
+function stopCam() {
+  clearInterval(detLoop); detLoop = null;
+  if (camStream) { camStream.getTracks().forEach(function(t){t.stop();}); camStream = null; }
+  var v = document.getElementById('vid');
+  v.srcObject = null; v.style.display = 'none';
   clrCvs('cvs');
-  document.getElementById('noCam').style.display='flex';
-  document.getElementById('sg').style.display='none';
-  document.getElementById('hud').style.display='none';
-  document.getElementById('cctrl').style.display='none';
+  document.getElementById('noCam').style.display = 'flex';
+  document.getElementById('sg').style.display = 'none';
+  document.getElementById('hud').style.display = 'none';
+  document.getElementById('cctrl').style.display = 'none';
 }
 
-async function flipCam(){facing=facing==='user'?'environment':'user';stopCam();await sleep(200);startCam();}
+async function flipCam() {
+  camFacing = camFacing === 'user' ? 'environment' : 'user';
+  stopCam(); await sleep(200); startCam();
+}
 
-function clrCvs(id){const c=document.getElementById(id);if(c)c.getContext('2d').clearRect(0,0,c.width,c.height);}
+function clrCvs(id) {
+  var c = document.getElementById(id);
+  if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+}
 
-function startLoop(){
-  const v=document.getElementById('vid'),c=document.getElementById('cvs');
-  loop=setInterval(async()=>{
-    if(!v.srcObject)return;
-    c.width=v.videoWidth;c.height=v.videoHeight;
-    const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
-    try{
-      const ds=await faceapi
-        .detectAllFaces(v,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.4}))
+function startDetLoop() {
+  var v = document.getElementById('vid'), c = document.getElementById('cvs');
+  detLoop = setInterval(async function() {
+    if (!v.srcObject) return;
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    var ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height);
+    try {
+      var ds = await faceapi
+        .detectAllFaces(v, new faceapi.TinyFaceDetectorOptions({inputSize:320, scoreThreshold:0.4}))
         .withFaceLandmarks(true).withFaceDescriptors();
-      if(!ds.length){setHUD('👤','Scanning...','No face detected','');return;}
-      for(const d of ds) box(ctx,d.detection.box,'#22c55e',2,null);
-      const m=bestMatch(ds[0].descriptor);
-      const d=today();
-      if(m){
-        const done=(att[d]?.[meal]||[]).includes(m.id);
-        box(ctx,ds[0].detection.box,'#16a34a',3,m.name);
-        if(!done){
-          const k=d+meal+m.id;
-          if(!lastMark[k]||Date.now()-lastMark[k]>4000){
-            lastMark[k]=Date.now();
-            if(!att[d])att[d]={b:[],l:[],d:[]};
-            if(!att[d][meal])att[d][meal]=[];
-            att[d][meal].push(m.id);
+      if (!ds.length) { setHUD('👤','Scanning...','No face detected — point camera at face',''); return; }
+      for (var i = 0; i < ds.length; i++) drawBox(ctx, ds[i].detection.box, '#22c55e', 2, null);
+      var match = bestMatch(ds[0].descriptor);
+      var dateStr = today();
+      if (match) {
+        var already = arrIncludes(att[dateStr] && att[dateStr][curMeal], match.id);
+        drawBox(ctx, ds[0].detection.box, '#16a34a', 3, match.name);
+        if (!already) {
+          var k = dateStr + curMeal + match.id;
+          var now = Date.now();
+          if (!lastMark[k] || now - lastMark[k] > 4000) {
+            lastMark[k] = now;
+            if (!att[dateStr]) att[dateStr] = {b:[], l:[], d:[]};
+            if (!att[dateStr][curMeal]) att[dateStr][curMeal] = [];
+            att[dateStr][curMeal].push(match.id);
             saveAtt();
-            // Update track tab immediately if open
-            const tp=document.getElementById('trackPage');
-            if(tp.classList.contains('act')){
-              loadTrack(false);
+            // Update track tab instantly if open
+            if (document.getElementById('trackPage').classList.contains('act')) {
+              renderTrackCounts(dateStr);
+              renderAttL();
             }
-            // Write to sheet — use separate variable names to avoid any clash
-            const markDate = String(d);
-            const markMeal = String(meal);
-            const markId   = String(m.id);
-            api({action:'markAtt', date:markDate, meal:markMeal, id:markId})
-              .then(function(resp){
-                // After sheet confirms, refresh track if open
-                const tp2=document.getElementById('trackPage');
-                if(tp2.classList.contains('act')) loadTrack(true);
-              }).catch(function(){
-                // Sheet write failed — will retry on next poll
-              });
+            // Write to sheet — capture values
+            var mDate = dateStr, mMeal = curMeal, mId = match.id;
+            sheetGet('markAtt', {date:mDate, meal:mMeal, id:mId})
+              .then(function(r) {
+                if (r && r.status === 'ok') {
+                  // After sheet confirms, refresh track from sheet
+                  if (document.getElementById('trackPage').classList.contains('act')) {
+                    loadTrack(true);
+                  }
+                }
+              }).catch(function(){});
             document.getElementById('camArea').classList.add('flash');
-            setTimeout(function(){document.getElementById('camArea').classList.remove('flash');},400);
-            if(navigator.vibrate)navigator.vibrate([60,30,60]);
+            setTimeout(function(){ document.getElementById('camArea').classList.remove('flash'); }, 400);
+            if (navigator.vibrate) navigator.vibrate([60,30,60]);
           }
-          setHUD('✅',m.name,m.id+' — Marked '+ML[meal]+' ✔','green');
+          setHUD('✅', match.name, match.id + ' — Marked ' + ML[curMeal] + ' ✔', 'green');
         } else {
-          setHUD('✅',m.name,`${m.id} — Already marked for ${ML[meal]}`,'gray');
+          setHUD('✅', match.name, match.id + ' — Already marked for ' + ML[curMeal], 'gray');
         }
       } else {
-        box(ctx,ds[0].detection.box,'#ef4444',2,'Not Registered');
-        setHUD('❓','Not Recognized','Face not in system','red');
+        drawBox(ctx, ds[0].detection.box, '#ef4444', 2, 'Not Registered');
+        setHUD('❓', 'Not Recognized', 'Face not registered in system', 'red');
       }
-    }catch(e){}
-  },350);
+    } catch(e) {}
+  }, 380);
 }
 
-function box(ctx,b,col,lw,lbl){
-  ctx.strokeStyle=col;ctx.lineWidth=lw;
-  ctx.strokeRect(b.x,b.y,b.width,b.height);
-  if(lbl){ctx.fillStyle=col;ctx.font='bold 12px Plus Jakarta Sans';ctx.fillText(lbl,b.x,b.y>16?b.y-5:b.y+b.height+14);}
+function drawBox(ctx, b, col, lw, lbl) {
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  ctx.strokeRect(b.x, b.y, b.width, b.height);
+  if (lbl) {
+    ctx.fillStyle = col; ctx.font = 'bold 12px Plus Jakarta Sans';
+    ctx.fillText(lbl, b.x, b.y > 16 ? b.y - 5 : b.y + b.height + 14);
+  }
 }
 
-function setHUD(av,nm,sb,t){
-  document.getElementById('hav').textContent=av;
-  document.getElementById('hnm').textContent=nm;
-  document.getElementById('hsb').textContent=sb;
-  const el=document.getElementById('hbdg');
-  el.innerHTML=t==='green'?'<span class="badge bg">✅ PRESENT</span>'
-    :t==='red'?'<span class="badge br">❌ UNKNOWN</span>'
-    :t==='gray'?'<span class="badge" style="background:var(--bg);border:1px solid var(--border2);color:var(--text3)">✔ DONE</span>'
-    :'<span class="badge ba">🔍 SCAN</span>';
+function setHUD(av, nm, sb, type) {
+  document.getElementById('hudAv').textContent = av;
+  document.getElementById('hudNm').textContent = nm;
+  document.getElementById('hudSb').textContent = sb;
+  var el = document.getElementById('hudBdg');
+  if      (type === 'green') el.innerHTML = '<span class="bdg bg">✅ PRESENT</span>';
+  else if (type === 'red')   el.innerHTML = '<span class="bdg br">❌ UNKNOWN</span>';
+  else if (type === 'gray')  el.innerHTML = '<span class="bdg" style="background:var(--bg);border:1px solid var(--bdr2);color:var(--t3)">✔ DONE</span>';
+  else                       el.innerHTML = '<span class="bdg ba">🔍 SCAN</span>';
 }
 
-function bestMatch(desc){
-  if(!students.length)return null;
-  let best=null,bd=0.52;
-  for(const s of students){
-    if(!s.desc)continue;
-    const fd=s.desc instanceof Float32Array?s.desc:new Float32Array(s.desc);
-    const d=faceapi.euclideanDistance(desc,fd);
-    if(d<bd){bd=d;best={...s,d};}
+function bestMatch(descriptor) {
+  if (!students.length) return null;
+  var best = null, bd = 0.52;
+  for (var i = 0; i < students.length; i++) {
+    var s = students[i];
+    if (!s.desc) continue;
+    var fd = s.desc instanceof Float32Array ? s.desc : new Float32Array(s.desc);
+    var d = faceapi.euclideanDistance(descriptor, fd);
+    if (d < bd) { bd = d; best = s; }
   }
   return best;
 }
 
-// ── REGISTRATION ──────────────────────────
-function renderStu(){
-  document.getElementById('scnt').textContent=students.length;
-  const tb=document.getElementById('stb');
-  if(!students.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:.8rem;color:var(--text3)">No students yet</td></tr>';return;}
-  tb.innerHTML=students.map(s=>`<tr>
-    <td><span class="av">${s.name[0].toUpperCase()}</span>${s.name}</td>
-    <td style="color:var(--text2);font-size:.76rem">${s.id}</td>
-    <td>${s.desc?'<span class="badge bg">✅</span>':'<span class="badge br">No face</span>'}</td>
-    <td><button class="btn btn-r btn-sm" style="padding:.22rem .45rem;font-size:.7rem" onclick="delStu('${s.id}')">🗑</button></td>
-  </tr>`).join('');
+// ═══════════════════════════════════════════════
+//  STUDENT REGISTRATION
+// ═══════════════════════════════════════════════
+function renderStu() {
+  document.getElementById('scnt').textContent = students.length;
+  var tb = document.getElementById('stb');
+  if (!students.length) {
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:.8rem;color:var(--t3)">No students yet</td></tr>';
+    return;
+  }
+  tb.innerHTML = students.map(function(s) {
+    return '<tr>'
+      + '<td><span class="av">' + s.name[0].toUpperCase() + '</span>' + esc(s.name) + '</td>'
+      + '<td style="color:var(--t2);font-size:.75rem">' + esc(s.id) + '</td>'
+      + '<td>' + (s.desc ? '<span class="bdg bg">✅</span>' : '<span class="bdg br">No face</span>') + '</td>'
+      + '<td><button class="btn btr btsm" style="padding:.2rem .42rem;font-size:.68rem" onclick="delStu(\'' + esc(s.id) + '\')">🗑</button></td>'
+      + '</tr>';
+  }).join('');
 }
 
-async function startReg(){
-  if(!faceOK){alert('Face model not ready yet');return;}
-  try{
-    rStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:320},height:{ideal:240}}});
-    document.getElementById('rVid').srcObject=rStream;
+function setRegCam(facing) {
+  regFacing = facing;
+  document.getElementById('regCam-front').classList.toggle('sel', facing === 'user');
+  document.getElementById('regCam-back').classList.toggle('sel',  facing === 'environment');
+  // Restart reg camera if already running
+  if (regStream) { stopReg(); setTimeout(startReg, 200); }
+}
+
+async function startReg() {
+  if (!faceOK) { alert('Face model loading...'); return; }
+  try {
+    regStream = await navigator.mediaDevices.getUserMedia({
+      video: {facingMode: regFacing, width:{ideal:320}, height:{ideal:240}}
+    });
+    document.getElementById('rVid').srcObject = regStream;
     await document.getElementById('rVid').play();
-    document.getElementById('rCS').style.display='block';
-    document.getElementById('bOC').style.display='none';
-    document.getElementById('bCap').style.display='';
-    document.getElementById('bCR').style.display='';
-    rSamp=[];setPB(0);document.getElementById('rst').textContent='';
-    rLoop=setInterval(async()=>{
-      const v=document.getElementById('rVid'),c=document.getElementById('rCvs');
-      c.width=v.videoWidth;c.height=v.videoHeight;
-      const ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
-      try{
-        const d=await faceapi.detectSingleFace(v,new faceapi.TinyFaceDetectorOptions({inputSize:160,scoreThreshold:.5}))
-          .withFaceLandmarks(true).withFaceDescriptor();
-        if(d){
-          const b=d.detection.box;
-          ctx.strokeStyle='#22c55e';ctx.lineWidth=2;ctx.strokeRect(b.x,b.y,b.width,b.height);
-          document.getElementById('rst').textContent='✅ Face visible — tap Capture';
-          document.getElementById('rst').style.color='var(--g600)';
-        } else {
-          document.getElementById('rst').textContent='👁 No face — center your face';
-          document.getElementById('rst').style.color='var(--amber)';
-        }
-      }catch(e){}
-    },300);
-  }catch(e){alert('Camera: '+e.message);}
+    document.getElementById('rCS').style.display = 'block';
+    document.getElementById('bOC').style.display  = 'none';
+    document.getElementById('bCap').style.display = '';
+    document.getElementById('bCR').style.display  = '';
+    regSamples = []; setPB(0);
+    document.getElementById('rStat').textContent = '';
+    startRegPreview();
+  } catch(e) { alert('Camera: ' + e.message); }
 }
 
-async function captureReg(){
-  const name=document.getElementById('rName').value.trim();
-  const id=document.getElementById('rId').value.trim();
-  if(!name||!id){showMsg('rMsg','Enter ID and Name first','err');return;}
-  if(students.find(s=>s.id===id)){showMsg('rMsg','Student ID already exists','err');return;}
-  const v=document.getElementById('rVid');
-  document.getElementById('bCap').disabled=true;
-  document.getElementById('rst').textContent='🎯 Collecting samples...';
-  document.getElementById('rst').style.color='var(--g700)';
-  rSamp=[];
-  const col=setInterval(async()=>{
-    try{
-      const d=await faceapi.detectSingleFace(v,new faceapi.TinyFaceDetectorOptions({inputSize:160,scoreThreshold:.5}))
+function startRegPreview() {
+  var v = document.getElementById('rVid'), c = document.getElementById('rCvs');
+  regLoop = setInterval(async function() {
+    if (!v.srcObject) return;
+    c.width = v.videoWidth; c.height = v.videoHeight;
+    var ctx = c.getContext('2d'); ctx.clearRect(0, 0, c.width, c.height);
+    try {
+      var d = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions({inputSize:160, scoreThreshold:.5}))
         .withFaceLandmarks(true).withFaceDescriptor();
-      if(d){
-        rSamp.push(d.descriptor);
-        setPB(rSamp.length/NSAMP*100);
-        document.getElementById('rst').textContent=`${rSamp.length}/${NSAMP} samples`;
-        if(rSamp.length>=NSAMP){
+      if (d) {
+        var b = d.detection.box;
+        ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2; ctx.strokeRect(b.x, b.y, b.width, b.height);
+        document.getElementById('rStat').style.color = 'var(--g600)';
+        document.getElementById('rStat').textContent = '✅ Face visible — tap Capture Face';
+      } else {
+        document.getElementById('rStat').style.color = 'var(--amb)';
+        document.getElementById('rStat').textContent = '👁 No face — center your face';
+      }
+    } catch(e) {}
+  }, 300);
+}
+
+async function captureReg() {
+  var name = document.getElementById('rName').value.trim();
+  var id   = document.getElementById('rId').value.trim();
+  if (!name || !id) { showMsg('rMsg', 'Enter Student ID and Name first', 'err'); return; }
+  if (students.find(function(s){ return s.id === id; })) { showMsg('rMsg', 'Student ID already exists', 'err'); return; }
+  var v = document.getElementById('rVid');
+  document.getElementById('bCap').disabled = true;
+  document.getElementById('rStat').textContent = '🎯 Collecting samples...';
+  document.getElementById('rStat').style.color = 'var(--g700)';
+  regSamples = [];
+  var col = setInterval(async function() {
+    try {
+      var d = await faceapi.detectSingleFace(v, new faceapi.TinyFaceDetectorOptions({inputSize:160, scoreThreshold:.5}))
+        .withFaceLandmarks(true).withFaceDescriptor();
+      if (d) {
+        regSamples.push(d.descriptor);
+        var pct = Math.round(regSamples.length / NSAMP * 100);
+        setPB(pct);
+        document.getElementById('rStat').textContent = regSamples.length + '/' + NSAMP + ' samples';
+        if (regSamples.length >= NSAMP) {
           clearInterval(col);
-          const avg=avgD(rSamp);
-          // Add to local list immediately
-          students.push({id,name,desc:avg});
+          var avg = avgDesc(regSamples);
+          students.push({id: id, name: name, desc: avg});
           saveStu(); renderStu(); updInfo();
           stopReg();
-          document.getElementById('rId').value='';
-          document.getElementById('rName').value='';
-          document.getElementById('bCap').disabled=false;
-          showMsg('rMsg','<span class="sp"></span> Saving to Google Sheet...','inf');
-          // ── SAVE TO SHEET via GET ──
-          // Encode 128 floats as comma-separated string in URL param
-          const descStr=Array.from(avg).map(n=>n.toFixed(6)).join(',');
-          try{
-            const r1=await api({action:'addStudent',id,name});
-            const r2=await api({action:'saveFace',id,desc:descStr});
-            if(r2.status==='ok'){
-              showMsg('rMsg',`✅ ${name} registered & face saved to Sheet!`,'ok');
+          document.getElementById('rId').value = '';
+          document.getElementById('rName').value = '';
+          document.getElementById('bCap').disabled = false;
+          showMsg('rMsg', '<span class="sp"></span> Saving to Sheet...', 'inf');
+          var descStr = Array.from(avg).map(function(n){ return n.toFixed(6); }).join(',');
+          try {
+            await sheetGet('addStudent', {id: id, name: name});
+            var r2 = await sheetGet('saveFace', {id: id, desc: descStr});
+            if (r2.status === 'ok') {
+              showMsg('rMsg', '✅ ' + name + ' registered & face saved!', 'ok');
             } else {
-              showMsg('rMsg',`⚠ Registered but face save failed: ${r2.message}`,'err');
+              showMsg('rMsg', '⚠ Registered locally. Face: ' + r2.message, 'err');
             }
-          }catch(e){
-            showMsg('rMsg',`⚠ Saved locally. Sheet error: ${e.message}`,'err');
+          } catch(e) {
+            showMsg('rMsg', '⚠ Local only. Sheet error: ' + e.message, 'err');
           }
         }
       }
-    }catch(e){}
-  },150);
+    } catch(e) {}
+  }, 150);
 }
 
-function avgD(ds){
-  const len=ds[0].length,o=new Float32Array(len);
-  for(const d of ds)for(let i=0;i<len;i++)o[i]+=d[i];
-  for(let i=0;i<len;i++)o[i]/=ds.length;
+function avgDesc(ds) {
+  var len = ds[0].length, o = new Float32Array(len);
+  for (var i = 0; i < ds.length; i++) for (var j = 0; j < len; j++) o[j] += ds[i][j];
+  for (var j = 0; j < len; j++) o[j] /= ds.length;
   return o;
 }
-function setPB(p){
-  document.getElementById('pf').style.width=p+'%';
-  document.getElementById('pl').textContent=Math.round(p)+'%';
+function setPB(p) {
+  document.getElementById('pFill').style.width = p + '%';
+  document.getElementById('pLbl').textContent = p + '%';
 }
-function stopReg(){
-  clearInterval(rLoop);
-  if(rStream){rStream.getTracks().forEach(t=>t.stop());rStream=null;}
-  document.getElementById('rVid').srcObject=null;
-  document.getElementById('rCS').style.display='none';
-  document.getElementById('bOC').style.display='';
-  document.getElementById('bCap').style.display='none';
-  document.getElementById('bCR').style.display='none';
-  setPB(0);document.getElementById('rst').textContent='';
+function stopReg() {
+  clearInterval(regLoop); regLoop = null;
+  if (regStream) { regStream.getTracks().forEach(function(t){t.stop();}); regStream = null; }
+  document.getElementById('rVid').srcObject = null;
+  document.getElementById('rCS').style.display = 'none';
+  document.getElementById('bOC').style.display  = '';
+  document.getElementById('bCap').style.display = 'none';
+  document.getElementById('bCR').style.display  = 'none';
+  setPB(0); document.getElementById('rStat').textContent = '';
 }
-function delStu(id){
-  showConfirm('Delete Student','Removes student and face data permanently.',async()=>{
-    students=students.filter(s=>s.id!==id);
-    saveStu();renderStu();updInfo();
-    api({action:'deleteStu',id}).catch(()=>{});
+function delStu(id) {
+  showConfirm('Delete Student', 'Removes student and face data permanently.', function() {
+    students = students.filter(function(s){ return s.id !== id; });
+    saveStu(); renderStu(); updInfo();
+    sheetGet('deleteStu', {id: id}).catch(function(){});
   });
 }
 
-// ── TRACK ─────────────────────────────────
-function stm(m){
-  tmeal=m;
+// ═══════════════════════════════════════════════
+//  TRACK PAGE
+// ═══════════════════════════════════════════════
+function setTM(m) {
+  trackMeal = m;
   ['b','l','d','all'].forEach(function(x){
-    var el=document.getElementById('tt-'+x);
-    if(el) el.classList.toggle('sel',x===m);
+    var el = document.getElementById('tt-'+x);
+    if (el) el.classList.toggle('sel', x===m);
   });
   renderAttL();
 }
 
-function setSort(m){
-  sortMode=m;
+function setSort(m) {
+  sortMode = m;
   ['all','present','absent'].forEach(function(x){
-    var el=document.getElementById('sb-'+x);
-    if(el) el.classList.toggle('sel',x===m);
+    var el = document.getElementById('sb-'+x);
+    if (el) el.classList.toggle('sel', x===m);
   });
   renderAttL();
 }
 
-async function loadTrack(fromSheet){
-  var date=document.getElementById('tDate').value;
-  if(!date) return;
-  var dot=document.getElementById('tSyncDot');
-  if(dot) dot.style.background='var(--amber)';
+async function loadTrack(fromSheet) {
+  var date = document.getElementById('tDate').value;
+  if (!date) return;
+  document.getElementById('tDateLbl').textContent = date;
+  var dot = document.getElementById('syncDot');
+  if (dot) dot.className = 'sdot cdot-y';
 
-  if(fromSheet){
-    try{
-      var r=await api({action:'getAtt',date:date});
-      if(r&&r.status==='ok'){
-        // Only update if sheet has data OR we have nothing locally
-        var shB=r.b||[], shL=r.l||[], shD=r.d||[];
-        var locRec=att[date]||{b:[],l:[],d:[]};
-        // Merge: take union of local + sheet (sheet is master)
-        att[date]={
-          b: mergeIds(locRec.b||[], shB),
-          l: mergeIds(locRec.l||[], shL),
-          d: mergeIds(locRec.d||[], shD)
+  if (fromSheet) {
+    try {
+      var ar = await sheetGet('getAtt', {date: date});
+      if (ar && ar.status === 'ok') {
+        var local = att[date] || {b:[], l:[], d:[]};
+        att[date] = {
+          b: mergeIds(local.b, ar.b),
+          l: mergeIds(local.l, ar.l),
+          d: mergeIds(local.d, ar.d)
         };
         saveAtt();
       }
-    }catch(e){}
-    // Pull food for this date from sheet
-    try{
-      var foodR=await api({action:'getFood',date:date});
-      if(foodR&&foodR.status==='ok'&&foodR.food){
-        if(!food[date])food[date]={b:'',l:'',d:''};
-        if(foodR.food.b) food[date].b=foodR.food.b;
-        if(foodR.food.l) food[date].l=foodR.food.l;
-        if(foodR.food.d) food[date].d=foodR.food.d;
-        saveFood_store();
-        // Update food bar if same date
-        if(date===today()){
-          var saved=(food[date]&&food[date][meal])||'';
-          document.getElementById('foodInput').value=saved;
-          document.getElementById('foodSaved').textContent=saved?'✅ '+saved:'';
-        }
+    } catch(e) {}
+    // Pull food for this date
+    try {
+      var fr = await sheetGet('getFood', {date: date});
+      if (fr && fr.status === 'ok' && fr.food) {
+        if (!foodMenu[date]) foodMenu[date] = {b:'', l:'', d:''};
+        if (fr.food.b) foodMenu[date].b = fr.food.b;
+        if (fr.food.l) foodMenu[date].l = fr.food.l;
+        if (fr.food.d) foodMenu[date].d = fr.food.d;
+        localStorage.setItem('gsc_f', JSON.stringify(foodMenu));
       }
-    }catch(e){}
+    } catch(e) {}
   }
 
-  if(dot) dot.style.background='var(--g500)';
-
-  var rec=att[date]||{b:[],l:[],d:[]};
-  var bList=rec.b||[], lList=rec.l||[], dList=rec.d||[];
-  var n=students.length;
-
-  document.getElementById('tcb').textContent=bList.length;
-  document.getElementById('tcl').textContent=lList.length;
-  document.getElementById('tcd').textContent=dList.length;
-  document.getElementById('tsb').textContent=(n-bList.length)+' absent';
-  document.getElementById('tsl').textContent=(n-lList.length)+' absent';
-  document.getElementById('tsd').textContent=(n-dList.length)+' absent';
-
-  // Food summary
-  var fd=(food&&food[date])||{b:'',l:'',d:''};
-  var fsb=document.getElementById('fs-b'); if(fsb) fsb.textContent=fd.b||'—';
-  var fsl=document.getElementById('fs-l'); if(fsl) fsl.textContent=fd.l||'—';
-  var fsd=document.getElementById('fs-d'); if(fsd) fsd.textContent=fd.d||'—';
-  var fcb=document.getElementById('fc-b'); if(fcb) fcb.textContent=bList.length;
-  var fcl=document.getElementById('fc-l'); if(fcl) fcl.textContent=lList.length;
-  var fcd=document.getElementById('fc-d'); if(fcd) fcd.textContent=dList.length;
-
-  // Update date label
-  var dlbl=document.getElementById('tdate-lbl');
-  if(dlbl) dlbl.textContent=date;
-
+  if (dot) dot.className = 'sdot cdot-g';
+  renderTrackCounts(date);
   renderAttL();
 }
 
-// Merge two arrays of IDs, return unique union
-function mergeIds(a, b){
-  var seen={}, out=[];
-  a.concat(b).forEach(function(id){
-    if(id&&!seen[id]){seen[id]=true;out.push(id);}
-  });
-  return out;
+function renderTrackCounts(date) {
+  var rec = att[date] || {b:[], l:[], d:[]};
+  var bL = rec.b || [], lL = rec.l || [], dL = rec.d || [];
+  var n = students.length;
+  document.getElementById('tcb').textContent = bL.length;
+  document.getElementById('tcl').textContent = lL.length;
+  document.getElementById('tcd').textContent = dL.length;
+  document.getElementById('tsb').textContent = (n - bL.length) + ' absent';
+  document.getElementById('tsl').textContent = (n - lL.length) + ' absent';
+  document.getElementById('tsd').textContent = (n - dL.length) + ' absent';
+  // Food summary
+  var fd = (foodMenu[date]) || {b:'', l:'', d:''};
+  setEl('fs-b', fd.b || '—'); setEl('fc-b', bL.length);
+  setEl('fs-l', fd.l || '—'); setEl('fc-l', lL.length);
+  setEl('fs-d', fd.d || '—'); setEl('fc-d', dL.length);
 }
 
-function renderAttL(){
-  var date=document.getElementById('tDate').value;
-  var el=document.getElementById('attL');
-  if(!el) return;
-
-  if(!students.length){
-    el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.82rem">No students registered yet</div>';
+function renderAttL() {
+  var date = document.getElementById('tDate').value;
+  var el = document.getElementById('attL');
+  if (!el) return;
+  if (!students.length) {
+    el.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--t3);font-size:.8rem">No students registered</div>';
     return;
   }
+  var rec = att[date] || {b:[], l:[], d:[]};
+  var bL = rec.b || [], lL = rec.l || [], dL = rec.d || [];
 
-  var rec=att[date]||{b:[],l:[],d:[]};
-  var bList=rec.b||[];
-  var lList=rec.l||[];
-  var dList=rec.d||[];
-
-  // Build list with present/absent flag per student
-  var list=students.map(function(s){
-    var pb=bList.indexOf(s.id)>=0;
-    var pl=lList.indexOf(s.id)>=0;
-    var pd=dList.indexOf(s.id)>=0;
-    var present;
-    if(tmeal==='all') present=pb||pl||pd;
-    else if(tmeal==='b') present=pb;
-    else if(tmeal==='l') present=pl;
-    else present=pd;
+  var list = students.map(function(s) {
+    var pb = arrIncludes(bL, s.id);
+    var pl = arrIncludes(lL, s.id);
+    var pd = arrIncludes(dL, s.id);
+    var present = trackMeal === 'all' ? (pb||pl||pd) : trackMeal === 'b' ? pb : trackMeal === 'l' ? pl : pd;
     return {s:s, pb:pb, pl:pl, pd:pd, present:present};
   });
 
-  // Apply sort/filter
-  if(sortMode==='present'){
-    list=list.filter(function(x){return x.present;});
-  } else if(sortMode==='absent'){
-    list=list.filter(function(x){return !x.present;});
-  }
-  // default 'all': sort present first
-  if(sortMode==='all'){
-    list.sort(function(a,b){return (b.present?1:0)-(a.present?1:0);});
+  // Filter by sortMode
+  var show;
+  if      (sortMode === 'present') show = list.filter(function(x){ return x.present; });
+  else if (sortMode === 'absent')  show = list.filter(function(x){ return !x.present; });
+  else {
+    // all: sort present first
+    show = list.slice().sort(function(a, b){ return (b.present?1:0) - (a.present?1:0); });
   }
 
-  if(!list.length){
-    el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.82rem">No students match this filter</div>';
+  if (!show.length) {
+    el.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--t3);font-size:.8rem">No students match this filter</div>';
     return;
   }
 
-  var html='';
-  list.forEach(function(item){
-    var s=item.s;
-    var badges='';
-    if(tmeal==='all'||tmeal==='b') badges+=item.pb
-      ?'<span class="badge bg" style="font-size:.65rem">🌅 P</span>'
-      :'<span class="badge br" style="font-size:.65rem">🌅 A</span>';
-    if(tmeal==='all'||tmeal==='l') badges+=item.pl
-      ?'<span class="badge bg" style="font-size:.65rem">🍱 P</span>'
-      :'<span class="badge br" style="font-size:.65rem">🍱 A</span>';
-    if(tmeal==='all'||tmeal==='d') badges+=item.pd
-      ?'<span class="badge bg" style="font-size:.65rem">🌙 P</span>'
-      :'<span class="badge br" style="font-size:.65rem">🌙 A</span>';
-
-    var rowBg=item.present?'':'background:#fef2f2;';
-    html+='<div class="ai" style="'+rowBg+'">'
-      +'<div class="ai-av">'+s.name[0].toUpperCase()+'</div>'
-      +'<div class="ai-info"><div class="ai-nm">'+s.name+'</div><div class="ai-id">'+s.id+'</div></div>'
-      +'<div class="ai-meals" style="display:flex;gap:.2rem;flex-wrap:wrap">'+badges+'</div>'
-      +'</div>';
+  var html = '';
+  show.forEach(function(item) {
+    var s = item.s;
+    var badges = '';
+    if (trackMeal === 'all' || trackMeal === 'b')
+      badges += item.pb ? '<span class="bdg bg" style="font-size:.62rem">🌅 P</span>'
+                        : '<span class="bdg br" style="font-size:.62rem">🌅 A</span>';
+    if (trackMeal === 'all' || trackMeal === 'l')
+      badges += item.pl ? '<span class="bdg bg" style="font-size:.62rem">🍱 P</span>'
+                        : '<span class="bdg br" style="font-size:.62rem">🍱 A</span>';
+    if (trackMeal === 'all' || trackMeal === 'd')
+      badges += item.pd ? '<span class="bdg bg" style="font-size:.62rem">🌙 P</span>'
+                        : '<span class="bdg br" style="font-size:.62rem">🌙 A</span>';
+    var bg = item.present ? '' : 'background:#fef2f2;';
+    html += '<div class="ai" style="' + bg + '">'
+      + '<div class="ai-av">' + s.name[0].toUpperCase() + '</div>'
+      + '<div style="flex:1;min-width:0"><div class="ai-nm">' + esc(s.name) + '</div><div class="ai-id">' + esc(s.id) + '</div></div>'
+      + '<div style="display:flex;gap:.2rem;flex-wrap:wrap">' + badges + '</div>'
+      + '</div>';
   });
-
-  el.innerHTML=html;
+  el.innerHTML = html;
 }
 
-// ── SETUP ─────────────────────────────────
-async function testSheet(){
-  try{
-    const r=await api({action:'ping'});
-    setSS(true,r.message||'Connected ✅');
-  }catch(e){setSS(false,'Cannot connect');}
+// ═══════════════════════════════════════════════
+//  SETUP
+// ═══════════════════════════════════════════════
+async function testSheet() {
+  try {
+    var r = await sheetGet('ping');
+    setSS(true, r.msg || 'Connected ✅');
+  } catch(e) { setSS(false, 'Cannot connect'); }
 }
 
-async function pullAll(){
-  showMsg('shMsg','<span class="sp"></span> Pulling...','inf');
-  await doPullAll(false);
-  showMsg('shMsg','✅ All data pulled from Sheet','ok');
+async function pullAll() {
+  showMsg('shMsg', '<span class="sp"></span> Pulling all data...', 'inf');
+  await pullFromSheet(false);
+  showMsg('shMsg', '✅ All data pulled from Sheet', 'ok');
 }
 
-async function doPullAll(silent){
-  try{
-    const [sr,fr]=await Promise.all([
-      api({action:'getStudents'}),
-      api({action:'getFaces'})
-    ]);
-    // Build face map: id → Float32Array
-    const fmap={};
-    if(fr.faces) fr.faces.forEach(f=>{
-      try{
-        let arr=f.desc;
-        if(typeof arr==='string') arr=arr.split(',').map(Number);
-        if(Array.isArray(arr)&&arr.length===128) fmap[f.id]=new Float32Array(arr);
-      }catch(e){}
-    });
-    if(sr.students){
-      const old={};students.forEach(s=>old[s.id]=s);
-      students=sr.students.map(s=>({
-        id:s.id,name:s.name,
-        desc:fmap[s.id]||(old[s.id]?.desc)||null
-      }));
-      saveStu();renderStu();
+async function pullFromSheet(silent) {
+  try {
+    var sr = await sheetGet('getStudents');
+    var fr = await sheetGet('getFaces');
+    // Build face map
+    var fmap = {};
+    if (fr.faces) {
+      fr.faces.forEach(function(f) {
+        try {
+          var arr = typeof f.desc === 'string' ? f.desc.split(',').map(Number) : f.desc;
+          if (Array.isArray(arr) && arr.length === 128) fmap[f.id] = new Float32Array(arr);
+        } catch(e) {}
+      });
     }
-    // Pull today's attendance from sheet
-    const d=today();
-    const ar=await api({action:'getAtt',date:d}).catch(()=>null);
-    if(ar&&ar.status==='ok'){
-      att[d]={b:ar.b||[],l:ar.l||[],d:ar.d||[]};
+    if (sr.students) {
+      var oldMap = {};
+      students.forEach(function(s){ oldMap[s.id] = s; });
+      students = sr.students.map(function(s) {
+        var old = oldMap[s.id];
+        return { id: s.id, name: s.name, desc: fmap[s.id] || (old && old.desc) || null };
+      });
+      saveStu(); renderStu();
+    }
+    // Pull today attendance + food
+    var d = today();
+    var ar = await sheetGet('getAtt', {date: d});
+    if (ar && ar.status === 'ok') {
+      att[d] = {
+        b: mergeIds((att[d]||{}).b, ar.b),
+        l: mergeIds((att[d]||{}).l, ar.l),
+        d: mergeIds((att[d]||{}).d, ar.d)
+      };
       saveAtt();
     }
-    // Pull today's food menu — so other devices see it
-    const fd=await api({action:'getFood',date:d}).catch(()=>null);
-    if(fd&&fd.status==='ok'&&fd.food){
-      if(!food[d])food[d]={b:'',l:'',d:''};
-      food[d].b=fd.food.b||food[d].b||'';
-      food[d].l=fd.food.l||food[d].l||'';
-      food[d].d=fd.food.d||food[d].d||'';
-      saveFood_store();
+    var fd2 = await sheetGet('getFood', {date: d});
+    if (fd2 && fd2.status === 'ok' && fd2.food) {
+      if (!foodMenu[d]) foodMenu[d] = {b:'', l:'', d:''};
+      if (fd2.food.b) foodMenu[d].b = fd2.food.b;
+      if (fd2.food.l) foodMenu[d].l = fd2.food.l;
+      if (fd2.food.d) foodMenu[d].d = fd2.food.d;
+      localStorage.setItem('gsc_f', JSON.stringify(foodMenu));
     }
     loadTrack(false);
     updInfo();
-  }catch(e){if(!silent)showMsg('shMsg','❌ '+e.message,'err');}
+  } catch(e) {
+    if (!silent) showMsg('shMsg', '❌ ' + e.message, 'err');
+  }
 }
 
-async function changePwd(){
-  const c=document.getElementById('cP').value;
-  const n=document.getElementById('nP').value;
-  const cf=document.getElementById('cnP').value;
-  if(c!==pwd){showMsg('pwdMsg','❌ Wrong current password','err');return;}
-  if(n.length<4){showMsg('pwdMsg','❌ Too short','err');return;}
-  if(n!==cf){showMsg('pwdMsg','❌ No match','err');return;}
-  try{
-    await api({action:'savePwd',password:n});
-    pwd=n;localStorage.setItem('gsc_pwd',n);
-    showMsg('pwdMsg','✅ Password updated','ok');
-    ['cP','nP','cnP'].forEach(id=>document.getElementById(id).value='');
-  }catch(e){showMsg('pwdMsg','❌ '+e.message,'err');}
+async function changePwd() {
+  var c = document.getElementById('cP').value;
+  var n = document.getElementById('nP').value;
+  var cf = document.getElementById('cnP').value;
+  if (c !== appPwd) { showMsg('pwdMsg', '❌ Wrong current password', 'err'); return; }
+  if (n.length < 4)  { showMsg('pwdMsg', '❌ Too short (min 4)', 'err'); return; }
+  if (n !== cf)      { showMsg('pwdMsg', '❌ Passwords do not match', 'err'); return; }
+  try {
+    await sheetGet('savePwd', {password: n});
+    appPwd = n; localStorage.setItem('gsc_pwd', n);
+    showMsg('pwdMsg', '✅ Password updated', 'ok');
+    ['cP','nP','cnP'].forEach(function(id){ document.getElementById(id).value = ''; });
+  } catch(e) { showMsg('pwdMsg', '❌ ' + e.message, 'err'); }
 }
 
-function clearLocal(){
-  showConfirm('Clear Cache','Clears local data. Sheet is safe.',()=>{
-    students=[];att={};saveStu();saveAtt();renderStu();loadTrack(false);updInfo();
+function clearLocal() {
+  showConfirm('Clear Local Cache', 'Clears local student and attendance cache. Sheet data is safe.', function() {
+    students = []; att = {}; foodMenu = {};
+    saveStu(); saveAtt();
+    localStorage.setItem('gsc_f', '{}');
+    renderStu(); loadTrack(false); updInfo();
   });
 }
 
-function setSS(ok,m){
-  document.getElementById('sdot').className='dot '+(ok?'dot-g':'dot-r');
-  document.getElementById('stxt').textContent=m;
+function setSS(ok, m) {
+  document.getElementById('sdot').className = 'cdot ' + (ok ? 'cdot-g' : 'cdot-r');
+  document.getElementById('stxt').textContent = m;
 }
-function updInfo(){
-  document.getElementById('iStu').textContent=students.length;
-  let t=0;for(const d of Object.values(att))t+=(d.b||[]).length+(d.l||[]).length+(d.d||[]).length;
-  document.getElementById('iAtt').textContent=t;
+function updInfo() {
+  document.getElementById('iStu').textContent = students.length;
+  var t = 0;
+  for (var d in att) { var r = att[d]; t += (r.b||[]).length + (r.l||[]).length + (r.d||[]).length; }
+  document.getElementById('iAtt').textContent = t;
 }
-function setFaceInfo(t,c){document.getElementById('iFace').textContent=t;document.getElementById('iFace').style.color=c;}
+function setFI(t, c) { document.getElementById('iFace').textContent = t; document.getElementById('iFace').style.color = c; }
 
-// ── GOOGLE SHEET API ──────────────────────
-// ALL requests are GET — cross-origin safe, no CORS issues
-async function api(params){
-  const qs = Object.keys(params).map(k=>
-    encodeURIComponent(k)+'='+encodeURIComponent(params[k])
-  ).join('&');
-  const url = SHEET+'?'+qs;
-  // Follow redirects (Apps Script uses 302), mode cors
-  const r = await fetch(url, {
-    cache: 'no-cache',
-    redirect: 'follow'
+// ═══════════════════════════════════════════════
+//  SHEET API — all via GET, handles 302 redirect
+// ═══════════════════════════════════════════════
+async function sheetGet(action, params) {
+  var p = { action: action };
+  if (params) { for (var k in params) p[k] = params[k]; }
+  var qs = Object.keys(p).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(p[k]);
+  }).join('&');
+  var url = SHEET + '?' + qs;
+  var resp = await fetch(url, { cache: 'no-cache', redirect: 'follow' });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  var txt = await resp.text();
+  return JSON.parse(txt);
+}
+
+// ═══════════════════════════════════════════════
+//  STORAGE
+// ═══════════════════════════════════════════════
+function saveStu() {
+  var toStore = students.map(function(s) {
+    return {id: s.id, name: s.name, desc: s.desc ? Array.from(s.desc) : null};
   });
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  const txt = await r.text();
-  try { return JSON.parse(txt); }
-  catch(e) { throw new Error('Bad JSON: '+txt.slice(0,100)); }
+  localStorage.setItem('gsc_s', JSON.stringify(toStore));
+}
+function loadStu() {
+  var raw = JSON.parse(localStorage.getItem('gsc_s') || '[]');
+  return raw.map(function(s) {
+    return {id: s.id, name: s.name, desc: s.desc ? new Float32Array(s.desc) : null};
+  });
+}
+function saveAtt() { localStorage.setItem('gsc_a', JSON.stringify(att)); }
+
+// ═══════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function arrIncludes(arr, val) {
+  if (!arr) return false;
+  for (var i = 0; i < arr.length; i++) if (String(arr[i]) === String(val)) return true;
+  return false;
 }
 
-// ── STORAGE ───────────────────────────────
-function saveStu(){
-  localStorage.setItem('gsc_s',JSON.stringify(
-    students.map(s=>({id:s.id,name:s.name,desc:s.desc?Array.from(s.desc):null}))
-  ));
-}
-function loadStu(){
-  return JSON.parse(localStorage.getItem('gsc_s')||'[]').map(s=>({
-    ...s,desc:s.desc?new Float32Array(s.desc):null
-  }));
-}
-function saveAtt(){localStorage.setItem('gsc_a',JSON.stringify(att));}
-
-function today(){return new Date().toISOString().slice(0,10);}
-
-function showMsg(id,msg,type){
-  const el=document.getElementById(id);
-  el.innerHTML=`<div class="smsg ${type}">${msg}</div>`;
-  if(type!=='inf')setTimeout(()=>el.innerHTML='',4500);
+function mergeIds(a, b) {
+  var seen = {}, out = [];
+  var combined = (a || []).concat(b || []);
+  for (var i = 0; i < combined.length; i++) {
+    var v = String(combined[i]);
+    if (v && !seen[v]) { seen[v] = true; out.push(v); }
+  }
+  return out;
 }
 
-let mCb2=null;
-function showConfirm(t,m,cb){
-  document.getElementById('mT').textContent=t;
-  document.getElementById('mM').textContent=m;
-  document.getElementById('modal').classList.remove('hidden');
-  mCb2=cb;
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-document.getElementById('mOk').addEventListener('click',()=>{closeMod();if(mCb2)mCb2();mCb2=null;});
-function closeMod(){document.getElementById('modal').classList.add('hidden');}
 
-// init
-students=loadStu();
-att=JSON.parse(localStorage.getItem('gsc_a')||'{}');
-food=JSON.parse(localStorage.getItem('gsc_food')||'{}');
+function setEl(id, val) { var e = document.getElementById(id); if (e) e.textContent = val; }
+
+function showMsg(id, msg, type) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '<div class="smsg ' + type + '">' + msg + '</div>';
+  if (type !== 'inf') setTimeout(function(){ el.innerHTML = ''; }, 4500);
+}
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('mT').textContent = title;
+  document.getElementById('mM').textContent = msg;
+  document.getElementById('modal').classList.remove('hid');
+  modalCb = cb;
+}
+document.getElementById('mOk').addEventListener('click', function() {
+  closeMod(); if (modalCb) modalCb(); modalCb = null;
+});
+function closeMod() { document.getElementById('modal').classList.add('hid'); }
 </script>
 </body>
 </html>
