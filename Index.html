@@ -257,13 +257,13 @@ tbody tr:hover td{background:var(--g50);}
   <div class="page act" id="homePage">
     <div class="meal-bar">
       <button class="mb sel" id="mb-b" onclick="selMeal('b')">
-        <span class="mi">🌅</span>Breakfast<div class="mhint">6–11 AM</div>
+        <span class="mi">🌅</span>Breakfast<div class="mhint">8–10 AM</div>
       </button>
       <button class="mb" id="mb-l" onclick="selMeal('l')">
-        <span class="mi">🍱</span>Lunch<div class="mhint">11–4 PM</div>
+        <span class="mi">🍱</span>Lunch<div class="mhint">1–3 PM</div>
       </button>
       <button class="mb" id="mb-d" onclick="selMeal('d')">
-        <span class="mi">🌙</span>Dinner<div class="mhint">4 PM+</div>
+        <span class="mi">🌙</span>Dinner<div class="mhint">8–9 PM</div>
       </button>
     </div>
     <!-- Food menu for today's meal -->
@@ -350,6 +350,7 @@ tbody tr:hover td{background:var(--g50);}
       <div class="dbar">
         <input type="date" id="tDate"/>
         <button class="btn btn-g btn-sm" onclick="loadTrack(true)">🔄 Sync</button>
+        <div id="tSyncDot" style="width:8px;height:8px;border-radius:50%;background:var(--g300);flex-shrink:0;align-self:center;transition:background .3s" title="Auto-syncing every 8s"></div>
       </div>
       <div class="sg3">
         <div class="sc3"><div class="si">🌅</div><div class="sn" id="tcb">0</div><div class="sl2">Breakfast</div><div class="ss" id="tsb">-</div></div>
@@ -474,6 +475,7 @@ let stream = null, facing = 'user', loop = null;
 let meal = 'b', tmeal = 'b', sortMode = 'all';
 let rStream = null, rLoop = null, rSamp = [];
 let lastMark = {}, mCb = null;
+let trackPollInterval = null;
 const NSAMP = 30;
 const ML = {b:'Breakfast',l:'Lunch',d:'Dinner'};
 const MI = {b:'🌅',l:'🍱',d:'🌙'};
@@ -523,22 +525,33 @@ document.getElementById('pi').addEventListener('keydown',e=>{if(e.key==='Enter')
 
 // ── INIT ──────────────────────────────────
 function initApp(){
-  setInterval(()=>{
-    const n=new Date();
+  setInterval(function(){
+    var n=new Date();
     document.getElementById('hcl').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   },1000);
-  document.getElementById('tDate').value=today();
-  autoMeal(); renderStu(); loadTrack(false); updInfo(); testSheet();
+  document.getElementById('tDate').value=today(); // set date FIRST
+  autoMeal();
+  renderStu();
+  loadTrack(false); // local only on init
+  updInfo();
+  testSheet();
 }
 
 function autoMeal(){
   const h=new Date().getHours();
-  const m=h<11?'b':h<16?'l':'d';
+  // breakfast: 8-10, lunch: 13-15, dinner: 20-21, else nearest
+  let m;
+  if(h>=8&&h<10) m='b';
+  else if(h>=13&&h<15) m='l';
+  else if(h>=20&&h<=21) m='d';
+  else if(h<13) m='b';   // morning default
+  else if(h<20) m='l';   // afternoon/evening default
+  else m='d';
   selMeal(m);
-  ['b','l','d'].forEach(x=>{
-    const isNow=(x==='b'&&h>=6&&h<11)||(x==='l'&&h>=11&&h<16)||(x==='d'&&(h>=16||h<6));
-    document.getElementById('mb-'+x).classList.toggle('now',isNow);
-  });
+  // highlight current time window button
+  document.getElementById('mb-b').classList.toggle('now', h>=8&&h<10);
+  document.getElementById('mb-l').classList.toggle('now', h>=13&&h<15);
+  document.getElementById('mb-d').classList.toggle('now', h>=20&&h<=21);
 }
 
 function selMeal(m){
@@ -579,7 +592,14 @@ function goTab(t){
     document.getElementById('tn-'+p).classList.toggle('act',p===t);
   });
   if(t!=='home') stopCam();
-  if(t==='track') loadTrack(true);
+  if(t==='track'){
+    loadTrack(true);
+    clearInterval(trackPollInterval);
+    trackPollInterval=setInterval(()=>loadTrack(true),8000);
+  } else {
+    clearInterval(trackPollInterval);
+    trackPollInterval=null;
+  }
   if(t==='setup') updInfo();
 }
 
@@ -633,19 +653,34 @@ function startLoop(){
         box(ctx,ds[0].detection.box,'#16a34a',3,m.name);
         if(!done){
           const k=d+meal+m.id;
-          if(!lastMark[k]||Date.now()-lastMark[k]>3000){
+          if(!lastMark[k]||Date.now()-lastMark[k]>4000){
             lastMark[k]=Date.now();
             if(!att[d])att[d]={b:[],l:[],d:[]};
             if(!att[d][meal])att[d][meal]=[];
             att[d][meal].push(m.id);
             saveAtt();
-            // Write to sheet via GET
-            api({action:'markAtt',date:d,meal,id:m.id,name:m.name}).catch(()=>{});
+            // Update track tab immediately if open
+            const tp=document.getElementById('trackPage');
+            if(tp.classList.contains('act')){
+              loadTrack(false);
+            }
+            // Write to sheet — use separate variable names to avoid any clash
+            const markDate = String(d);
+            const markMeal = String(meal);
+            const markId   = String(m.id);
+            api({action:'markAtt', date:markDate, meal:markMeal, id:markId})
+              .then(function(resp){
+                // After sheet confirms, refresh track if open
+                const tp2=document.getElementById('trackPage');
+                if(tp2.classList.contains('act')) loadTrack(true);
+              }).catch(function(){
+                // Sheet write failed — will retry on next poll
+              });
             document.getElementById('camArea').classList.add('flash');
-            setTimeout(()=>document.getElementById('camArea').classList.remove('flash'),400);
+            setTimeout(function(){document.getElementById('camArea').classList.remove('flash');},400);
             if(navigator.vibrate)navigator.vibrate([60,30,60]);
           }
-          setHUD('✅',m.name,`${m.id} — Marked ${ML[meal]} ✔`,'green');
+          setHUD('✅',m.name,m.id+' — Marked '+ML[meal]+' ✔','green');
         } else {
           setHUD('✅',m.name,`${m.id} — Already marked for ${ML[meal]}`,'gray');
         }
@@ -811,84 +846,167 @@ function delStu(id){
 // ── TRACK ─────────────────────────────────
 function stm(m){
   tmeal=m;
-  ['b','l','d','all'].forEach(x=>document.getElementById('tt-'+x)?.classList.toggle('sel',x===m));
+  ['b','l','d','all'].forEach(function(x){
+    var el=document.getElementById('tt-'+x);
+    if(el) el.classList.toggle('sel',x===m);
+  });
+  renderAttL();
+}
+
+function setSort(m){
+  sortMode=m;
+  ['all','present','absent'].forEach(function(x){
+    var el=document.getElementById('sb-'+x);
+    if(el) el.classList.toggle('sel',x===m);
+  });
   renderAttL();
 }
 
 async function loadTrack(fromSheet){
-  const date=document.getElementById('tDate').value;
-  document.getElementById('tdate-lbl').textContent=date;
+  var date=document.getElementById('tDate').value;
+  if(!date) return;
+  var dot=document.getElementById('tSyncDot');
+  if(dot) dot.style.background='var(--amber)';
+
   if(fromSheet){
     try{
-      const r=await api({action:'getAtt',date});
-      if(r.status==='ok'){
-        att[date]={b:r.b||[],l:r.l||[],d:r.d||[]};
+      var r=await api({action:'getAtt',date:date});
+      if(r&&r.status==='ok'){
+        // Only update if sheet has data OR we have nothing locally
+        var shB=r.b||[], shL=r.l||[], shD=r.d||[];
+        var locRec=att[date]||{b:[],l:[],d:[]};
+        // Merge: take union of local + sheet (sheet is master)
+        att[date]={
+          b: mergeIds(locRec.b||[], shB),
+          l: mergeIds(locRec.l||[], shL),
+          d: mergeIds(locRec.d||[], shD)
+        };
         saveAtt();
       }
     }catch(e){}
-    // Pull food menu for this date
+    // Pull food for this date from sheet
     try{
-      const fr=await api({action:'getFood',date});
-      if(fr.status==='ok'&&fr.food){
+      var foodR=await api({action:'getFood',date:date});
+      if(foodR&&foodR.status==='ok'&&foodR.food){
         if(!food[date])food[date]={b:'',l:'',d:''};
-        food[date].b=fr.food.b||'';
-        food[date].l=fr.food.l||'';
-        food[date].d=fr.food.d||'';
+        if(foodR.food.b) food[date].b=foodR.food.b;
+        if(foodR.food.l) food[date].l=foodR.food.l;
+        if(foodR.food.d) food[date].d=foodR.food.d;
         saveFood_store();
+        // Update food bar if same date
+        if(date===today()){
+          var saved=(food[date]&&food[date][meal])||'';
+          document.getElementById('foodInput').value=saved;
+          document.getElementById('foodSaved').textContent=saved?'✅ '+saved:'';
+        }
       }
     }catch(e){}
   }
-  const rec=att[date]||{b:[],l:[],d:[]};
-  const n=students.length;
-  document.getElementById('tcb').textContent=(rec.b||[]).length;
-  document.getElementById('tcl').textContent=(rec.l||[]).length;
-  document.getElementById('tcd').textContent=(rec.d||[]).length;
-  document.getElementById('tsb').textContent=(n-(rec.b||[]).length)+' absent';
-  document.getElementById('tsl').textContent=(n-(rec.l||[]).length)+' absent';
-  document.getElementById('tsd').textContent=(n-(rec.d||[]).length)+' absent';
+
+  if(dot) dot.style.background='var(--g500)';
+
+  var rec=att[date]||{b:[],l:[],d:[]};
+  var bList=rec.b||[], lList=rec.l||[], dList=rec.d||[];
+  var n=students.length;
+
+  document.getElementById('tcb').textContent=bList.length;
+  document.getElementById('tcl').textContent=lList.length;
+  document.getElementById('tcd').textContent=dList.length;
+  document.getElementById('tsb').textContent=(n-bList.length)+' absent';
+  document.getElementById('tsl').textContent=(n-lList.length)+' absent';
+  document.getElementById('tsd').textContent=(n-dList.length)+' absent';
+
   // Food summary
-  const fd=food[date]||{b:'',l:'',d:''};
-  document.getElementById('fs-b').textContent=fd.b||'—';
-  document.getElementById('fs-l').textContent=fd.l||'—';
-  document.getElementById('fs-d').textContent=fd.d||'—';
-  document.getElementById('fc-b').textContent=(rec.b||[]).length;
-  document.getElementById('fc-l').textContent=(rec.l||[]).length;
-  document.getElementById('fc-d').textContent=(rec.d||[]).length;
+  var fd=(food&&food[date])||{b:'',l:'',d:''};
+  var fsb=document.getElementById('fs-b'); if(fsb) fsb.textContent=fd.b||'—';
+  var fsl=document.getElementById('fs-l'); if(fsl) fsl.textContent=fd.l||'—';
+  var fsd=document.getElementById('fs-d'); if(fsd) fsd.textContent=fd.d||'—';
+  var fcb=document.getElementById('fc-b'); if(fcb) fcb.textContent=bList.length;
+  var fcl=document.getElementById('fc-l'); if(fcl) fcl.textContent=lList.length;
+  var fcd=document.getElementById('fc-d'); if(fcd) fcd.textContent=dList.length;
+
+  // Update date label
+  var dlbl=document.getElementById('tdate-lbl');
+  if(dlbl) dlbl.textContent=date;
+
   renderAttL();
 }
 
+// Merge two arrays of IDs, return unique union
+function mergeIds(a, b){
+  var seen={}, out=[];
+  a.concat(b).forEach(function(id){
+    if(id&&!seen[id]){seen[id]=true;out.push(id);}
+  });
+  return out;
+}
+
 function renderAttL(){
-  const date=document.getElementById('tDate').value;
-  const rec=att[date]||{b:[],l:[],d:[]};
-  const el=document.getElementById('attL');
-  if(!students.length){el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.8rem">No students</div>';return;}
-  let list=students.map(s=>{
-    const pb=(rec.b||[]).includes(s.id);
-    const pl=(rec.l||[]).includes(s.id);
-    const pd=(rec.d||[]).includes(s.id);
-    const isPresent=tmeal==='all'?(pb||pl||pd):tmeal==='b'?pb:tmeal==='l'?pl:pd;
-    return{s,pb,pl,pd,isPresent};
+  var date=document.getElementById('tDate').value;
+  var el=document.getElementById('attL');
+  if(!el) return;
+
+  if(!students.length){
+    el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.82rem">No students registered yet</div>';
+    return;
+  }
+
+  var rec=att[date]||{b:[],l:[],d:[]};
+  var bList=rec.b||[];
+  var lList=rec.l||[];
+  var dList=rec.d||[];
+
+  // Build list with present/absent flag per student
+  var list=students.map(function(s){
+    var pb=bList.indexOf(s.id)>=0;
+    var pl=lList.indexOf(s.id)>=0;
+    var pd=dList.indexOf(s.id)>=0;
+    var present;
+    if(tmeal==='all') present=pb||pl||pd;
+    else if(tmeal==='b') present=pb;
+    else if(tmeal==='l') present=pl;
+    else present=pd;
+    return {s:s, pb:pb, pl:pl, pd:pd, present:present};
   });
-  // Sort: present first or absent first
-  if(sortMode==='present') list=list.filter(x=>x.isPresent).concat(list.filter(x=>!x.isPresent));
-  else if(sortMode==='absent') list=list.filter(x=>!x.isPresent).concat(list.filter(x=>x.isPresent));
-  // Filter if needed
-  const show = sortMode==='present'?list.filter(x=>x.isPresent)
-              :sortMode==='absent'?list.filter(x=>!x.isPresent)
-              :list;
-  let html='';
-  show.forEach(({s,pb,pl,pd,isPresent})=>{
-    let badges='';
-    if(tmeal==='all'||tmeal==='b') badges+=pb?'<span class="badge bg">🌅</span>':'<span class="badge br">🌅</span>';
-    if(tmeal==='all'||tmeal==='l') badges+=pl?'<span class="badge bg">🍱</span>':'<span class="badge br">🍱</span>';
-    if(tmeal==='all'||tmeal==='d') badges+=pd?'<span class="badge bg">🌙</span>':'<span class="badge br">🌙</span>';
-    html+=`<div class="ai" style="${!isPresent?'background:#fef2f2;':''}">
-      <div class="ai-av">${s.name[0].toUpperCase()}</div>
-      <div class="ai-info"><div class="ai-nm">${s.name}</div><div class="ai-id">${s.id}</div></div>
-      <div class="ai-meals">${badges}</div>
-    </div>`;
+
+  // Apply sort/filter
+  if(sortMode==='present'){
+    list=list.filter(function(x){return x.present;});
+  } else if(sortMode==='absent'){
+    list=list.filter(function(x){return !x.present;});
+  }
+  // default 'all': sort present first
+  if(sortMode==='all'){
+    list.sort(function(a,b){return (b.present?1:0)-(a.present?1:0);});
+  }
+
+  if(!list.length){
+    el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.82rem">No students match this filter</div>';
+    return;
+  }
+
+  var html='';
+  list.forEach(function(item){
+    var s=item.s;
+    var badges='';
+    if(tmeal==='all'||tmeal==='b') badges+=item.pb
+      ?'<span class="badge bg" style="font-size:.65rem">🌅 P</span>'
+      :'<span class="badge br" style="font-size:.65rem">🌅 A</span>';
+    if(tmeal==='all'||tmeal==='l') badges+=item.pl
+      ?'<span class="badge bg" style="font-size:.65rem">🍱 P</span>'
+      :'<span class="badge br" style="font-size:.65rem">🍱 A</span>';
+    if(tmeal==='all'||tmeal==='d') badges+=item.pd
+      ?'<span class="badge bg" style="font-size:.65rem">🌙 P</span>'
+      :'<span class="badge br" style="font-size:.65rem">🌙 A</span>';
+
+    var rowBg=item.present?'':'background:#fef2f2;';
+    html+='<div class="ai" style="'+rowBg+'">'
+      +'<div class="ai-av">'+s.name[0].toUpperCase()+'</div>'
+      +'<div class="ai-info"><div class="ai-nm">'+s.name+'</div><div class="ai-id">'+s.id+'</div></div>'
+      +'<div class="ai-meals" style="display:flex;gap:.2rem;flex-wrap:wrap">'+badges+'</div>'
+      +'</div>';
   });
-  if(!show.length) html='<div style="padding:1rem;text-align:center;color:var(--text3);font-size:.8rem">No records for this filter</div>';
+
   el.innerHTML=html;
 }
 
@@ -916,7 +1034,6 @@ async function doPullAll(silent){
     const fmap={};
     if(fr.faces) fr.faces.forEach(f=>{
       try{
-        // Faces stored as comma-separated string OR array
         let arr=f.desc;
         if(typeof arr==='string') arr=arr.split(',').map(Number);
         if(Array.isArray(arr)&&arr.length===128) fmap[f.id]=new Float32Array(arr);
@@ -930,13 +1047,23 @@ async function doPullAll(silent){
       }));
       saveStu();renderStu();
     }
-    // Pull today's attendance
+    // Pull today's attendance from sheet
     const d=today();
     const ar=await api({action:'getAtt',date:d}).catch(()=>null);
     if(ar&&ar.status==='ok'){
       att[d]={b:ar.b||[],l:ar.l||[],d:ar.d||[]};
-      saveAtt();loadTrack(false);
+      saveAtt();
     }
+    // Pull today's food menu — so other devices see it
+    const fd=await api({action:'getFood',date:d}).catch(()=>null);
+    if(fd&&fd.status==='ok'&&fd.food){
+      if(!food[d])food[d]={b:'',l:'',d:''};
+      food[d].b=fd.food.b||food[d].b||'';
+      food[d].l=fd.food.l||food[d].l||'';
+      food[d].d=fd.food.d||food[d].d||'';
+      saveFood_store();
+    }
+    loadTrack(false);
     updInfo();
   }catch(e){if(!silent)showMsg('shMsg','❌ '+e.message,'err');}
 }
@@ -974,12 +1101,21 @@ function updInfo(){
 function setFaceInfo(t,c){document.getElementById('iFace').textContent=t;document.getElementById('iFace').style.color=c;}
 
 // ── GOOGLE SHEET API ──────────────────────
-// ALL requests are GET with URL params — works cross-origin, no CORS issues
+// ALL requests are GET — cross-origin safe, no CORS issues
 async function api(params){
-  const url=SHEET+'?'+Object.entries(params).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
-  const r=await fetch(url,{cache:'no-cache'});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  return r.json();
+  const qs = Object.keys(params).map(k=>
+    encodeURIComponent(k)+'='+encodeURIComponent(params[k])
+  ).join('&');
+  const url = SHEET+'?'+qs;
+  // Follow redirects (Apps Script uses 302), mode cors
+  const r = await fetch(url, {
+    cache: 'no-cache',
+    redirect: 'follow'
+  });
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const txt = await r.text();
+  try { return JSON.parse(txt); }
+  catch(e) { throw new Error('Bad JSON: '+txt.slice(0,100)); }
 }
 
 // ── STORAGE ───────────────────────────────
