@@ -159,7 +159,7 @@ tbody tr:last-child td{border-bottom:none}
 .sc3{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:.62rem .35rem;text-align:center;box-shadow:var(--sh)}
 .sc3 .si{font-size:1.1rem}.sc3 .sn{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--g600);line-height:1}
 .sc3 .sl{font-size:.58rem;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;margin-top:.08rem}
-.sc3 .ss{font-size:.6rem;color:var(--g700);font-weight:600;margin-top:.08rem}
+.sc3 .ss{font-size:.6rem;color:var(--red);font-weight:600;margin-top:.08rem}
 .fsum{background:var(--g50);border:1px solid var(--g100);border-radius:var(--rs);padding:.5rem .65rem;margin-bottom:.62rem}
 .fsrow{display:flex;align-items:center;gap:.42rem;padding:.18rem 0;border-bottom:1px solid var(--g100)}
 .fsrow:last-child{border-bottom:none}
@@ -173,12 +173,23 @@ tbody tr:last-child td{border-bottom:none}
 .srtlbl{font-size:.64rem;font-weight:700;color:var(--t3);white-space:nowrap}
 .srtbtn{padding:.28rem .55rem;background:var(--bg);border:1.5px solid var(--bdr2);border-radius:20px;font-size:.66rem;font-weight:700;color:var(--t2);cursor:pointer;transition:all .15s}
 .srtbtn.sel{background:var(--g100);border-color:var(--g400);color:var(--g700)}
-/* attendance rows — NO animations */
+/* attendance rows */
 .ai{display:flex;align-items:center;gap:.55rem;padding:.48rem .58rem;border-bottom:1px solid var(--bdr)}
 .ai:last-child{border-bottom:none}
 .ai-av{width:28px;height:28px;border-radius:8px;flex-shrink:0;background:linear-gradient(135deg,var(--g700),var(--g400));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#fff}
 .ai-nm{font-size:.78rem;font-weight:700;color:var(--text)}
 .ai-id{font-size:.64rem;color:var(--t3)}
+
+/* Summary section */
+.sum-card{background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:.9rem;margin-bottom:.7rem;box-shadow:var(--sh)}
+.sum-row{display:flex;align-items:center;gap:.5rem;padding:.32rem .1rem;border-bottom:1px solid var(--bdr)}
+.sum-row:last-child{border-bottom:none}
+.sum-date{font-size:.72rem;font-weight:700;color:var(--text);min-width:78px}
+.sum-pills{display:flex;gap:.22rem;flex-wrap:wrap;flex:1}
+.sum-pill{font-size:.6rem;font-weight:700;border-radius:20px;padding:.1rem .38rem}
+.sp-b{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+.sp-l{background:#fef9c3;color:#713f12;border:1px solid #fde68a}
+.sp-d{background:#ede9fe;color:#4c1d95;border:1px solid #ddd6fe}
 
 /* ── SETUP ── */
 .cdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
@@ -371,6 +382,15 @@ tbody tr:last-child td{border-bottom:none}
         </div>
         <div id="attL" style="max-height:270px;overflow-y:auto;border-radius:var(--rs);border:1px solid var(--bdr)"></div>
       </div>
+
+      <!-- Summary history -->
+      <div class="card" id="sumCard">
+        <div class="ch">
+          <div class="ct">Daily Summary</div>
+          <button class="btn btgh btsm" onclick="loadSummary()">🔄</button>
+        </div>
+        <div id="sumList" style="font-size:.76rem;color:var(--t3);text-align:center;padding:.5rem">Loading...</div>
+      </div>
     </div>
   </div>
 
@@ -441,7 +461,7 @@ tbody tr:last-child td{border-bottom:none}
 
 <script>
 /* ═══════════════════════════════════════════
-   CONFIG
+   CONFIG  — update SHEET URL if redeployed
 ═══════════════════════════════════════════ */
 var SHEET  = 'https://script.google.com/macros/s/AKfycbz-JR6FYo6m3Yv3xDcq2j9Dw9LWirv0wd-cxG7Vr9Xkva5TiD9fP78n0sMXM83hxo34/exec';
 var MODELS = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
@@ -451,7 +471,8 @@ var MODELS = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
 ═══════════════════════════════════════════ */
 var PWD      = 'akm460@@';
 var STU      = [];        // [{id,name,desc:Float32Array|null}]
-var ATT      = {};        // {date:{b:[id,...],l:[...],d:[...]}}
+// ATT stores: {date:{b:[id,...],l:[...],d:[...]}}  — only PRESENT ids
+var ATT      = {};
 var FOOD     = {};        // {date:{b,l,d}}
 var faceOK   = false;
 var camStr   = null, camFace = 'user', detLp = null;
@@ -481,7 +502,7 @@ async function boot() {
     g('iFace').textContent = 'Failed ❌'; g('iFace').style.color = 'var(--red)';
   }
 
-  // Load local cache immediately (app usable even offline)
+  // Load local cache (app usable offline)
   STU  = loadStu();
   ATT  = parse(ls('gsc_a')) || {};
   FOOD = parse(ls('gsc_f')) || {};
@@ -577,8 +598,9 @@ function goTab(t) {
   if (t !== 'home') stopCam();
   if (t === 'track') {
     loadTrack(true);
+    loadSummary();
     clearInterval(tkPoll);
-    tkPoll = setInterval(function(){ loadTrack(true); }, 7000);
+    tkPoll = setInterval(function(){ loadTrack(true); }, 8000);
   } else {
     clearInterval(tkPoll); tkPoll = null;
   }
@@ -649,7 +671,7 @@ function startDetLoop() {
             saveAtt();
             // Instant UI update on track tab
             if (g('trackPage').classList.contains('act')) renderTrack();
-            // Send to sheet
+            // Send to sheet — then re-fetch to confirm sync
             var mDate=dt, mMeal=curMeal, mId=match.id;
             api('markAtt',{date:mDate,meal:mMeal,id:mId})
               .then(function(r){
@@ -774,17 +796,23 @@ async function captureReg() {
         if(regSamp.length>=NSAMP){
           clearInterval(col);
           var avg=avgD(regSamp);
-          STU.push({id:id,name:name,desc:avg});
+          // FIX: Add student to STU with name and face BEFORE saving
+          var newStu = {id:id, name:name, desc:avg};
+          STU.push(newStu);
           saveStu(); renderStu(); updInfo();
           stopReg(); g('rId').value=''; g('rName').value=''; g('bCap').disabled=false;
-          showMsg('rMsg','<span class="sp"></span> Saving face to Sheet...','in');
+          showMsg('rMsg','<span class="sp"></span> Saving to Google Sheet...','in');
           var descStr=Array.from(avg).map(function(n){return n.toFixed(6);}).join(',');
           try{
-            await api('addStudent',{id:id,name:name});
-            var r2=await api('saveFace',{id:id,desc:descStr});
-            if(r2.ok) showMsg('rMsg','✅ '+name+' registered & face saved!','ok');
-            else showMsg('rMsg','⚠ Local only — face sheet error: '+(r2.message||''),'er');
-          }catch(e){ showMsg('rMsg','⚠ Local only. Error: '+e.message,'er'); }
+            // FIX: Save student first, then face data — both must succeed
+            var r1 = await api('addStudent',{id:id,name:name});
+            var r2 = await api('saveFace',{id:id,desc:descStr});
+            if(r1.ok && r2.ok){
+              showMsg('rMsg','✅ '+name+' registered & face saved to Sheet!','ok');
+            } else {
+              showMsg('rMsg','⚠ Partially saved. Student: '+(r1.ok?'✅':'❌')+' Face: '+(r2.ok?'✅':'❌'),'er');
+            }
+          }catch(e){ showMsg('rMsg','⚠ Saved locally only. Error: '+e.message,'er'); }
         }
       }
     }catch(e){}
@@ -826,72 +854,157 @@ function setSort(m){
   renderAttL();
 }
 
+// FIX: loadTrack now properly fetches from sheet & updates UI with correct absent counts
 async function loadTrack(fromSheet) {
   var date = g('tDate').value; if(!date) return;
   var dot = g('syncDot'); if(dot) dot.className='sdot y';
   if (fromSheet) {
     try{
-      var ar=await api('getAtt',{date:date});
-      if(ar.b!==undefined){
-        ATT[date]={ b:merge(ATT[date]&&ATT[date].b,ar.b), l:merge(ATT[date]&&ATT[date].l,ar.l), d:merge(ATT[date]&&ATT[date].d,ar.d) };
+      var ar = await api('getAtt',{date:date});
+      // ar.b/l/d = arrays of PRESENT student IDs from sheet
+      if(ar.b !== undefined){
+        ATT[date] = {
+          b: merge(ATT[date]&&ATT[date].b, ar.b),
+          l: merge(ATT[date]&&ATT[date].l, ar.l),
+          d: merge(ATT[date]&&ATT[date].d, ar.d)
+        };
         saveAtt();
       }
     }catch(e){}
     try{
-      var fr=await api('getFood',{date:date});
-      if(fr.food){ if(!FOOD[date])FOOD[date]={b:'',l:'',d:''};
-        if(fr.food.b)FOOD[date].b=fr.food.b; if(fr.food.l)FOOD[date].l=fr.food.l; if(fr.food.d)FOOD[date].d=fr.food.d;
-        lss('gsc_f',JSON.stringify(FOOD)); }
+      var fr = await api('getFood',{date:date});
+      if(fr.food){
+        if(!FOOD[date]) FOOD[date]={b:'',l:'',d:''};
+        if(fr.food.b !== undefined) FOOD[date].b = fr.food.b;
+        if(fr.food.l !== undefined) FOOD[date].l = fr.food.l;
+        if(fr.food.d !== undefined) FOOD[date].d = fr.food.d;
+        lss('gsc_f', JSON.stringify(FOOD));
+      }
     }catch(e){}
   }
   if(dot) dot.className='sdot g';
   renderTrack();
 }
 
+// FIX: renderTrack now calculates absent as (total students - present) correctly
 function renderTrack(){
-  var date=g('tDate')?g('tDate').value:today();
-  var rec=ATT[date]||{b:[],l:[],d:[]};
-  var bL=rec.b||[],lL=rec.l||[],dL=rec.d||[], n=STU.length;
-  se('tcb',bL.length); se('tcl',lL.length); se('tcd',dL.length);
-  se('tsb',(n-bL.length)+' absent'); se('tsl',(n-lL.length)+' absent'); se('tsd',(n-dL.length)+' absent');
-  var fd=(FOOD[date])||{b:'',l:'',d:''};
-  se('fs-b',fd.b||'—'); se('fc-b',bL.length);
-  se('fs-l',fd.l||'—'); se('fc-l',lL.length);
-  se('fs-d',fd.d||'—'); se('fc-d',dL.length);
-  se('tDLbl',date);
+  var date = g('tDate') ? g('tDate').value : today();
+  var rec  = ATT[date] || {b:[],l:[],d:[]};
+  var bL   = rec.b||[], lL=rec.l||[], dL=rec.d||[];
+  var n    = STU.length;
+
+  se('tcb', bL.length);
+  se('tcl', lL.length);
+  se('tcd', dL.length);
+  // Absent = total students - present (only meaningful if students loaded)
+  se('tsb', (n > 0 ? (n - bL.length) : 0)+' absent');
+  se('tsl', (n > 0 ? (n - lL.length) : 0)+' absent');
+  se('tsd', (n > 0 ? (n - dL.length) : 0)+' absent');
+
+  var fd = FOOD[date] || {b:'',l:'',d:''};
+  se('fs-b', fd.b || '—'); se('fc-b', bL.length);
+  se('fs-l', fd.l || '—'); se('fc-l', lL.length);
+  se('fs-d', fd.d || '—'); se('fc-d', dL.length);
+  se('tDLbl', date);
   renderAttL();
 }
 
+// FIX: renderAttL correctly shows ALL students with P/A badges — not just those who were scanned
 function renderAttL(){
-  var date=g('tDate')?g('tDate').value:today();
-  var el=g('attL'); if(!el) return;
-  if(!STU.length){ el.innerHTML='<div style="padding:.9rem;text-align:center;color:var(--t3);font-size:.78rem">No students registered</div>'; return; }
-  var rec=ATT[date]||{b:[],l:[],d:[]};
-  var bL=rec.b||[], lL=rec.l||[], dL=rec.d||[];
-  var list=STU.map(function(s){
-    var pb=inc(bL,s.id), pl=inc(lL,s.id), pd=inc(dL,s.id);
-    var pres=tkMeal==='all'?(pb||pl||pd):tkMeal==='b'?pb:tkMeal==='l'?pl:pd;
-    return {s:s,pb:pb,pl:pl,pd:pd,pres:pres};
+  var date = g('tDate') ? g('tDate').value : today();
+  var el   = g('attL'); if(!el) return;
+
+  if(!STU.length){
+    el.innerHTML='<div style="padding:.9rem;text-align:center;color:var(--t3);font-size:.78rem">No students registered</div>';
+    return;
+  }
+
+  var rec = ATT[date] || {b:[],l:[],d:[]};
+  var bL  = rec.b||[], lL=rec.l||[], dL=rec.d||[];
+
+  // Build full list: every student gets present/absent status
+  var list = STU.map(function(s){
+    var pb = inc(bL, s.id);
+    var pl = inc(lL, s.id);
+    var pd = inc(dL, s.id);
+    // For "all" tab: present if present in ANY meal; for specific meal: check that meal
+    var pres = tkMeal==='all' ? (pb||pl||pd) : tkMeal==='b' ? pb : tkMeal==='l' ? pl : pd;
+    return {s:s, pb:pb, pl:pl, pd:pd, pres:pres};
   });
+
+  // Filter
   var show;
-  if(sortM==='present') show=list.filter(function(x){return x.pres;});
-  else if(sortM==='absent') show=list.filter(function(x){return !x.pres;});
-  else show=list.slice().sort(function(a,b){return (b.pres?1:0)-(a.pres?1:0);});
-  if(!show.length){ el.innerHTML='<div style="padding:.9rem;text-align:center;color:var(--t3);font-size:.78rem">No records for this filter</div>'; return; }
+  if(sortM==='present')      show = list.filter(function(x){ return x.pres; });
+  else if(sortM==='absent')  show = list.filter(function(x){ return !x.pres; });
+  else {
+    // Sort: present first, then absent
+    show = list.slice().sort(function(a,b){ return (b.pres?1:0)-(a.pres?1:0); });
+  }
+
+  if(!show.length){
+    el.innerHTML='<div style="padding:.9rem;text-align:center;color:var(--t3);font-size:.78rem">No records for this filter</div>';
+    return;
+  }
+
   var html='';
   show.forEach(function(x){
-    var s=x.s, bg=x.pres?'':'background:#fef2f2;';
-    var bdg='';
-    if(tkMeal==='all'||tkMeal==='b') bdg+=x.pb?'<span class="bdg bg" style="font-size:.6rem">🌅 P</span>':'<span class="bdg br" style="font-size:.6rem">🌅 A</span>';
-    if(tkMeal==='all'||tkMeal==='l') bdg+=x.pl?'<span class="bdg bg" style="font-size:.6rem">🍱 P</span>':'<span class="bdg br" style="font-size:.6rem">🍱 A</span>';
-    if(tkMeal==='all'||tkMeal==='d') bdg+=x.pd?'<span class="bdg bg" style="font-size:.6rem">🌙 P</span>':'<span class="bdg br" style="font-size:.6rem">🌙 A</span>';
-    html+='<div class="ai" style="'+bg+'">'
+    var s  = x.s;
+    var bg = x.pres ? '' : 'background:#fef2f2;';
+    var bdg = '';
+
+    if(tkMeal==='all' || tkMeal==='b')
+      bdg += x.pb
+        ? '<span class="bdg bg" style="font-size:.6rem">🌅 P</span>'
+        : '<span class="bdg br" style="font-size:.6rem">🌅 A</span>';
+    if(tkMeal==='all' || tkMeal==='l')
+      bdg += x.pl
+        ? '<span class="bdg bg" style="font-size:.6rem">🍱 P</span>'
+        : '<span class="bdg br" style="font-size:.6rem">🍱 A</span>';
+    if(tkMeal==='all' || tkMeal==='d')
+      bdg += x.pd
+        ? '<span class="bdg bg" style="font-size:.6rem">🌙 P</span>'
+        : '<span class="bdg br" style="font-size:.6rem">🌙 A</span>';
+
+    html += '<div class="ai" style="'+bg+'">'
       +'<div class="ai-av">'+s.name[0].toUpperCase()+'</div>'
-      +'<div style="flex:1;min-width:0"><div class="ai-nm">'+xe(s.name)+'</div><div class="ai-id">'+xe(s.id)+'</div></div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div class="ai-nm">'+xe(s.name)+'</div>'
+        +'<div class="ai-id">'+xe(s.id)+'</div>'
+      +'</div>'
       +'<div style="display:flex;gap:.18rem;flex-wrap:wrap">'+bdg+'</div>'
       +'</div>';
   });
-  el.innerHTML=html;
+  el.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════
+   SUMMARY — FIX: load from sheet & display
+═══════════════════════════════════════════ */
+async function loadSummary(){
+  var el = g('sumList'); if(!el) return;
+  el.innerHTML = '<div style="padding:.5rem;text-align:center;color:var(--t3);font-size:.76rem"><span class="sp"></span> Loading summary...</div>';
+  try{
+    var r = await api('getSummary');
+    if(!r.summary || !r.summary.length){
+      el.innerHTML='<div style="padding:.5rem;text-align:center;color:var(--t3);font-size:.76rem">No summary data yet</div>';
+      return;
+    }
+    var html='';
+    r.summary.forEach(function(row){
+      html += '<div class="sum-row">'
+        +'<div class="sum-date">'+xe(row.date)+'</div>'
+        +'<div class="sum-pills">'
+          +'<span class="sum-pill sp-b">🌅 '+row.b+'</span>'
+          +'<span class="sum-pill sp-l">🍱 '+row.l+'</span>'
+          +'<span class="sum-pill sp-d">🌙 '+row.d+'</span>'
+          +'<span style="font-size:.6rem;color:var(--t3);font-weight:600;padding:.1rem .2rem">/ '+row.total+' students</span>'
+        +'</div>'
+        +'</div>';
+    });
+    el.innerHTML = html;
+  }catch(e){
+    el.innerHTML='<div style="padding:.5rem;text-align:center;color:var(--red);font-size:.76rem">❌ Could not load summary</div>';
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -908,41 +1021,71 @@ async function pullAll(){
   showMsg('shMsg','✅ All data pulled','ok');
 }
 
+// FIX: syncAll properly merges face descriptors with student names
 async function syncAll(silent){
   try{
-    var sr=await api('getStudents');
-    var fr=await api('getFaces');
-    var fmap={};
+    var sr = await api('getStudents');
+    var fr = await api('getFaces');
+
+    // Build face map: id -> Float32Array
+    var fmap = {};
     if(fr.faces) fr.faces.forEach(function(f){
       try{
-        var arr=typeof f.desc==='string'?f.desc.split(',').map(Number):f.desc;
-        if(Array.isArray(arr)&&arr.length===128) fmap[f.id]=new Float32Array(arr);
+        var arr = typeof f.desc==='string' ? f.desc.split(',').map(Number) : f.desc;
+        if(Array.isArray(arr) && arr.length===128) fmap[f.id] = new Float32Array(arr);
       }catch(e){}
     });
+
     if(sr.students){
-      var oldMap={};
-      STU.forEach(function(s){oldMap[s.id]=s;});
-      STU=sr.students.map(function(s){
-        var old=oldMap[s.id];
-        return {id:s.id,name:s.name,desc:fmap[s.id]||(old&&old.desc)||null};
+      var oldMap = {};
+      STU.forEach(function(s){ oldMap[s.id]=s; });
+      // FIX: Always prefer sheet name; keep local face if sheet has none
+      STU = sr.students.map(function(s){
+        var old = oldMap[s.id];
+        var desc = fmap[s.id] || (old && old.desc) || null;
+        return { id: s.id, name: s.name, desc: desc };
       });
       saveStu(); renderStu();
     }
-    // Today attendance + food
-    var d=today();
-    var ar=await api('getAtt',{date:d});
-    if(ar.b!==undefined){
-      ATT[d]={b:merge(ATT[d]&&ATT[d].b,ar.b),l:merge(ATT[d]&&ATT[d].l,ar.l),d:merge(ATT[d]&&ATT[d].d,ar.d)};
-      saveAtt();
+
+    // Fetch today's attendance AND the currently-selected date (if different)
+    var d     = today();
+    var selD  = g('tDate') ? g('tDate').value : d;
+
+    var dates = [d];
+    if(selD && selD !== d) dates.push(selD);
+
+    for(var i=0;i<dates.length;i++){
+      var dt = dates[i];
+      try{
+        var ar = await api('getAtt',{date:dt});
+        if(ar.b !== undefined){
+          ATT[dt] = {
+            b: merge(ATT[dt]&&ATT[dt].b, ar.b),
+            l: merge(ATT[dt]&&ATT[dt].l, ar.l),
+            d: merge(ATT[dt]&&ATT[dt].d, ar.d)
+          };
+        }
+      }catch(e){}
     }
-    var fd=await api('getFood',{date:d});
-    if(fd.food){
-      if(!FOOD[d])FOOD[d]={b:'',l:'',d:''};
-      if(fd.food.b)FOOD[d].b=fd.food.b; if(fd.food.l)FOOD[d].l=fd.food.l; if(fd.food.d)FOOD[d].d=fd.food.d;
-      lss('gsc_f',JSON.stringify(FOOD));
-    }
+    saveAtt();
+
+    // Food for today
+    try{
+      var fd = await api('getFood',{date:d});
+      if(fd.food){
+        if(!FOOD[d]) FOOD[d]={b:'',l:'',d:''};
+        if(fd.food.b !== undefined) FOOD[d].b = fd.food.b;
+        if(fd.food.l !== undefined) FOOD[d].l = fd.food.l;
+        if(fd.food.d !== undefined) FOOD[d].d = fd.food.d;
+        lss('gsc_f', JSON.stringify(FOOD));
+      }
+    }catch(e){}
+
     renderTrack(); updInfo();
-  }catch(e){ if(!silent) showMsg('shMsg','❌ '+e.message,'er'); }
+  }catch(e){
+    if(!silent) showMsg('shMsg','❌ '+e.message,'er');
+  }
 }
 
 async function changePwd(){
@@ -976,11 +1119,11 @@ function updInfo(){
 }
 
 /* ═══════════════════════════════════════════
-   SHEET API — all GET, follows 302 redirects
+   SHEET API
 ═══════════════════════════════════════════ */
 async function api(action, params){
   var p={action:action};
-  if(params){for(var k in params)p[k]=params[k];}
+  if(params){for(var k in params) p[k]=params[k];}
   var qs=Object.keys(p).map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(p[k]);}).join('&');
   var resp=await fetch(SHEET+'?'+qs,{cache:'no-cache',redirect:'follow'});
   if(!resp.ok) throw new Error('HTTP '+resp.status);
@@ -991,11 +1134,13 @@ async function api(action, params){
    STORAGE
 ═══════════════════════════════════════════ */
 function saveStu(){
-  lss('gsc_s',JSON.stringify(STU.map(function(s){return {id:s.id,name:s.name,desc:s.desc?Array.from(s.desc):null};})));
+  lss('gsc_s',JSON.stringify(STU.map(function(s){
+    return {id:s.id, name:s.name, desc:s.desc?Array.from(s.desc):null};
+  })));
 }
 function loadStu(){
   return (parse(ls('gsc_s'))||[]).map(function(s){
-    return {id:s.id,name:s.name,desc:s.desc?new Float32Array(s.desc):null};
+    return {id:s.id, name:s.name, desc:s.desc?new Float32Array(s.desc):null};
   });
 }
 function saveAtt(){ lss('gsc_a',JSON.stringify(ATT)); }
