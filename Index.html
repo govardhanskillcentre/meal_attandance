@@ -138,14 +138,29 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
         <div class="CD"><div class="SC">Recent Scans</div><div id="recentList" style="max-height:240px;overflow-y:auto"></div></div>
       </div>
       <div class="CD">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap;gap:6px">
-          <div class="SC" style="margin:0">Today's Attendance</div>
-          <select id="dmf" onchange="renderDashTable()" style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:4px 8px;color:var(--txt);outline:none;font-size:.77rem">
-            <option value="all">All Meals</option><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option>
+        <div class="SC" style="margin-bottom:9px">Today's Attendance</div>
+        <!-- Dashboard filters -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px;align-items:center">
+          <input id="dSearch" type="text" placeholder="&#128269; Search student name or roll..." oninput="renderDashTable()"
+            style="flex:1;min-width:160px;background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:5px 9px;color:var(--txt);outline:none;font-size:.77rem">
+          <input id="dDate" type="date" onchange="renderDashTable()"
+            style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:5px 8px;color:var(--txt);outline:none;font-size:.77rem">
+          <select id="dmf" onchange="renderDashTable()" style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:5px 8px;color:var(--txt);outline:none;font-size:.77rem">
+            <option value="all">All Meals</option>
+            <option value="breakfast">&#127749; Breakfast</option>
+            <option value="lunch">&#9728; Lunch</option>
+            <option value="dinner">&#127769; Dinner</option>
           </select>
+          <select id="dStatus" onchange="renderDashTable()" style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:5px 8px;color:var(--txt);outline:none;font-size:.77rem">
+            <option value="all">All Students</option>
+            <option value="present">&#9989; Present</option>
+            <option value="absent">&#10060; Absent</option>
+          </select>
+          <button class="BO" onclick="resetDashFilters()" style="padding:5px 10px;font-size:.72rem">Reset</button>
         </div>
+        <div style="font-size:.72rem;color:var(--mu);margin-bottom:6px" id="dashFilterInfo"></div>
         <div style="overflow-x:auto">
-          <table class="TT"><thead><tr><th>#</th><th>Student</th><th>Roll</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Total</th></tr></thead><tbody id="dtbody"></tbody></table>
+          <table class="TT"><thead><tr><th>#</th><th>Student</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th><th>Meals</th></tr></thead><tbody id="dtbody"></tbody></table>
         </div>
       </div>
     </div>
@@ -195,15 +210,32 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
     <div class="PG" id="page-reports">
       <h2 class="R" style="font-size:1.25rem;margin-bottom:12px">Reports</h2>
       <div class="CD" style="margin-bottom:12px">
-        <div class="G3">
-          <div class="FF"><label>From</label><input type="date" id="rFrom"></div>
-          <div class="FF"><label>To</label><input type="date" id="rTo"></div>
-          <div class="FF"><label>Student</label><select id="rStu" style="width:100%;background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:8px;color:var(--txt);outline:none;font-size:.84rem"><option value="">All</option></select></div>
+        <div class="G3" style="margin-bottom:10px">
+          <div class="FF"><label>From Date</label><input type="date" id="rFrom"></div>
+          <div class="FF"><label>To Date</label><input type="date" id="rTo"></div>
+          <div class="FF"><label>Student</label>
+            <select id="rStu" style="width:100%;background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:8px;color:var(--txt);outline:none;font-size:.84rem"><option value="">All Students</option></select>
+          </div>
         </div>
-        <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
-          <button class="BN" onclick="genReport()">Generate</button>
-          <button class="BO" onclick="exportReport()">Excel</button>
-          <button class="BO" onclick="doSync(false)">Refresh</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0">
+          <select id="rMeal" style="background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:7px 10px;color:var(--txt);outline:none;font-size:.82rem">
+            <option value="all">All Meals</option>
+            <option value="breakfast">&#127749; Breakfast</option>
+            <option value="lunch">&#9728; Lunch</option>
+            <option value="dinner">&#127769; Dinner</option>
+          </select>
+          <select id="rStatus" style="background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:7px 10px;color:var(--txt);outline:none;font-size:.82rem">
+            <option value="all">All (Present + Absent)</option>
+            <option value="present">&#9989; Present Only</option>
+            <option value="absent">&#10060; Absent Only</option>
+          </select>
+          <select id="rView" style="background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:7px 10px;color:var(--txt);outline:none;font-size:.82rem">
+            <option value="summary">Summary View</option>
+            <option value="daywise">Day-wise Detail</option>
+          </select>
+          <button class="BN" onclick="genReport()">&#128269; Generate</button>
+          <button class="BO" onclick="exportReport()">&#11015; Excel</button>
+          <button class="BO" onclick="doSync(false)">&#128260; Refresh</button>
         </div>
       </div>
       <div id="repOut"></div>
@@ -513,6 +545,7 @@ async function initApp() {
   document.getElementById('dayStr').textContent = '- '+new Date().toDateString();
   const t = todayStr();
   ['rFrom','rTo','manDate'].forEach(id => document.getElementById(id).value = t);
+  const dDateEl=document.getElementById('dDate'); if(dDateEl) dDateEl.value=t;
 
   // Step 1: Load localStorage immediately — no waiting, instant display
   students   = LS.g('students')   || [];
@@ -562,19 +595,79 @@ function renderDashboard() {
 }
 function SC(ico,bg,val,lbl,color){return'<div class="ST"><div class="SI" style="background:'+bg+'">'+ico+'</div><div><div class="SV"'+(color?' style="color:'+color+'"':'')+'>'+val+'</div><div class="SL">'+lbl+'</div></div></div>';}
 function MB(lbl,n,N,pct,grad){return'<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:2px"><span>'+lbl+'</span><span>'+n+'/'+N+' ('+pct+'%)</span></div><div class="PB"><div class="PF" style="width:'+pct+'%;background:linear-gradient(90deg,'+grad+')"></div></div></div>';}
+function resetDashFilters(){
+  document.getElementById('dSearch').value='';
+  document.getElementById('dDate').value=todayStr();
+  document.getElementById('dmf').value='all';
+  document.getElementById('dStatus').value='all';
+  renderDashTable();
+}
+
 function renderDashTable(){
-  const t=todayStr();
-  document.getElementById('dtbody').innerHTML=students.map((s,i)=>{
+  const meal  = document.getElementById('dmf').value;
+  const stat  = document.getElementById('dStatus').value;
+  const q     = (document.getElementById('dSearch').value||'').toLowerCase().trim();
+  const dEl   = document.getElementById('dDate');
+  const t     = dEl.value || todayStr();
+
+  let list = students;
+
+  // name / roll filter
+  if(q) list = list.filter(s=>s.name.toLowerCase().includes(q)||s.rollNo.toLowerCase().includes(q));
+
+  let idx=0;
+  const rows = list.map(s=>{
     const sa=attendance.filter(a=>a.date===t&&String(a.studentId)===String(s.id));
-    const bf=sa.find(a=>a.meal==='breakfast'),ln=sa.find(a=>a.meal==='lunch'),dn=sa.find(a=>a.meal==='dinner');
+    const bf=sa.find(a=>a.meal==='breakfast');
+    const ln=sa.find(a=>a.meal==='lunch');
+    const dn=sa.find(a=>a.meal==='dinner');
     const m=[bf,ln,dn].filter(Boolean).length;
-    return'<tr><td>'+(i+1)+'</td><td><div style="display:flex;align-items:center;gap:6px"><div class="AV" style="width:25px;height:25px;font-size:.68rem">'+s.name[0]+'</div><b>'+s.name+'</b></div></td>'+
-    '<td style="color:var(--mu);font-size:.75rem">'+s.rollNo+'</td>'+
-    '<td>'+(bf?'<span class="BP">&#10003; '+bf.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>'+
-    '<td>'+(ln?'<span class="BP">&#10003; '+ln.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>'+
-    '<td>'+(dn?'<span class="BP">&#10003; '+dn.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>'+
-    '<td><b style="color:'+(m>0?'var(--grn)':'var(--mu)')+'">'+m+'/3</b></td></tr>';
-  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:12px">No students yet</td></tr>';
+
+    // present/absent filter — checks selected meal
+    if(stat==='present'){
+      if(meal==='all'&&m===0)return '';
+      if(meal==='breakfast'&&!bf)return '';
+      if(meal==='lunch'&&!ln)return '';
+      if(meal==='dinner'&&!dn)return '';
+    }
+    if(stat==='absent'){
+      if(meal==='all'&&m>0)return '';
+      if(meal==='breakfast'&&bf)return '';
+      if(meal==='lunch'&&ln)return '';
+      if(meal==='dinner'&&dn)return '';
+    }
+
+    // meal column visibility
+    const showBf = meal==='all'||meal==='breakfast';
+    const showLn = meal==='all'||meal==='lunch';
+    const showDn = meal==='all'||meal==='dinner';
+
+    idx++;
+    return '<tr>'+
+      '<td>'+idx+'</td>'+
+      '<td><div style="display:flex;align-items:center;gap:6px">'+
+        '<div class="AV" style="width:25px;height:25px;font-size:.68rem">'+s.name[0]+'</div>'+
+        '<div><b>'+s.name+'</b><div style="font-size:.67rem;color:var(--mu)">'+s.rollNo+'</div></div>'+
+      '</div></td>'+
+      (showBf?'<td>'+(bf?'<span class="BP">&#10003; '+bf.time+'</span>':'<span class="BA">&#10007; Absent</span>')+'</td>':'')+
+      (showLn?'<td>'+(ln?'<span class="BP">&#10003; '+ln.time+'</span>':'<span class="BA">&#10007; Absent</span>')+'</td>':'')+
+      (showDn?'<td>'+(dn?'<span class="BP">&#10003; '+dn.time+'</span>':'<span class="BA">&#10007; Absent</span>')+'</td>':'')+
+      '<td><b style="color:'+(m>0?'var(--grn)':'var(--red)')+'">'+m+'/3</b></td>'+
+    '</tr>';
+  }).filter(Boolean);
+
+  // Dynamic headers
+  const meal2 = document.getElementById('dmf').value;
+  const showBf2=meal2==='all'||meal2==='breakfast', showLn2=meal2==='all'||meal2==='lunch', showDn2=meal2==='all'||meal2==='dinner';
+  const hdr='<tr><th>#</th><th>Student</th>'+(showBf2?'<th>&#127749; Breakfast</th>':'')+(showLn2?'<th>&#9728; Lunch</th>':'')+(showDn2?'<th>&#127769; Dinner</th>':'')+'<th>Meals</th></tr>';
+  document.querySelector('#dtbody').closest('table').querySelector('thead').innerHTML=hdr;
+
+  const empty='<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:14px">No students match filters</td></tr>';
+  document.getElementById('dtbody').innerHTML=rows.length?rows.join(''):empty;
+
+  // Update counter
+  document.getElementById('dashFilterInfo').textContent=
+    'Showing '+rows.length+' of '+students.length+' students · '+t;
 }
 
 // ── AI MODELS ─────────────────────────────────
@@ -777,13 +870,115 @@ async function saveManual(){
 }
 
 // ── REPORTS ───────────────────────────────────
-function fillRepStu(){document.getElementById('rStu').innerHTML='<option value="">All</option>'+students.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join('');}
+function fillRepStu(){
+  document.getElementById('rStu').innerHTML='<option value="">All Students</option>'+
+    students.map(s=>'<option value="'+s.id+'">'+s.name+' ('+s.rollNo+')</option>').join('');
+}
 function genReport(){
-  const from=document.getElementById('rFrom').value,to=document.getElementById('rTo').value,sid=document.getElementById('rStu').value;
+  const from   = document.getElementById('rFrom').value;
+  const to     = document.getElementById('rTo').value;
+  const sid    = document.getElementById('rStu').value;
+  const meal   = document.getElementById('rMeal').value;
+  const status = document.getElementById('rStatus').value;
+  const view   = document.getElementById('rView').value;
   if(!from||!to){toast('Select dates','var(--red)');return;}
-  const fs=sid?students.filter(s=>String(s.id)===String(sid)):students,dates=dRange(from,to),fa=attendance.filter(a=>a.date>=from&&a.date<=to);
-  const rows=fs.map((s,i)=>{let bT=0,lT=0,dT=0;const cells=dates.map(d=>{const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);const b=sa.find(a=>a.meal==='breakfast')?1:0,l=sa.find(a=>a.meal==='lunch')?1:0,dn=sa.find(a=>a.meal==='dinner')?1:0;bT+=b;lT+=l;dT+=dn;const dot=v=>'<span style="color:'+(v?'var(--grn)':'var(--red)')+';">'+(v?'Y':'N')+'</span>';return'<td style="text-align:center;border-left:1px solid var(--bord);font-size:.73rem">'+dot(b)+dot(l)+dot(dn)+'</td>';}).join('');const pct=n=>dates.length?Math.round(n/dates.length*100)+'%':'--',col=n=>n/Math.max(dates.length,1)>=.5?'var(--grn)':'var(--red)';return'<tr><td>'+(i+1)+'</td><td style="font-weight:600">'+s.name+'</td><td style="color:var(--mu);font-size:.74rem">'+s.rollNo+'</td>'+cells+'<td><b style="color:'+col(bT)+'">'+pct(bT)+'</b></td><td><b style="color:'+col(lT)+'">'+pct(lT)+'</b></td><td><b style="color:'+col(dT)+'">'+pct(dT)+'</b></td></tr>';}).join('');
-  document.getElementById('repOut').innerHTML='<div class="CD" style="margin-bottom:10px"><b style="color:var(--acc)">'+fs.length+'</b> students &middot; <b style="color:var(--blu)">'+dates.length+'</b> days &middot; <b style="color:var(--grn)">'+fa.length+'</b> meals</div><div class="CD" style="overflow-x:auto"><table class="TT"><thead><tr><th>#</th><th>Student</th><th>Roll</th>'+dates.map(d=>'<th style="text-align:center;border-left:1px solid var(--bord);min-width:65px">'+d.slice(5)+'<br><span style="font-size:.6rem">B.L.D</span></th>').join('')+'<th>B%</th><th>L%</th><th>D%</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+
+  let fs = sid ? students.filter(s=>String(s.id)===String(sid)) : students;
+  const dates = dRange(from,to);
+  const fa = attendance.filter(a=>a.date>=from&&a.date<=to);
+  const mealLabel = {all:'All Meals',breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner'};
+
+  if(view==='daywise'){
+    // DAY-WISE DETAIL: each date shows which students are present/absent for selected meal
+    const sections = dates.map(d=>{
+      const meals2check = meal==='all'?['breakfast','lunch','dinner']:[meal];
+      const dayAtt = fa.filter(a=>a.date===d);
+      let rows='';
+      let pCount=0, aCount=0;
+      fs.forEach((s,i)=>{
+        const sa=dayAtt.filter(a=>String(a.studentId)===String(s.id));
+        const bf=sa.find(a=>a.meal==='breakfast');
+        const ln=sa.find(a=>a.meal==='lunch');
+        const dn=sa.find(a=>a.meal==='dinner');
+        const mealMap={breakfast:bf,lunch:ln,dinner:dn};
+        const isPresent = meal==='all'?(bf||ln||dn):mealMap[meal];
+
+        if(status==='present'&&!isPresent) return;
+        if(status==='absent'&&isPresent) return;
+        if(isPresent) pCount++; else aCount++;
+
+        rows+='<tr>'+
+          '<td>'+(i+1)+'</td>'+
+          '<td><div style="display:flex;align-items:center;gap:5px">'+
+            '<div class="AV" style="width:22px;height:22px;font-size:.62rem">'+s.name[0]+'</div>'+
+            '<b>'+s.name+'</b></div></td>'+
+          '<td style="color:var(--mu);font-size:.74rem">'+s.rollNo+'</td>'+
+          (meal==='all'||meal==='breakfast'?'<td>'+(bf?'<span class="BP">&#10003; '+bf.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>':'')+
+          (meal==='all'||meal==='lunch'?'<td>'+(ln?'<span class="BP">&#10003; '+ln.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>':'')+
+          (meal==='all'||meal==='dinner'?'<td>'+(dn?'<span class="BP">&#10003; '+dn.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>':'')+
+          '</tr>';
+      });
+      if(!rows) rows='<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:8px">No data</td></tr>';
+      const colHdr=(meal==='all'||meal==='breakfast'?'<th>Breakfast</th>':'')+(meal==='all'||meal==='lunch'?'<th>Lunch</th>':'')+(meal==='all'||meal==='dinner'?'<th>Dinner</th>':'');
+      return'<div class="CD" style="margin-bottom:12px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">'+
+          '<div class="SC" style="margin:0">'+d+' &mdash; '+mealLabel[meal]+'</div>'+
+          '<div style="display:flex;gap:8px;font-size:.78rem">'+
+            '<span style="color:var(--grn)">&#9989; Present: '+pCount+'</span>'+
+            '<span style="color:var(--red)">&#10060; Absent: '+aCount+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div style="overflow-x:auto"><table class="TT"><thead><tr><th>#</th><th>Student</th><th>Roll</th>'+colHdr+'</tr></thead>'+
+        '<tbody>'+rows+'</tbody></table></div></div>';
+    }).join('');
+    document.getElementById('repOut').innerHTML=
+      '<div class="CD" style="margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap">'+
+        '<span><b style="color:var(--acc)">'+fs.length+'</b> <span style="color:var(--mu)">students</span></span>'+
+        '<span><b style="color:var(--blu)">'+dates.length+'</b> <span style="color:var(--mu)">days</span></span>'+
+        '<span><b style="color:var(--grn)">'+fa.length+'</b> <span style="color:var(--mu)">total meals</span></span>'+
+      '</div>'+sections;
+
+  } else {
+    // SUMMARY VIEW: one row per student, columns per date
+    let filteredRows=[];
+    fs.forEach((s,i)=>{
+      let bT=0,lT=0,dT=0;
+      const cells=dates.map(d=>{
+        const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);
+        const b=sa.find(a=>a.meal==='breakfast')?1:0;
+        const l=sa.find(a=>a.meal==='lunch')?1:0;
+        const dn=sa.find(a=>a.meal==='dinner')?1:0;
+        bT+=b;lT+=l;dT+=dn;
+        const dot=v=>'<span style="color:'+(v?'var(--grn)':'var(--red)')+';">'+(v?'&#10003;':'&#10007;')+'</span>';
+        if(meal==='all') return'<td style="text-align:center;border-left:1px solid var(--bord);font-size:.75rem">'+dot(b)+dot(l)+dot(dn)+'</td>';
+        const vm={breakfast:b,lunch:l,dinner:dn}[meal];
+        return'<td style="text-align:center;border-left:1px solid var(--bord)">'+(vm?'<span class="BP">&#10003;</span>':'<span class="BA">&#10007;</span>')+'</td>';
+      }).join('');
+      const pct=n=>dates.length?Math.round(n/dates.length*100)+'%':'--';
+      const col=n=>n/Math.max(dates.length,1)>=.5?'var(--grn)':'var(--red)';
+      // status filter on summary
+      const totPresent={all:bT+lT+dT,breakfast:bT,lunch:lT,dinner:dT}[meal];
+      if(status==='present'&&totPresent===0) return;
+      if(status==='absent'&&totPresent>0) return;
+      const pctCols=meal==='all'
+        ?'<td><b style="color:'+col(bT)+'">'+pct(bT)+'</b></td><td><b style="color:'+col(lT)+'">'+pct(lT)+'</b></td><td><b style="color:'+col(dT)+'">'+pct(dT)+'</b></td>'
+        :'<td><b style="color:'+col({breakfast:bT,lunch:lT,dinner:dT}[meal])+'">'+pct({breakfast:bT,lunch:lT,dinner:dT}[meal])+'</b></td>';
+      filteredRows.push('<tr><td>'+(filteredRows.length+1)+'</td><td style="font-weight:600">'+s.name+'</td><td style="color:var(--mu);font-size:.74rem">'+s.rollNo+'</td>'+cells+pctCols+'</tr>');
+    });
+
+    const dateHdr=dates.map(d=>'<th style="text-align:center;border-left:1px solid var(--bord);min-width:60px">'+d.slice(5)+(meal==='all'?'<br><span style="font-size:.58rem">B&#183;L&#183;D</span>':'')+'</th>').join('');
+    const pctHdr=meal==='all'?'<th>B%</th><th>L%</th><th>D%</th>':'<th>%</th>';
+    document.getElementById('repOut').innerHTML=
+      '<div class="CD" style="margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap">'+
+        '<span><b style="color:var(--acc)">'+filteredRows.length+'</b> <span style="color:var(--mu)">students shown</span></span>'+
+        '<span><b style="color:var(--blu)">'+dates.length+'</b> <span style="color:var(--mu)">days</span></span>'+
+        '<span><b style="color:var(--grn)">'+fa.length+'</b> <span style="color:var(--mu)">total meals</span></span>'+
+      '</div>'+
+      '<div class="CD" style="overflow-x:auto"><table class="TT"><thead><tr>'+
+        '<th>#</th><th>Student</th><th>Roll</th>'+dateHdr+pctHdr+'</tr></thead>'+
+        '<tbody>'+(filteredRows.length?filteredRows.join(''):'<tr><td colspan="10" style="text-align:center;color:var(--mu);padding:14px">No data matches filters</td></tr>')+
+      '</tbody></table></div>';
+  }
 }
 function exportToday(){const t=todayStr(),h=['#','Name','Roll','Breakfast','B-Time','Lunch','L-Time','Dinner','D-Time','Total','Date'];const rows=students.map((s,i)=>{const sa=attendance.filter(a=>a.date===t&&String(a.studentId)===String(s.id));const b=sa.find(a=>a.meal==='breakfast'),l=sa.find(a=>a.meal==='lunch'),d=sa.find(a=>a.meal==='dinner');return[i+1,s.name,s.rollNo,b?'Present':'Absent',b?b.time:'',l?'Present':'Absent',l?l.time:'',d?'Present':'Absent',d?d.time:'',[b,l,d].filter(Boolean).length,t];});const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([h,...rows]);ws['!cols']=h.map(()=>({wch:14}));XLSX.utils.book_append_sheet(wb,ws,'Today');const h2=['#','Name','Roll','Meal','Date','Time','Conf%'],r2=attendance.map((a,i)=>{const s=students.find(st=>String(st.id)===String(a.studentId));return[i+1,s?s.name:a.studentName,s?s.rollNo:'',a.meal,a.date,a.time,a.confidence];});XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h2,...r2]),'All');XLSX.writeFile(wb,'GSC_'+t+'.xlsx');toast('Excel exported','var(--grn)');}
 function exportReport(){const from=document.getElementById('rFrom').value,to=document.getElementById('rTo').value,dates=dRange(from,to),fa=attendance.filter(a=>a.date>=from&&a.date<=to);const h=['#','Name','Roll'];dates.forEach(d=>h.push(d+' B',d+' L',d+' D'));h.push('B%','L%','D%');const rows=students.map((s,i)=>{let bT=0,lT=0,dT=0;const row=[i+1,s.name,s.rollNo];dates.forEach(d=>{const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);const b=sa.find(a=>a.meal==='breakfast')?1:0,l=sa.find(a=>a.meal==='lunch')?1:0,dn=sa.find(a=>a.meal==='dinner')?1:0;bT+=b;lT+=l;dT+=dn;row.push(b?'P':'A',l?'P':'A',dn?'P':'A');});row.push(dates.length?Math.round(bT/dates.length*100)+'%':'0%',dates.length?Math.round(lT/dates.length*100)+'%':'0%',dates.length?Math.round(dT/dates.length*100)+'%':'0%');return row;});const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h,...rows]),'Report');XLSX.writeFile(wb,'GSC_Report_'+from+'_'+to+'.xlsx');toast('Report exported','var(--grn)');}
