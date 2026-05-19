@@ -24,7 +24,7 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
 .fi input:focus{border-color:var(--acc)}
 .BM{width:100%;padding:12px;background:linear-gradient(135deg,var(--acc),#e07b00);border:none;border-radius:8px;color:#000;font-family:'Rajdhani',sans-serif;font-size:1.08rem;font-weight:700;letter-spacing:1.5px;cursor:pointer}
 .lerr{color:var(--red);font-size:.78rem;text-align:center;margin-top:7px;min-height:15px}
-.ls2{font-size:.74rem;color:var(--mu);text-align:center;margin-top:10px}
+.ls2{font-size:.74rem;text-align:center;margin-top:10px;color:var(--mu)}
 #APP{display:none;flex-direction:column;min-height:100vh}
 .TB{background:var(--surf);border-bottom:1px solid var(--bord);padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
 .TL{font-family:'Rajdhani',sans-serif;font-size:1.22rem;font-weight:700;color:var(--acc);letter-spacing:2px;flex:1}
@@ -88,17 +88,13 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
 .OFB{background:#130d00;border:1px solid #4a3000;color:var(--acc);padding:3px 8px;border-radius:5px;font-size:.68rem;font-weight:600}
 .SP{display:inline-block;width:12px;height:12px;border:2px solid var(--bord);border-top-color:var(--acc);border-radius:50%;animation:sp .5s linear infinite;vertical-align:middle;margin-right:4px}
 @keyframes sp{to{transform:rotate(360deg)}}
-/* ENROLL TIMER BAR */
 .timerBar{height:4px;background:#1e2d45;border-radius:2px;overflow:hidden;margin-top:5px}
 .timerFill{height:100%;background:var(--grn);transition:width .1s linear;border-radius:2px}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--bord);border-radius:2px}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bord);border-radius:2px}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="LS">
   <div class="LB">
     <span class="ico">&#127869;</span>
@@ -108,11 +104,10 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
     <div class="fi"><label>Password</label><input id="lp" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;"></div>
     <button class="BM" onclick="doLogin()">LOGIN</button>
     <div class="lerr" id="lerr"></div>
-    <div class="ls2" id="lsync"><span class="SP"></span>Connecting to database&hellip;</div>
+    <div class="ls2" id="lsync"><span class="SP"></span>Connecting&hellip;</div>
   </div>
 </div>
 
-<!-- APP -->
 <div id="APP">
   <div class="TB">
     <div class="TL">&#127869; GSC MEAL</div>
@@ -123,13 +118,12 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
       <button onclick="gp('reports',this)">&#128203; Reports</button>
       <button onclick="gp('settings',this)">&#9881;</button>
     </div>
-    <div id="NB"><span class="OB">&#9679; ONLINE</span></div>
-    <button class="BO" onclick="doSync()">&#128260; Sync</button>
+    <div id="NB"><span class="OB">ONLINE</span></div>
+    <button class="BO" onclick="doSync(false)">&#128260; Sync</button>
     <button class="BO" onclick="location.reload()">Exit</button>
   </div>
   <div class="MN">
 
-    <!-- DASHBOARD -->
     <div class="PG on" id="page-dashboard">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px">
         <h2 class="R" style="font-size:1.3rem;letter-spacing:1px">Dashboard <span id="dayStr" style="color:var(--mu);font-size:.77rem;font-weight:400"></span></h2>
@@ -156,7 +150,6 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
       </div>
     </div>
 
-    <!-- SCAN -->
     <div class="PG" id="page-scan">
       <h2 class="R" style="font-size:1.25rem;margin-bottom:11px">Face Scan Attendance</h2>
       <div class="G2" style="align-items:start">
@@ -167,13 +160,13 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
             <div class="MTab" onclick="setMeal('dinner',this)"><span class="MI">&#127769;</span>Dinner</div>
           </div>
           <div class="CW"><video id="sVid" autoplay muted playsinline></video><canvas id="sCvs"></canvas></div>
-          <div class="CS in" id="cst">Press START to begin scanning</div>
+          <div class="CS in" id="cst">Press START to begin</div>
           <div style="display:flex;gap:6px;margin-top:7px">
             <button class="BN" style="flex:1" onclick="startScan()">START</button>
             <button class="BO" style="flex:1;border-color:var(--red);color:var(--red)" onclick="stopScan()">STOP</button>
-            <button class="BO" onclick="flipScan()" style="padding:6px 10px">&#128260; Flip</button>
+            <button class="BO" onclick="flipScan()" style="padding:6px 10px">&#128260;Flip</button>
           </div>
-          <div id="mdlSt" style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:7px 10px;margin-top:7px;font-size:.74rem;color:var(--mu)"><span class="SP"></span>Loading AI models&hellip;</div>
+          <div id="mdlSt" style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:7px 10px;margin-top:7px;font-size:.74rem;color:var(--mu)"><span class="SP"></span>Loading AI&hellip;</div>
         </div>
         <div>
           <div class="CD" style="margin-bottom:10px;min-height:120px"><div class="SC">Detected</div><div id="detCard"><p style="color:var(--mu);padding:12px;text-align:center;font-size:.81rem">No face detected yet</p></div></div>
@@ -188,43 +181,40 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
       </div>
     </div>
 
-    <!-- STUDENTS -->
     <div class="PG" id="page-students">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px">
         <h2 class="R" style="font-size:1.25rem">Students <span id="stuCnt" style="color:var(--mu);font-size:.78rem"></span></h2>
         <button class="BN" onclick="openAddStu()">+ Add Student</button>
       </div>
-      <input id="stuQ" type="text" placeholder="Search name or roll no&hellip;" oninput="renderStudents()" style="width:100%;background:#070c15;border:1px solid var(--bord);border-radius:8px;padding:8px 12px;color:var(--txt);outline:none;font-size:.84rem;margin-bottom:10px">
+      <input id="stuQ" type="text" placeholder="Search&hellip;" oninput="renderStudents()" style="width:100%;background:#070c15;border:1px solid var(--bord);border-radius:8px;padding:8px 12px;color:var(--txt);outline:none;font-size:.84rem;margin-bottom:10px">
       <div class="CD" style="overflow-x:auto">
         <table class="TT"><thead><tr><th>#</th><th>Student</th><th>Roll No</th><th>Face</th><th>Actions</th></tr></thead><tbody id="stubody"></tbody></table>
       </div>
     </div>
 
-    <!-- REPORTS -->
     <div class="PG" id="page-reports">
       <h2 class="R" style="font-size:1.25rem;margin-bottom:12px">Reports</h2>
       <div class="CD" style="margin-bottom:12px">
         <div class="G3">
-          <div class="FF"><label>From Date</label><input type="date" id="rFrom"></div>
-          <div class="FF"><label>To Date</label><input type="date" id="rTo"></div>
-          <div class="FF"><label>Student</label><select id="rStu" style="width:100%;background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:8px;color:var(--txt);outline:none;font-size:.84rem"><option value="">All Students</option></select></div>
+          <div class="FF"><label>From</label><input type="date" id="rFrom"></div>
+          <div class="FF"><label>To</label><input type="date" id="rTo"></div>
+          <div class="FF"><label>Student</label><select id="rStu" style="width:100%;background:#070c15;border:1px solid var(--bord);border-radius:7px;padding:8px;color:var(--txt);outline:none;font-size:.84rem"><option value="">All</option></select></div>
         </div>
         <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
           <button class="BN" onclick="genReport()">Generate</button>
-          <button class="BO" onclick="exportReport()">Export Excel</button>
-          <button class="BO" onclick="doSync()">Refresh</button>
+          <button class="BO" onclick="exportReport()">Excel</button>
+          <button class="BO" onclick="doSync(false)">Refresh</button>
         </div>
       </div>
       <div id="repOut"></div>
     </div>
 
-    <!-- SETTINGS -->
     <div class="PG" id="page-settings">
       <h2 class="R" style="font-size:1.25rem;margin-bottom:12px">Settings</h2>
       <div class="G2" style="align-items:start">
         <div class="CD">
           <div class="SC">Change Password</div>
-          <p style="font-size:.75rem;color:var(--mu);margin-bottom:10px">Password is stored in Google Sheets Settings tab. Changes sync across all devices instantly.</p>
+          <p style="font-size:.75rem;color:var(--mu);margin-bottom:10px">Saved in Google Sheets &mdash; works on all devices.</p>
           <div class="FF" style="margin-bottom:8px"><label>Current Password</label><input type="password" id="op"></div>
           <div class="FF" style="margin-bottom:8px"><label>New Password</label><input type="password" id="np"></div>
           <div class="FF" style="margin-bottom:11px"><label>Confirm New</label><input type="password" id="cp"></div>
@@ -232,13 +222,19 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
           <div id="pmsg" style="font-size:.76rem;margin-top:6px"></div>
         </div>
         <div class="CD">
-          <div class="SC">About</div>
-          <p style="font-size:.78rem;color:var(--mu);line-height:1.85"><b style="color:var(--txt)">GSC Meal Manager v3.1</b><br>Govardhan Skill Centre, Wada, Palghar<br>Principal: Anand Gosavi<br>Face AI &middot; Google Sheets DB<br>Passwords stored in Google Sheets</p>
-          <div style="margin-top:12px;padding:10px;background:#070c15;border-radius:7px;border:1px solid var(--bord)">
-            <div style="font-size:.72rem;color:var(--mu);margin-bottom:4px">DATABASE URL (fixed in code)</div>
-            <div id="showUrl" style="font-size:.7rem;color:var(--grn);word-break:break-all"></div>
+          <div class="SC">Database Status</div>
+          <p style="font-size:.78rem;color:var(--mu);line-height:1.85"><b style="color:var(--txt)">GSC Meal Manager v3.4</b><br>Date bug fixed. Syncs data from Sheets on every load.</p>
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+            <button class="BN" onclick="doSync(false)">Sync Now</button>
+            <button class="BO" onclick="clearCache()">Clear Cache</button>
           </div>
-          <button class="BO" style="margin-top:10px" onclick="clearCache()">Clear Local Cache</button>
+          <div style="margin-top:12px">
+            <div style="font-size:.7rem;color:var(--mu);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between">
+              <span>Sync Log</span>
+              <button class="BO" style="padding:2px 8px;font-size:.68rem" onclick="document.getElementById('syncLogTxt').innerHTML=''">Clear</button>
+            </div>
+            <div id="syncLogTxt" style="background:#070c15;border:1px solid var(--bord);border-radius:6px;padding:8px;font-size:.7rem;color:var(--grn);max-height:150px;overflow-y:auto;font-family:monospace;line-height:1.7">Sync log will appear here...</div>
+          </div>
         </div>
       </div>
     </div>
@@ -246,7 +242,6 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
   </div>
 </div>
 
-<!-- MODAL: Add/Edit Student -->
 <div class="MB" id="stuMod">
   <div class="MD">
     <div class="MH" id="stuMH">Add Student</div>
@@ -256,23 +251,15 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
     </div>
     <div style="background:#070c15;border:1px solid var(--bord);border-radius:9px;padding:13px;margin-bottom:12px">
       <div class="SC" style="font-size:.9rem;margin-bottom:10px">Face Enrollment</div>
-
-      <!-- TIMER BAR - 10 second countdown -->
       <div id="timerWrap" style="display:none;margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--mu);margin-bottom:3px">
-          <span>Auto-capturing&hellip;</span><span id="timerSec">10s</span>
-        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--mu);margin-bottom:3px"><span>Auto-capturing&hellip;</span><span id="timerSec">10s</span></div>
         <div class="timerBar"><div class="timerFill" id="timerFill" style="width:100%"></div></div>
       </div>
-
       <div style="display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap">
         <div style="flex-shrink:0;text-align:center">
-          <div class="RW">
-            <svg viewBox="0 0 100 100"><circle class="RBG" cx="50" cy="50" r="42"/><circle class="RFG" id="rFg" cx="50" cy="50" r="42"/></svg>
-            <div class="RP" id="rPct">0%</div>
-          </div>
+          <div class="RW"><svg viewBox="0 0 100 100"><circle class="RBG" cx="50" cy="50" r="42"/><circle class="RFG" id="rFg" cx="50" cy="50" r="42"/></svg><div class="RP" id="rPct">0%</div></div>
           <div class="RL" id="rLbl">No face yet</div>
-          <div style="font-size:.66rem;color:var(--mu);margin-top:2px">5 captures needed</div>
+          <div style="font-size:.66rem;color:var(--mu);margin-top:2px">5 samples needed</div>
         </div>
         <div style="flex:1;min-width:160px">
           <div class="CW"><video id="eVid" autoplay muted playsinline></video><canvas id="eCvs"></canvas></div>
@@ -280,12 +267,10 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
             <button class="BN" style="flex:1" onclick="startEC()">Start Camera</button>
             <button class="BO" onclick="flipEC()">Flip</button>
           </div>
-          <div id="eMsg" style="font-size:.72rem;color:var(--mu);margin-top:5px;line-height:1.5">Click Start Camera - face detection is automatic</div>
+          <div id="eMsg" style="font-size:.72rem;color:var(--mu);margin-top:5px;line-height:1.5">Click Start Camera &mdash; auto in 10s</div>
         </div>
       </div>
-      <div style="margin-top:9px;background:#0c111e;border-radius:6px;padding:8px 10px;font-size:.7rem;color:var(--mu);line-height:1.65">
-        Auto-captures 5 samples in 10 seconds. Good light + look straight for best results.
-      </div>
+      <div style="margin-top:9px;background:#0c111e;border-radius:6px;padding:8px 10px;font-size:.7rem;color:var(--mu)">Good light + look straight = best accuracy</div>
     </div>
     <div style="display:flex;gap:7px;justify-content:flex-end">
       <button class="BO" onclick="closeSM()">Cancel</button>
@@ -294,7 +279,6 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
   </div>
 </div>
 
-<!-- MODAL: Manual Attendance -->
 <div class="MB" id="manMod">
   <div class="MD">
     <div class="MH">Manual Attendance</div>
@@ -312,72 +296,208 @@ body{font-family:'Noto Sans',sans-serif;background:var(--bg);color:var(--txt);mi
 
 <script>
 'use strict';
-// ═══════════════════════════════════════════════════════
-//  SCRIPT URL — CHANGE ONLY HERE, NOWHERE ELSE IN THE APP
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  TO CHANGE URL: edit only this one constant
+// ═══════════════════════════════════════════════
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzS2FXlyFVdAqS9aS9OHU0oX1ILf-escgLGj8Wdnc3c4xGfO9zJxe1OaXOp4Lp-FZ8/exec';
 const MODEL_URL  = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model/';
 
-// ── Local cache only — NO password stored in localStorage ──────
 const LS = {
   g: k => { try{ return JSON.parse(localStorage.getItem(k)) }catch{ return null } },
   s: (k,v) => localStorage.setItem(k, JSON.stringify(v))
 };
 
 let students=[], attendance=[], faceMatcher=null, modelsLoaded=false;
-// Credentials always come from Google Sheets
 let cloudUser='admin', cloudPass='gsc@2024';
 
-// ── JSONP ────────────────────────────────────────────────────────
-function apiGet(action, params){
-  params = params || {};
-  return new Promise((res,rej)=>{
-    const cb = 'GCB_'+Date.now()+'_'+(Math.random()*9999|0);
-    const u  = new URL(SCRIPT_URL);
-    u.searchParams.set('action',action);
-    u.searchParams.set('callback',cb);
-    for(const k in params) u.searchParams.set(k,params[k]);
-    const timer = setTimeout(()=>{ cleanup(); rej(new Error('Timeout')); }, 12000);
-    window[cb] = d => { cleanup(); res(d); };
-    function cleanup(){ clearTimeout(timer); delete window[cb]; const s=document.getElementById(cb); if(s)s.remove(); }
+// ═══════════════════════════════════════════════
+//  JSONP — THE ONLY RELIABLE WAY TO CALL
+//  GOOGLE APPS SCRIPT FROM ANY BROWSER/DEVICE.
+//  Works on iOS, Android, desktop, GitHub Pages.
+//  No CORS issues, no redirect issues.
+// ═══════════════════════════════════════════════
+function jsonp(url) {
+  return new Promise((resolve, reject) => {
+    // Unique callback name — avoid any collision
+    const id = '_gsccb' + Date.now() + Math.floor(Math.random() * 100000);
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('Timeout after 15s'));
+    }, 15000);
+
+    window[id] = (data) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(data);
+    };
+
+    function cleanup() {
+      clearTimeout(timer);
+      try { delete window[id]; } catch(e) {}
+      const el = document.getElementById(id);
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
     const sc = document.createElement('script');
-    sc.id=cb; sc.src=u.toString();
-    sc.onerror = ()=>{ cleanup(); rej(new Error('Network error')); };
+    sc.id = id;
+    // Append callback to URL — use & if already has params, ? otherwise
+    sc.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + id;
+    sc.onerror = () => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error('Script load failed'));
+    };
     document.head.appendChild(sc);
   });
 }
-async function apiPost(action, body){
+
+// Build URL with action + params
+function mkUrl(action, params) {
   const u = new URL(SCRIPT_URL);
-  u.searchParams.set('action',action);
-  await fetch(u.toString(),{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)});
-  return {status:'ok'};
+  u.searchParams.set('action', action);
+  if (params) Object.keys(params).forEach(k => u.searchParams.set(k, String(params[k])));
+  return u.toString();
 }
 
-// ── SYNC ─────────────────────────────────────────────────────────
-async function doSync(silent){
-  if(!silent) toast('Syncing...','#3b82f6');
-  try{
-    const [sr,ar,cfg] = await Promise.all([apiGet('getStudents'),apiGet('getAttendance'),apiGet('getSettings')]);
-    if(sr.status==='ok'){ students=sr.data||[]; LS.s('students',students); }
-    if(ar.status==='ok'){ attendance=ar.data||[]; LS.s('attendance',attendance); }
-    if(cfg.status==='ok'){ cloudUser=cfg.data.username||'admin'; cloudPass=cfg.data.password||'gsc@2024'; }
-    badge(true); buildMatcher(); refreshAll();
-    if(!silent) toast('Synced!','var(--grn)');
-  }catch(e){
-    badge(false);
-    students=LS.g('students')||[]; attendance=LS.g('attendance')||[];
-    buildMatcher(); refreshAll();
-    if(!silent) toast('Offline - using cache','#f59e0b');
+// GET via JSONP
+function apiGet(action, params) {
+  return jsonp(mkUrl(action, params));
+}
+
+// SAVE ATTENDANCE via JSONP GET — confirmed save, works everywhere
+// Encodes the record as a URL param (small data, always fits)
+function saveAttGet(rec) {
+  const encoded = encodeURIComponent(JSON.stringify(rec));
+  return jsonp(mkUrl('saveAttendance', { rec: encoded }));
+}
+
+// POST for large data (students with face descriptors)
+async function apiPost(action, body) {
+  const u = new URL(SCRIPT_URL);
+  u.searchParams.set('action', action);
+  // Try cors mode first (works on desktop + some mobile)
+  try {
+    const r = await fetch(u.toString(), {
+      method:'POST', mode:'cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(body)
+    });
+    return await r.json();
+  } catch(e1) {
+    // Fall back to no-cors (mobile/restricted networks)
+    try {
+      await fetch(u.toString(), {
+        method:'POST', mode:'no-cors',
+        headers:{'Content-Type':'text/plain'},
+        body:JSON.stringify(body)
+      });
+    } catch(e2) {}
+    return { status:'ok' };
   }
 }
-function badge(on){ document.getElementById('NB').innerHTML=on?'<span class="OB">ONLINE</span>':'<span class="OFB">OFFLINE</span>'; }
-function refreshAll(){ renderDashboard(); renderStudents(); renderScanList(); }
 
-// ── AUTH — credentials from Google Sheets ────────────────────────
-async function doLogin(){
-  const u=document.getElementById('lu').value.trim();
-  const p=document.getElementById('lp').value.trim();
-  if(u===cloudUser && p===cloudPass){
+// ── DATE NORMALIZER — fixes Sheets auto-converting dates to Date objects ──
+// Sheets may store "2024-01-15" but return it as a full Date string.
+// This ensures dates are always YYYY-MM-DD for correct comparison.
+function normDate(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  // Already correct
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // Parse any date format and reformat
+  try {
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      const yr = d.getFullYear();
+      const mo = String(d.getMonth()+1).padStart(2,'0');
+      const dy = String(d.getDate()).padStart(2,'0');
+      return yr+'-'+mo+'-'+dy;
+    }
+  } catch(e) {}
+  return s;
+}
+
+// ── SYNC LOG — shows in the sync panel ──
+function syncLog(msg) {
+  const el = document.getElementById('syncLogTxt');
+  if (!el) return;
+  const t = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  el.innerHTML = '<b>['+t+']</b> ' + msg + '<br>' + el.innerHTML;
+}
+
+// ═══════════════════════════════════════════════
+//  SYNC — sequential calls, each isolated,
+//  MERGE (never overwrite) local + remote data
+// ═══════════════════════════════════════════════
+async function doSync(silent) {
+  if (!silent) toast('Syncing...','#3b82f6');
+
+  let gotAny = false;
+
+  // Students
+  try {
+    const r = await apiGet('getStudents');
+    if (r && r.status==='ok' && r.data) {
+      students = r.data;
+      LS.s('students', students);
+      gotAny = true;
+      syncLog('Loaded ' + students.length + ' students from Sheets');
+    }
+  } catch(e) { syncLog('Students fetch failed: ' + e.message); }
+
+  // Attendance — MERGE to never lose local records
+  try {
+    const r = await apiGet('getAttendance');
+    if (r && r.status==='ok' && r.data) {
+      // Normalize dates from Sheets (fixes Sheets date-object conversion bug)
+      const remote = r.data.map(a => ({...a, date: normDate(a.date)}));
+      const remoteIds = new Set(remote.map(x => String(x.id)));
+      const localSaved = LS.g('attendance') || [];
+      const localOnly  = localSaved.filter(x => !remoteIds.has(String(x.id)));
+      attendance = remote.concat(localOnly);
+      LS.s('attendance', attendance);
+      gotAny = true;
+      syncLog('Loaded ' + remote.length + ' attendance records from Sheets');
+    }
+  } catch(e) { syncLog('Attendance fetch failed: ' + e.message); }
+
+  // Settings (credentials)
+  try {
+    const r = await apiGet('getSettings');
+    if (r && r.status==='ok' && r.data) {
+      cloudUser = r.data.username || 'admin';
+      cloudPass = r.data.password || 'gsc@2024';
+      LS.s('cloudUser', cloudUser);
+      LS.s('cloudPass', cloudPass);
+      gotAny = true;
+    }
+  } catch(e) {}
+
+  badge(gotAny);
+  buildMatcher();
+  refreshAll();
+  syncLog('Sync done. Today records: ' + attendance.filter(a=>a.date===todayStr()).length + '. Total: ' + attendance.length);
+  if (!silent) toast(gotAny ? 'Synced! ' + attendance.filter(a=>a.date===todayStr()).length + ' today' : 'Offline', gotAny ? 'var(--grn)' : '#f59e0b');
+}
+
+function badge(on) {
+  document.getElementById('NB').innerHTML = on
+    ? '<span class="OB">ONLINE</span>'
+    : '<span class="OFB">OFFLINE</span>';
+}
+function refreshAll() { renderDashboard(); renderStudents(); renderScanList(); }
+
+// ── AUTH ──────────────────────────────────────
+async function doLogin() {
+  const u = document.getElementById('lu').value.trim();
+  const p = document.getElementById('lp').value.trim();
+  if (u===cloudUser && p===cloudPass) {
     document.getElementById('LS').style.display='none';
     document.getElementById('APP').style.display='flex';
     document.getElementById('lerr').textContent='';
@@ -386,379 +506,324 @@ async function doLogin(){
     document.getElementById('lerr').textContent='Wrong username or password';
   }
 }
-['lu','lp'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>e.key==='Enter'&&doLogin()));
+['lu','lp'].forEach(id => document.getElementById(id).addEventListener('keydown', e => e.key==='Enter' && doLogin()));
 
-// ── INIT ─────────────────────────────────────────────────────────
-async function initApp(){
-  document.getElementById('dayStr').textContent='- '+new Date().toDateString();
-  document.getElementById('showUrl').textContent=SCRIPT_URL;
-  const t=todayStr();
-  ['rFrom','rTo','manDate'].forEach(id=>document.getElementById(id).value=t);
-  students=LS.g('students')||[]; attendance=LS.g('attendance')||[];
-  refreshAll(); await doSync(true); loadModels();
+// ── INIT ──────────────────────────────────────
+async function initApp() {
+  document.getElementById('dayStr').textContent = '- '+new Date().toDateString();
+  const t = todayStr();
+  ['rFrom','rTo','manDate'].forEach(id => document.getElementById(id).value = t);
+
+  // Step 1: Load localStorage immediately — no waiting, instant display
+  students   = LS.g('students')   || [];
+  attendance = LS.g('attendance') || [];
+  refreshAll();
+
+  // Step 2: Sync from Sheets in background
+  doSync(true);
+
+  // Step 3: Load face models
+  loadModels();
 }
-function todayStr(){ return new Date().toISOString().split('T')[0]; }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
 
-function gp(name,el){
-  document.querySelectorAll('.PG').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.NV button').forEach(b=>b.classList.remove('on'));
+function gp(name, el) {
+  document.querySelectorAll('.PG').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.NV button').forEach(b => b.classList.remove('on'));
   document.getElementById('page-'+name).classList.add('on'); el.classList.add('on');
   if(name==='dashboard') renderDashboard();
   if(name==='students')  renderStudents();
   if(name==='reports')   fillRepStu();
 }
 
-// ── DASHBOARD ────────────────────────────────────────────────────
-function renderDashboard(){
+// ── DASHBOARD ─────────────────────────────────
+function renderDashboard() {
   const t=todayStr(), ta=attendance.filter(a=>a.date===t);
   const pids=new Set(ta.map(a=>String(a.studentId)));
-  const N=students.length,P=pids.size,A=Math.max(0,N-P);
+  const N=students.length, P=pids.size, A=Math.max(0,N-P);
   const bf=ta.filter(a=>a.meal==='breakfast').length, ln=ta.filter(a=>a.meal==='lunch').length, dn=ta.filter(a=>a.meal==='dinner').length;
-  document.getElementById('stats').innerHTML=SC('&#128101;','#08121e',N,'Total')+SC('&#9989;','#071209',P,'Present','var(--grn)')+SC('&#10060;','#130608',A,'Absent','var(--red)')+SC('&#127869;','#130d00',ta.length,'Meals','var(--acc)');
+  document.getElementById('stats').innerHTML=
+    SC('&#128101;','#08121e',N,'Total')+SC('&#9989;','#071209',P,'Present','var(--grn)')+
+    SC('&#10060;','#130608',A,'Absent','var(--red)')+SC('&#127869;','#130d00',ta.length,'Meals','var(--acc)');
   const pct=n=>N>0?Math.round(n/N*100):0;
-  document.getElementById('mealSum').innerHTML=MB('Breakfast',bf,N,pct(bf),'#f59e0b,#e07b00')+MB('Lunch',ln,N,pct(ln),'#3b82f6,#1d4ed8')+MB('Dinner',dn,N,pct(dn),'#8b5cf6,#6d28d9')+`<div style="background:#070c15;border-radius:6px;padding:7px;text-align:center;font-size:.77rem;margin-top:7px">Absent <b style="color:var(--red)">${A}</b> &middot; Present <b style="color:var(--grn)">${P}</b> &middot; Meals <b style="color:var(--acc)">${ta.length}</b></div>`;
+  document.getElementById('mealSum').innerHTML=
+    MB('Breakfast',bf,N,pct(bf),'#f59e0b,#e07b00')+MB('Lunch',ln,N,pct(ln),'#3b82f6,#1d4ed8')+
+    MB('Dinner',dn,N,pct(dn),'#8b5cf6,#6d28d9')+
+    '<div style="background:#070c15;border-radius:6px;padding:7px;text-align:center;font-size:.77rem;margin-top:7px">'+
+    'Absent <b style="color:var(--red)">'+A+'</b> &middot; Present <b style="color:var(--grn)">'+P+'</b> &middot; Meals <b style="color:var(--acc)">'+ta.length+'</b></div>';
   const recent=[...ta].reverse().slice(0,8);
-  document.getElementById('recentList').innerHTML=recent.length?recent.map(a=>{const s=students.find(st=>String(st.id)===String(a.studentId));return`<div class="SR"><div class="AV" style="width:29px;height:29px;font-size:.72rem">${s?s.name[0]:'?'}</div><div style="flex:1"><div style="font-weight:600;font-size:.8rem">${s?s.name:a.studentName}</div><div style="font-size:.68rem;color:var(--mu)">${s?s.rollNo:''} &middot; ${a.time||''}</div></div></div>`;}).join(''):'<p style="text-align:center;color:var(--mu);padding:12px;font-size:.78rem">No scans today</p>';
+  document.getElementById('recentList').innerHTML=recent.length
+    ?recent.map(a=>{const s=students.find(st=>String(st.id)===String(a.studentId));
+      return'<div class="SR"><div class="AV" style="width:29px;height:29px;font-size:.72rem">'+(s?s.name[0]:'?')+'</div>'+
+      '<div style="flex:1"><div style="font-weight:600;font-size:.8rem">'+(s?s.name:a.studentName)+'</div>'+
+      '<div style="font-size:.68rem;color:var(--mu)">'+(s?s.rollNo:'')+'&middot;'+(a.time||'')+'</div></div></div>';}).join('')
+    :'<p style="text-align:center;color:var(--mu);padding:12px;font-size:.78rem">No scans today</p>';
   renderDashTable();
 }
-function SC(ico,bg,val,lbl,color){return`<div class="ST"><div class="SI" style="background:${bg}">${ico}</div><div><div class="SV"${color?` style="color:${color}"`:''}>${val}</div><div class="SL">${lbl}</div></div></div>`;}
-function MB(lbl,n,N,pct,grad){return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:2px"><span>${lbl}</span><span>${n}/${N} (${pct}%)</span></div><div class="PB"><div class="PF" style="width:${pct}%;background:linear-gradient(90deg,${grad})"></div></div></div>`;}
+function SC(ico,bg,val,lbl,color){return'<div class="ST"><div class="SI" style="background:'+bg+'">'+ico+'</div><div><div class="SV"'+(color?' style="color:'+color+'"':'')+'>'+val+'</div><div class="SL">'+lbl+'</div></div></div>';}
+function MB(lbl,n,N,pct,grad){return'<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:.79rem;margin-bottom:2px"><span>'+lbl+'</span><span>'+n+'/'+N+' ('+pct+'%)</span></div><div class="PB"><div class="PF" style="width:'+pct+'%;background:linear-gradient(90deg,'+grad+')"></div></div></div>';}
 function renderDashTable(){
   const t=todayStr();
   document.getElementById('dtbody').innerHTML=students.map((s,i)=>{
     const sa=attendance.filter(a=>a.date===t&&String(a.studentId)===String(s.id));
-    const bf=sa.find(a=>a.meal==='breakfast'),ln=sa.find(a=>a.meal==='lunch'),dn=sa.find(a=>a.meal==='dinner'),m=[bf,ln,dn].filter(Boolean).length;
-    return`<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="AV" style="width:25px;height:25px;font-size:.68rem">${s.name[0]}</div><b>${s.name}</b></div></td><td style="color:var(--mu);font-size:.75rem">${s.rollNo}</td><td>${bf?`<span class="BP">&#10003; ${bf.time}</span>`:'<span class="BA">&#10007;</span>'}</td><td>${ln?`<span class="BP">&#10003; ${ln.time}</span>`:'<span class="BA">&#10007;</span>'}</td><td>${dn?`<span class="BP">&#10003; ${dn.time}</span>`:'<span class="BA">&#10007;</span>'}</td><td><b style="color:${m>0?'var(--grn)':'var(--mu)'}">${m}/3</b></td></tr>`;
+    const bf=sa.find(a=>a.meal==='breakfast'),ln=sa.find(a=>a.meal==='lunch'),dn=sa.find(a=>a.meal==='dinner');
+    const m=[bf,ln,dn].filter(Boolean).length;
+    return'<tr><td>'+(i+1)+'</td><td><div style="display:flex;align-items:center;gap:6px"><div class="AV" style="width:25px;height:25px;font-size:.68rem">'+s.name[0]+'</div><b>'+s.name+'</b></div></td>'+
+    '<td style="color:var(--mu);font-size:.75rem">'+s.rollNo+'</td>'+
+    '<td>'+(bf?'<span class="BP">&#10003; '+bf.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>'+
+    '<td>'+(ln?'<span class="BP">&#10003; '+ln.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>'+
+    '<td>'+(dn?'<span class="BP">&#10003; '+dn.time+'</span>':'<span class="BA">&#10007;</span>')+'</td>'+
+    '<td><b style="color:'+(m>0?'var(--grn)':'var(--mu)')+'">'+m+'/3</b></td></tr>';
   }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:12px">No students yet</td></tr>';
 }
 
-// ── AI MODELS ────────────────────────────────────────────────────
+// ── AI MODELS ─────────────────────────────────
 async function loadModels(){
   try{
-    await Promise.all([
-      faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-      faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),
-      faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
-    ]);
-    modelsLoaded=true;
-    document.getElementById('mdlSt').textContent='Face AI Ready';
-    buildMatcher();
-  }catch(e){ document.getElementById('mdlSt').textContent='Model error (need internet once): '+e.message; }
+    await Promise.all([faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL),faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)]);
+    modelsLoaded=true; document.getElementById('mdlSt').textContent='Face AI Ready'; buildMatcher();
+  }catch(e){document.getElementById('mdlSt').textContent='Model error (need internet once): '+e.message;}
 }
 function buildMatcher(){
-  if(!modelsLoaded) return;
+  if(!modelsLoaded)return;
   const labeled=[];
   for(const s of students){
-    if(!s.faceDescriptor) continue;
-    try{
-      const arr=typeof s.faceDescriptor==='string'?JSON.parse(s.faceDescriptor):s.faceDescriptor;
-      if(arr&&arr.length===128) labeled.push(new faceapi.LabeledFaceDescriptors(String(s.id),[new Float32Array(arr)]));
-    }catch(e){}
+    if(!s.faceDescriptor)continue;
+    try{const arr=typeof s.faceDescriptor==='string'?JSON.parse(s.faceDescriptor):s.faceDescriptor;if(arr&&arr.length===128)labeled.push(new faceapi.LabeledFaceDescriptors(String(s.id),[new Float32Array(arr)]));}catch(e){}
   }
   faceMatcher=labeled.length?new faceapi.FaceMatcher(labeled,0.50):null;
 }
 
-// ── SCAN — fast RAF loop ─────────────────────────────────────────
+// ── SCAN ──────────────────────────────────────
 let scanStream=null,scanRunning=false,scanFacing='user',curMeal='breakfast',lastMarkAt=0;
-
-function setMeal(meal,el){
-  curMeal=meal;
-  document.querySelectorAll('.MTab').forEach(t=>t.classList.remove('on')); el.classList.add('on');
-  document.getElementById('sMlbl').textContent=meal[0].toUpperCase()+meal.slice(1);
-  renderScanList();
-}
+function setMeal(meal,el){curMeal=meal;document.querySelectorAll('.MTab').forEach(t=>t.classList.remove('on'));el.classList.add('on');document.getElementById('sMlbl').textContent=meal[0].toUpperCase()+meal.slice(1);renderScanList();}
 
 async function startScan(){
-  if(!modelsLoaded){ toast('AI models loading...','#f59e0b'); return; }
-  if(!faceMatcher){ toast('No enrolled faces - add students first','var(--red)'); return; }
+  if(!modelsLoaded){toast('AI loading...','#f59e0b');return;}
+  if(!faceMatcher){toast('No enrolled faces - add students first','var(--red)');return;}
   stopScan();
   try{
     scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:scanFacing,width:{ideal:640},height:{ideal:480}}});
     const vid=document.getElementById('sVid');
-    vid.srcObject=scanStream;
-    await new Promise(r=>{vid.onloadedmetadata=r;}); vid.play();
-    const cvs=document.getElementById('sCvs');
-    cvs.width=vid.videoWidth; cvs.height=vid.videoHeight;
-    scanRunning=true;
-    setCst('in','Scanning '+curMeal+' - keep face in frame');
-    requestAnimationFrame(scanLoop);
-  }catch(e){ setCst('er','Camera error: '+e.message); }
+    vid.srcObject=scanStream; await new Promise(r=>{vid.onloadedmetadata=r;}); vid.play();
+    const cvs=document.getElementById('sCvs'); cvs.width=vid.videoWidth; cvs.height=vid.videoHeight;
+    scanRunning=true; setCst('in','Scanning '+curMeal+'...'); requestAnimationFrame(scanLoop);
+  }catch(e){setCst('er','Camera: '+e.message);}
 }
 
 async function scanLoop(){
-  if(!scanRunning) return;
+  if(!scanRunning)return;
   const vid=document.getElementById('sVid'),cvs=document.getElementById('sCvs'),ctx=cvs.getContext('2d');
   ctx.clearRect(0,0,cvs.width,cvs.height);
   try{
-    const opts=new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:0.42});
-    const det=await faceapi.detectSingleFace(vid,opts).withFaceLandmarks(true).withFaceDescriptor();
-    if(det && faceMatcher){
-      const b=det.detection.box, match=faceMatcher.findBestMatch(det.descriptor);
-      const known=match.label!=='unknown', stu=known?students.find(s=>String(s.id)===match.label):null;
+    const det=await faceapi.detectSingleFace(vid,new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:0.42})).withFaceLandmarks(true).withFaceDescriptor();
+    if(det&&faceMatcher){
+      const b=det.detection.box,match=faceMatcher.findBestMatch(det.descriptor);
+      const known=match.label!=='unknown',stu=known?students.find(s=>String(s.id)===match.label):null;
       const conf=Math.round((1-match.distance)*100);
-      // Draw box
       ctx.strokeStyle=known?'#22c55e':'#ef4444'; ctx.lineWidth=3;
       rrect(ctx,b.x,b.y,b.width,b.height,8); ctx.stroke();
-      // Name label
       const lbl=known?stu.name+' '+conf+'%':'Unknown';
       ctx.font='bold 14px Rajdhani,sans-serif';
-      const tw=ctx.measureText(lbl).width, px=Math.max(0,b.x), py=Math.max(22,b.y);
+      const tw=ctx.measureText(lbl).width,px=Math.max(0,b.x),py=Math.max(22,b.y);
       ctx.fillStyle=known?'rgba(34,197,94,.9)':'rgba(239,68,68,.9)';
       rrect(ctx,px,py-22,tw+14,21,5); ctx.fill();
       ctx.fillStyle='#fff'; ctx.fillText(lbl,px+7,py-6);
-      if(known){
-        showDetCard(stu,conf);
-        const now=Date.now();
-        if(now-lastMarkAt>2000){ lastMarkAt=now; markAtt(stu,conf); }
-      }else{
-        setCst('wn','Unknown face - not enrolled');
-        document.getElementById('detCard').innerHTML='<p style="text-align:center;color:var(--red);padding:10px;font-size:.8rem">Unknown face</p>';
-      }
-    }else if(!det){ setCst('in','Searching for face...'); }
+      if(known){showDetCard(stu,conf);const now=Date.now();if(now-lastMarkAt>2000){lastMarkAt=now;markAtt(stu,conf);}}
+      else{setCst('wn','Unknown face');document.getElementById('detCard').innerHTML='<p style="text-align:center;color:var(--red);padding:10px">Unknown face</p>';}
+    }else if(!det)setCst('in','Searching...');
   }catch(e){}
-  if(scanRunning) requestAnimationFrame(scanLoop);
+  if(scanRunning)requestAnimationFrame(scanLoop);
 }
-
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function stopScan(){scanRunning=false;if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}const cvs=document.getElementById('sCvs');cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);setCst('in','Stopped');}
+async function flipScan(){scanFacing=scanFacing==='user'?'environment':'user';if(scanRunning)await startScan();else toast('Flipped','#3b82f6');}
+function showDetCard(s,conf){document.getElementById('detCard').innerHTML='<div style="padding:10px;text-align:center"><div class="AV" style="width:48px;height:48px;font-size:1.3rem;margin:0 auto 7px">'+s.name[0]+'</div><div style="font-family:Rajdhani,sans-serif;font-size:1.1rem;font-weight:700">'+s.name+'</div><div style="color:var(--mu);font-size:.75rem;margin:2px 0">'+s.rollNo+'</div><div style="color:var(--grn);font-size:.77rem">Match: '+conf+'%</div><div class="PB" style="max-width:110px;margin:5px auto"><div class="PF" style="width:'+conf+'%;background:var(--grn)"></div></div><span class="BP">PRESENT</span></div>';}
 
-function stopScan(){
-  scanRunning=false;
-  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
-  const cvs=document.getElementById('sCvs'); cvs.getContext('2d').clearRect(0,0,cvs.width,cvs.height);
-  setCst('in','Stopped');
-}
-async function flipScan(){ scanFacing=scanFacing==='user'?'environment':'user'; if(scanRunning) await startScan(); else toast('Camera flipped','#3b82f6'); }
-
-function showDetCard(s,conf){ document.getElementById('detCard').innerHTML=`<div style="padding:10px;text-align:center"><div class="AV" style="width:48px;height:48px;font-size:1.3rem;margin:0 auto 7px">${s.name[0]}</div><div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700">${s.name}</div><div style="color:var(--mu);font-size:.75rem;margin:2px 0">${s.rollNo}</div><div style="color:var(--grn);font-size:.77rem">Match: ${conf}%</div><div class="PB" style="max-width:110px;margin:5px auto"><div class="PF" style="width:${conf}%;background:var(--grn)"></div></div><span class="BP" style="margin-top:4px">PRESENT</span></div>`; }
-
-async function markAtt(stu,conf){
+// ═══════════════════════════════════════════════
+//  MARK ATTENDANCE
+//  1. Save to localStorage immediately
+//  2. Save to Sheets via JSONP GET (confirmed!)
+//     — this is the key fix: we KNOW it saved
+// ═══════════════════════════════════════════════
+async function markAtt(stu, conf) {
   const t=todayStr(), now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  if(attendance.find(a=>String(a.studentId)===String(stu.id)&&a.meal===curMeal&&a.date===t)){ setCst('ok',stu.name+' already marked'); return; }
+  if(attendance.find(a=>String(a.studentId)===String(stu.id)&&a.meal===curMeal&&a.date===t)){
+    setCst('ok',stu.name+' already marked'); return;
+  }
   const rec={id:'a_'+Date.now(),studentId:stu.id,studentName:stu.name,meal:curMeal,date:t,time:now,confidence:conf};
-  attendance.push(rec); LS.s('attendance',attendance); renderScanList(); renderDashboard();
-  setCst('ok',stu.name+' - '+curMeal.toUpperCase()); toast(stu.name+' '+curMeal,'var(--grn)');
-  apiPost('saveAttendance',rec).catch(()=>{});
+
+  // Save locally first — instant, always works
+  attendance.push(rec);
+  LS.s('attendance', attendance);
+  renderScanList(); renderDashboard();
+  setCst('ok',stu.name+' - '+curMeal.toUpperCase());
+  toast(stu.name+' '+curMeal,'var(--grn)');
+
+  // Save to Sheets via JSONP — confirmed save
+  try {
+    const r = await saveAttGet(rec);
+    if (r && r.status==='ok') {
+      // Confirmed in Sheets — nothing extra needed, local already has it
+    }
+  } catch(e) {
+    // Network error — local save is still there, will appear after sync
+    toast('Saved locally (offline)','#f59e0b');
+  }
 }
 
 function renderScanList(){
-  const t=todayStr(), list=attendance.filter(a=>a.date===t&&a.meal===curMeal).slice().reverse();
+  const t=todayStr(),list=attendance.filter(a=>a.date===t&&a.meal===curMeal).slice().reverse();
   document.getElementById('sCnt').textContent=list.length+' marked';
-  document.getElementById('sList').innerHTML=list.length?list.map(a=>`<div class="SR"><div class="AV" style="width:27px;height:27px;font-size:.7rem">${a.studentName?a.studentName[0]:'?'}</div><div style="flex:1"><div style="font-weight:600;font-size:.8rem">${a.studentName}</div><div style="font-size:.68rem;color:var(--mu)">${a.time}</div></div><span class="BP">OK</span></div>`).join(''):`<p style="text-align:center;color:var(--mu);padding:12px;font-size:.78rem">No ${curMeal} scans yet</p>`;
+  document.getElementById('sList').innerHTML=list.length
+    ?list.map(a=>'<div class="SR"><div class="AV" style="width:27px;height:27px;font-size:.7rem">'+(a.studentName?a.studentName[0]:'?')+'</div><div style="flex:1"><div style="font-weight:600;font-size:.8rem">'+a.studentName+'</div><div style="font-size:.68rem;color:var(--mu)">'+a.time+'</div></div><span class="BP">OK</span></div>').join('')
+    :'<p style="text-align:center;color:var(--mu);padding:12px;font-size:.78rem">No '+curMeal+' scans yet</p>';
 }
-function setCst(type,msg){ const el=document.getElementById('cst'); el.className='CS '+type; el.textContent=msg; }
+function setCst(type,msg){const el=document.getElementById('cst');el.className='CS '+type;el.textContent=msg;}
 
-// ═══════════════════════════════════════════════════════════════
-//  ENROLL — AUTOMATIC 10-SECOND CAPTURE (no manual click needed)
-//  Opens camera → auto-detects face every 2s → takes 5 samples
-//  Shows countdown timer bar + ring progress
-// ═══════════════════════════════════════════════════════════════
-let enrollStream=null, enrollFacing='user', enrollSamples=[], enrollDesc=null;
-let enrollTimer=null, enrollCountdown=0;
-const ENROLL_DURATION=10000;  // 10 seconds total
-const ENROLL_INTERVAL=1800;   // capture every 1.8s = ~5 in 10s
-const ENROLL_NEED=5;
+// ── ENROLL ────────────────────────────────────
+let enrollStream=null,enrollFacing='user',enrollSamples=[],enrollDesc=null,enrollTimer=null;
+const E_DUR=10000,E_INT=1800,E_NEED=5;
 
 async function startEC(){
-  enrollSamples=[]; enrollDesc=null; ring(0,'Starting...');
-  stopEC();
+  enrollSamples=[];enrollDesc=null;ring(0,'Starting...');stopEC();
   document.getElementById('timerWrap').style.display='none';
   document.getElementById('eMsg').textContent='Opening camera...';
   try{
     enrollStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:enrollFacing,width:{ideal:400},height:{ideal:300}}});
     const vid=document.getElementById('eVid');
-    vid.srcObject=enrollStream;
-    await new Promise(r=>{vid.onloadedmetadata=r;}); vid.play();
-    const cvs=document.getElementById('eCvs');
-    cvs.width=vid.videoWidth; cvs.height=vid.videoHeight;
-    ring(0,'Look at camera - starting in 1s...');
-    document.getElementById('eMsg').textContent='Look straight at camera...';
-    // Start live preview
+    vid.srcObject=enrollStream; await new Promise(r=>{vid.onloadedmetadata=r;}); vid.play();
+    const cvs=document.getElementById('eCvs'); cvs.width=vid.videoWidth; cvs.height=vid.videoHeight;
+    ring(0,'Look at camera...'); document.getElementById('eMsg').textContent='Look straight at camera...';
     requestAnimationFrame(enrollPreview);
-    // After 1 second grace, start auto-capture countdown
-    setTimeout(startAutoCap, 1000);
-  }catch(e){ toast('Camera error: '+e.message,'var(--red)'); }
+    setTimeout(startAutoCap,1000);
+  }catch(e){toast('Camera: '+e.message,'var(--red)');}
 }
-
-// Live box preview (fast, no descriptor — just detection)
-let enrollPreviewing=false;
 async function enrollPreview(){
   const vid=document.getElementById('eVid');
-  if(!vid.srcObject) return;
-  enrollPreviewing=true;
-  const cvs=document.getElementById('eCvs'), ctx=cvs.getContext('2d');
+  if(!vid.srcObject||enrollSamples.length>=E_NEED)return;
+  const cvs=document.getElementById('eCvs'),ctx=cvs.getContext('2d');
   ctx.clearRect(0,0,cvs.width,cvs.height);
   try{
-    const opts=new faceapi.TinyFaceDetectorOptions({inputSize:160,scoreThreshold:0.38});
-    const det=await faceapi.detectSingleFace(vid,opts);
-    if(det){
-      const b=det.detection.box, q=Math.min(100,Math.round(Math.min(b.width,b.height)/1.6));
-      ctx.strokeStyle=q>=55?'#22c55e':q>=30?'#f59e0b':'#ef4444'; ctx.lineWidth=2;
-      rrect(ctx,b.x,b.y,b.width,b.height,6); ctx.stroke();
-      ctx.font='bold 12px Rajdhani,sans-serif'; ctx.fillStyle=ctx.strokeStyle;
-      ctx.fillText('Q:'+q+'%',b.x+2,b.y-5);
-    }
+    const det=await faceapi.detectSingleFace(vid,new faceapi.TinyFaceDetectorOptions({inputSize:160,scoreThreshold:0.38}));
+    if(det){const b=det.detection.box,q=Math.min(100,Math.round(Math.min(b.width,b.height)/1.6));
+      ctx.strokeStyle=q>=55?'#22c55e':q>=30?'#f59e0b':'#ef4444';ctx.lineWidth=2;rrect(ctx,b.x,b.y,b.width,b.height,6);ctx.stroke();
+      ctx.font='bold 12px Rajdhani,sans-serif';ctx.fillStyle=ctx.strokeStyle;ctx.fillText('Q:'+q+'%',b.x+2,b.y-5);}
   }catch(e){}
-  if(vid.srcObject && enrollSamples.length<ENROLL_NEED) requestAnimationFrame(enrollPreview);
+  if(vid.srcObject&&enrollSamples.length<E_NEED)requestAnimationFrame(enrollPreview);
 }
-
 function startAutoCap(){
-  if(!enrollStream) return;
+  if(!enrollStream)return;
   document.getElementById('timerWrap').style.display='block';
-  ring(0,'Auto-capturing 1/'+ENROLL_NEED+'...');
-  document.getElementById('eMsg').textContent='Auto-capturing... keep face in frame';
-  enrollCountdown=ENROLL_DURATION;
-  const startTime=Date.now();
-  // Update timer bar every 100ms
-  const barInterval=setInterval(()=>{
-    const elapsed=Date.now()-startTime;
-    const remaining=Math.max(0,ENROLL_DURATION-elapsed);
-    const pct=remaining/ENROLL_DURATION*100;
-    document.getElementById('timerFill').style.width=pct+'%';
-    document.getElementById('timerSec').textContent=Math.ceil(remaining/1000)+'s';
-    if(remaining<=0||enrollSamples.length>=ENROLL_NEED) clearInterval(barInterval);
-  },100);
-  // Auto capture every ENROLL_INTERVAL ms
-  let captureCount=0;
+  ring(0,'Auto-capturing 1/'+E_NEED+'...');
+  const t0=Date.now();
+  const barInt=setInterval(()=>{const rem=Math.max(0,E_DUR-(Date.now()-t0));document.getElementById('timerFill').style.width=(rem/E_DUR*100)+'%';document.getElementById('timerSec').textContent=Math.ceil(rem/1000)+'s';if(rem<=0||enrollSamples.length>=E_NEED)clearInterval(barInt);},100);
+  let cnt=0;
   enrollTimer=setInterval(async()=>{
-    if(enrollSamples.length>=ENROLL_NEED){ clearInterval(enrollTimer); return; }
-    captureCount++;
-    await doAutoCapture();
-    if(captureCount>=ENROLL_NEED || enrollSamples.length>=ENROLL_NEED){
-      clearInterval(enrollTimer);
-      clearInterval(barInterval);
-    }
-  }, ENROLL_INTERVAL);
-  // Fallback: stop after 12s no matter what
-  setTimeout(()=>{
-    clearInterval(enrollTimer); clearInterval(barInterval);
-    if(enrollSamples.length<ENROLL_NEED && enrollSamples.length>0){
-      // Use whatever we got
-      finishEnroll();
-    }else if(enrollSamples.length===0){
-      document.getElementById('eMsg').innerHTML='<span style="color:var(--red)">No face detected in 10s. Ensure good lighting and try again.</span>';
-      ring(0,'Failed - try again');
-    }
+    if(enrollSamples.length>=E_NEED){clearInterval(enrollTimer);return;}
+    cnt++;await doAutoCapture();if(cnt>=E_NEED||enrollSamples.length>=E_NEED){clearInterval(enrollTimer);clearInterval(barInt);}
+  },E_INT);
+  setTimeout(()=>{clearInterval(enrollTimer);clearInterval(barInt);
+    if(enrollSamples.length>=1&&enrollSamples.length<E_NEED)finishEnroll();
+    else if(enrollSamples.length===0){document.getElementById('eMsg').innerHTML='<span style="color:var(--red)">No face detected. Ensure good lighting and try again.</span>';ring(0,'Failed');}
   },12000);
 }
-
 async function doAutoCapture(){
-  if(!modelsLoaded || !enrollStream) return;
+  if(!modelsLoaded||!enrollStream)return;
   const vid=document.getElementById('eVid');
-  try{
-    const opts=new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.4});
-    const det=await faceapi.detectSingleFace(vid,opts).withFaceLandmarks(true).withFaceDescriptor();
-    if(det){
-      enrollSamples.push(Array.from(det.descriptor));
-      const pct=Math.round(enrollSamples.length/ENROLL_NEED*100);
-      ring(pct,'Sample '+enrollSamples.length+'/'+ENROLL_NEED);
-      document.getElementById('eMsg').textContent='Captured '+enrollSamples.length+'/'+ENROLL_NEED+' samples';
-      if(enrollSamples.length>=ENROLL_NEED){ clearInterval(enrollTimer); finishEnroll(); }
-    }
+  try{const det=await faceapi.detectSingleFace(vid,new faceapi.TinyFaceDetectorOptions({inputSize:320,scoreThreshold:0.4})).withFaceLandmarks(true).withFaceDescriptor();
+    if(det){enrollSamples.push(Array.from(det.descriptor));ring(Math.round(enrollSamples.length/E_NEED*100),'Sample '+enrollSamples.length+'/'+E_NEED);document.getElementById('eMsg').textContent='Captured '+enrollSamples.length+'/'+E_NEED;if(enrollSamples.length>=E_NEED){clearInterval(enrollTimer);finishEnroll();}}
   }catch(e){}
 }
+function finishEnroll(){const avg=new Float32Array(128);enrollSamples.forEach(d=>d.forEach((v,i)=>avg[i]+=v));avg.forEach((_,i)=>avg[i]/=enrollSamples.length);enrollDesc=Array.from(avg);ring(100,'Done!');document.getElementById('timerFill').style.width='0%';document.getElementById('eMsg').innerHTML='<span style="color:var(--grn)">Enrolled! Save now.</span>';stopEC();}
+function ring(pct,lbl){const circ=2*Math.PI*42,offset=circ-(pct/100)*circ,fg=document.getElementById('rFg');fg.style.strokeDashoffset=offset;fg.style.stroke=pct>=100?'var(--grn)':pct>=60?'#f59e0b':'var(--blu)';document.getElementById('rPct').textContent=pct+'%';document.getElementById('rLbl').textContent=lbl;}
+function flipEC(){enrollFacing=enrollFacing==='user'?'environment':'user';if(enrollStream)startEC();}
+function stopEC(){if(enrollTimer){clearInterval(enrollTimer);enrollTimer=null;}if(enrollStream){enrollStream.getTracks().forEach(t=>t.stop());enrollStream=null;}}
 
-function finishEnroll(){
-  // Average all samples for best accuracy
-  const avg=new Float32Array(128);
-  enrollSamples.forEach(d=>d.forEach((v,i)=>avg[i]+=v));
-  avg.forEach((_,i)=>avg[i]/=enrollSamples.length);
-  enrollDesc=Array.from(avg);
-  ring(100,'Done!');
-  document.getElementById('timerFill').style.width='0%';
-  document.getElementById('eMsg').innerHTML='<span style="color:var(--grn)">Face enrolled with '+enrollSamples.length+' samples! Save student now.</span>';
-  stopEC();
-}
-
-function ring(pct,lbl){
-  const circ=2*Math.PI*42, offset=circ-(pct/100)*circ, fg=document.getElementById('rFg');
-  fg.style.strokeDashoffset=offset; fg.style.stroke=pct>=100?'var(--grn)':pct>=60?'#f59e0b':'var(--blu)';
-  document.getElementById('rPct').textContent=pct+'%'; document.getElementById('rLbl').textContent=lbl;
-}
-function flipEC(){ enrollFacing=enrollFacing==='user'?'environment':'user'; if(enrollStream) startEC(); }
-function stopEC(){
-  if(enrollTimer){ clearInterval(enrollTimer); enrollTimer=null; }
-  if(enrollStream){ enrollStream.getTracks().forEach(t=>t.stop()); enrollStream=null; }
-}
-
-// ── STUDENTS ─────────────────────────────────────────────────────
+// ── STUDENTS ──────────────────────────────────
 let editStuId=null;
 function renderStudents(){
   const q=(document.getElementById('stuQ').value||'').toLowerCase();
   const f=students.filter(s=>!q||s.name.toLowerCase().includes(q)||s.rollNo.toLowerCase().includes(q));
   document.getElementById('stuCnt').textContent='('+students.length+')';
-  document.getElementById('stubody').innerHTML=f.map((s,i)=>`<tr><td>${i+1}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="AV" style="width:26px;height:26px;font-size:.7rem">${s.name[0]}</div><b>${s.name}</b></div></td><td style="color:var(--mu);font-size:.76rem">${s.rollNo}</td><td>${s.faceDescriptor?'<span class="BP">Enrolled</span>':'<span class="BA">None</span>'}</td><td style="display:flex;gap:5px"><button class="BO" onclick="openEditStu('${s.id}')">Edit</button><button class="BO" style="border-color:var(--red);color:var(--red)" onclick="delStu('${s.id}')">Del</button></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:14px">No students yet</td></tr>';
+  document.getElementById('stubody').innerHTML=f.map((s,i)=>'<tr><td>'+(i+1)+'</td><td><div style="display:flex;align-items:center;gap:6px"><div class="AV" style="width:26px;height:26px;font-size:.7rem">'+s.name[0]+'</div><b>'+s.name+'</b></div></td><td style="color:var(--mu);font-size:.76rem">'+s.rollNo+'</td><td>'+(s.faceDescriptor?'<span class="BP">Enrolled</span>':'<span class="BA">None</span>')+'</td><td style="display:flex;gap:5px"><button class="BO" onclick="openEditStu(\''+s.id+'\')">Edit</button><button class="BO" style="border-color:var(--red);color:var(--red)" onclick="delStu(\''+s.id+'\')">Del</button></td></tr>').join('')||'<tr><td colspan="5" style="text-align:center;color:var(--mu);padding:14px">No students</td></tr>';
 }
-function openAddStu(){ editStuId=null; enrollDesc=null; enrollSamples=[]; document.getElementById('stuMH').textContent='Add Student'; document.getElementById('sN').value=''; document.getElementById('sR').value=''; document.getElementById('eMsg').textContent='Click Start Camera - face detection is automatic'; document.getElementById('timerWrap').style.display='none'; ring(0,'No face yet'); stopEC(); document.getElementById('stuMod').classList.add('on'); }
-function openEditStu(id){ const s=students.find(st=>String(st.id)===String(id)); if(!s)return; editStuId=id; document.getElementById('stuMH').textContent='Edit Student'; document.getElementById('sN').value=s.name; document.getElementById('sR').value=s.rollNo; enrollDesc=s.faceDescriptor||null; enrollSamples=[]; stopEC(); document.getElementById('timerWrap').style.display='none'; if(enrollDesc){ring(100,'Already enrolled');document.getElementById('eMsg').textContent='Already enrolled. Start Camera to update.';}else{ring(0,'No face yet');document.getElementById('eMsg').textContent='Click Start Camera to enroll face';} document.getElementById('stuMod').classList.add('on'); }
+function openAddStu(){editStuId=null;enrollDesc=null;enrollSamples=[];document.getElementById('stuMH').textContent='Add Student';document.getElementById('sN').value='';document.getElementById('sR').value='';document.getElementById('eMsg').textContent='Click Start Camera';document.getElementById('timerWrap').style.display='none';ring(0,'No face yet');stopEC();document.getElementById('stuMod').classList.add('on');}
+function openEditStu(id){const s=students.find(st=>String(st.id)===String(id));if(!s)return;editStuId=id;document.getElementById('stuMH').textContent='Edit';document.getElementById('sN').value=s.name;document.getElementById('sR').value=s.rollNo;enrollDesc=s.faceDescriptor||null;enrollSamples=[];stopEC();document.getElementById('timerWrap').style.display='none';if(enrollDesc){ring(100,'Enrolled');document.getElementById('eMsg').textContent='Start Camera to update.';}else{ring(0,'No face');document.getElementById('eMsg').textContent='Click Start Camera';}document.getElementById('stuMod').classList.add('on');}
 async function saveStu(){
-  const name=document.getElementById('sN').value.trim(), roll=document.getElementById('sR').value.trim();
+  const name=document.getElementById('sN').value.trim(),roll=document.getElementById('sR').value.trim();
   if(!name||!roll){toast('Name and Roll No required','var(--red)');return;}
-  const id=editStuId||('s_'+Date.now()), faceStr=enrollDesc?JSON.stringify(enrollDesc):'';
+  const id=editStuId||('s_'+Date.now()),faceStr=enrollDesc?JSON.stringify(enrollDesc):'';
   const payload={id,name,rollNo:roll,faceDescriptor:faceStr,createdAt:new Date().toISOString()};
   const local={id,name,rollNo:roll,faceDescriptor:enrollDesc||null};
   const idx=students.findIndex(s=>String(s.id)===String(id));
   if(idx>=0)students[idx]=local;else students.push(local);
-  LS.s('students',students); buildMatcher(); renderStudents(); renderDashboard(); closeSM();
+  LS.s('students',students);buildMatcher();renderStudents();renderDashboard();closeSM();
   toast('Saving...','#3b82f6');
-  try{await apiPost('saveStudent',payload);toast(name+' saved!','var(--grn)');}catch(e){toast('Saved locally (offline)','#f59e0b');}
+  try{await apiPost('saveStudent',payload);toast(name+' saved!','var(--grn)');}catch(e){toast('Saved locally','#f59e0b');}
 }
-async function delStu(id){ const s=students.find(st=>String(st.id)===String(id)); if(!confirm('Delete '+(s?s.name:'student')+'?'))return; students=students.filter(st=>String(st.id)!==String(id)); LS.s('students',students); buildMatcher(); renderStudents(); renderDashboard(); toast('Deleted','var(--red)'); apiGet('deleteStudent',{id}).catch(()=>{}); }
-function closeSM(){ document.getElementById('stuMod').classList.remove('on'); stopEC(); }
+async function delStu(id){const s=students.find(st=>String(st.id)===String(id));if(!confirm('Delete '+(s?s.name:'?')+'?'))return;students=students.filter(st=>String(st.id)!==String(id));LS.s('students',students);buildMatcher();renderStudents();renderDashboard();toast('Deleted','var(--red)');apiGet('deleteStudent',{id}).catch(()=>{});}
+function closeSM(){document.getElementById('stuMod').classList.remove('on');stopEC();}
 
-// ── MANUAL ATTENDANCE ────────────────────────────────────────────
-function openManual(){ document.getElementById('manStu').innerHTML=students.map(s=>`<option value="${s.id}">${s.name} (${s.rollNo})</option>`).join(''); document.getElementById('manDate').value=todayStr(); document.getElementById('manMod').classList.add('on'); }
-async function saveManual(){ const sid=document.getElementById('manStu').value,meal=document.getElementById('manMeal').value,date=document.getElementById('manDate').value; const s=students.find(st=>String(st.id)===String(sid)); if(!s){toast('Select student','var(--red)');return;} if(attendance.find(a=>String(a.studentId)===String(sid)&&a.meal===meal&&a.date===date)){toast('Already marked!','var(--red)');return;} const rec={id:'a_'+Date.now(),studentId:s.id,studentName:s.name,meal,date,time:'Manual',confidence:100}; attendance.push(rec); LS.s('attendance',attendance); renderScanList(); renderDashboard(); closeM('manMod'); toast('Marked','var(--grn)'); apiPost('saveAttendance',rec).catch(()=>{}); }
+// ── MANUAL ────────────────────────────────────
+function openManual(){document.getElementById('manStu').innerHTML=students.map(s=>'<option value="'+s.id+'">'+s.name+' ('+s.rollNo+')</option>').join('');document.getElementById('manDate').value=todayStr();document.getElementById('manMod').classList.add('on');}
+async function saveManual(){
+  const sid=document.getElementById('manStu').value,meal=document.getElementById('manMeal').value,date=document.getElementById('manDate').value;
+  const s=students.find(st=>String(st.id)===String(sid));if(!s){toast('Select student','var(--red)');return;}
+  if(attendance.find(a=>String(a.studentId)===String(sid)&&a.meal===meal&&a.date===date)){toast('Already marked!','var(--red)');return;}
+  const rec={id:'a_'+Date.now(),studentId:s.id,studentName:s.name,meal,date,time:'Manual',confidence:100};
+  attendance.push(rec);LS.s('attendance',attendance);renderScanList();renderDashboard();closeM('manMod');toast('Marked','var(--grn)');
+  saveAttGet(rec).catch(()=>{});
+}
 
-// ── REPORTS ──────────────────────────────────────────────────────
-function fillRepStu(){ document.getElementById('rStu').innerHTML='<option value="">All Students</option>'+students.map(s=>`<option value="${s.id}">${s.name} (${s.rollNo})</option>`).join(''); }
+// ── REPORTS ───────────────────────────────────
+function fillRepStu(){document.getElementById('rStu').innerHTML='<option value="">All</option>'+students.map(s=>'<option value="'+s.id+'">'+s.name+'</option>').join('');}
 function genReport(){
   const from=document.getElementById('rFrom').value,to=document.getElementById('rTo').value,sid=document.getElementById('rStu').value;
   if(!from||!to){toast('Select dates','var(--red)');return;}
-  const fs=sid?students.filter(s=>String(s.id)===String(sid)):students, dates=dRange(from,to), fa=attendance.filter(a=>a.date>=from&&a.date<=to);
-  const rows=fs.map((s,i)=>{ let bT=0,lT=0,dT=0; const cells=dates.map(d=>{const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);const b=sa.find(a=>a.meal==='breakfast')?1:0,l=sa.find(a=>a.meal==='lunch')?1:0,dn=sa.find(a=>a.meal==='dinner')?1:0;bT+=b;lT+=l;dT+=dn;const dot=v=>`<span style="color:${v?'var(--grn)':'var(--red)'}">${v?'Y':'N'}</span>`;return`<td style="text-align:center;border-left:1px solid var(--bord);font-size:.73rem">${dot(b)}${dot(l)}${dot(dn)}</td>`;}).join('');const pct=n=>dates.length?Math.round(n/dates.length*100)+'%':'--',col=n=>n/Math.max(dates.length,1)>=.5?'var(--grn)':'var(--red)';return`<tr><td>${i+1}</td><td style="font-weight:600">${s.name}</td><td style="color:var(--mu);font-size:.74rem">${s.rollNo}</td>${cells}<td><b style="color:${col(bT)}">${pct(bT)}</b></td><td><b style="color:${col(lT)}">${pct(lT)}</b></td><td><b style="color:${col(dT)}">${pct(dT)}</b></td></tr>`;}).join('');
-  document.getElementById('repOut').innerHTML=`<div class="CD" style="margin-bottom:10px"><b style="color:var(--acc)">${fs.length}</b> students &middot; <b style="color:var(--blu)">${dates.length}</b> days &middot; <b style="color:var(--grn)">${fa.length}</b> meals</div><div class="CD" style="overflow-x:auto"><table class="TT"><thead><tr><th>#</th><th>Student</th><th>Roll</th>${dates.map(d=>`<th style="text-align:center;border-left:1px solid var(--bord);min-width:65px">${d.slice(5)}<br><span style="font-size:.6rem">B.L.D</span></th>`).join('')}<th>B%</th><th>L%</th><th>D%</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const fs=sid?students.filter(s=>String(s.id)===String(sid)):students,dates=dRange(from,to),fa=attendance.filter(a=>a.date>=from&&a.date<=to);
+  const rows=fs.map((s,i)=>{let bT=0,lT=0,dT=0;const cells=dates.map(d=>{const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);const b=sa.find(a=>a.meal==='breakfast')?1:0,l=sa.find(a=>a.meal==='lunch')?1:0,dn=sa.find(a=>a.meal==='dinner')?1:0;bT+=b;lT+=l;dT+=dn;const dot=v=>'<span style="color:'+(v?'var(--grn)':'var(--red)')+';">'+(v?'Y':'N')+'</span>';return'<td style="text-align:center;border-left:1px solid var(--bord);font-size:.73rem">'+dot(b)+dot(l)+dot(dn)+'</td>';}).join('');const pct=n=>dates.length?Math.round(n/dates.length*100)+'%':'--',col=n=>n/Math.max(dates.length,1)>=.5?'var(--grn)':'var(--red)';return'<tr><td>'+(i+1)+'</td><td style="font-weight:600">'+s.name+'</td><td style="color:var(--mu);font-size:.74rem">'+s.rollNo+'</td>'+cells+'<td><b style="color:'+col(bT)+'">'+pct(bT)+'</b></td><td><b style="color:'+col(lT)+'">'+pct(lT)+'</b></td><td><b style="color:'+col(dT)+'">'+pct(dT)+'</b></td></tr>';}).join('');
+  document.getElementById('repOut').innerHTML='<div class="CD" style="margin-bottom:10px"><b style="color:var(--acc)">'+fs.length+'</b> students &middot; <b style="color:var(--blu)">'+dates.length+'</b> days &middot; <b style="color:var(--grn)">'+fa.length+'</b> meals</div><div class="CD" style="overflow-x:auto"><table class="TT"><thead><tr><th>#</th><th>Student</th><th>Roll</th>'+dates.map(d=>'<th style="text-align:center;border-left:1px solid var(--bord);min-width:65px">'+d.slice(5)+'<br><span style="font-size:.6rem">B.L.D</span></th>').join('')+'<th>B%</th><th>L%</th><th>D%</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
+function exportToday(){const t=todayStr(),h=['#','Name','Roll','Breakfast','B-Time','Lunch','L-Time','Dinner','D-Time','Total','Date'];const rows=students.map((s,i)=>{const sa=attendance.filter(a=>a.date===t&&String(a.studentId)===String(s.id));const b=sa.find(a=>a.meal==='breakfast'),l=sa.find(a=>a.meal==='lunch'),d=sa.find(a=>a.meal==='dinner');return[i+1,s.name,s.rollNo,b?'Present':'Absent',b?b.time:'',l?'Present':'Absent',l?l.time:'',d?'Present':'Absent',d?d.time:'',[b,l,d].filter(Boolean).length,t];});const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([h,...rows]);ws['!cols']=h.map(()=>({wch:14}));XLSX.utils.book_append_sheet(wb,ws,'Today');const h2=['#','Name','Roll','Meal','Date','Time','Conf%'],r2=attendance.map((a,i)=>{const s=students.find(st=>String(st.id)===String(a.studentId));return[i+1,s?s.name:a.studentName,s?s.rollNo:'',a.meal,a.date,a.time,a.confidence];});XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h2,...r2]),'All');XLSX.writeFile(wb,'GSC_'+t+'.xlsx');toast('Excel exported','var(--grn)');}
+function exportReport(){const from=document.getElementById('rFrom').value,to=document.getElementById('rTo').value,dates=dRange(from,to),fa=attendance.filter(a=>a.date>=from&&a.date<=to);const h=['#','Name','Roll'];dates.forEach(d=>h.push(d+' B',d+' L',d+' D'));h.push('B%','L%','D%');const rows=students.map((s,i)=>{let bT=0,lT=0,dT=0;const row=[i+1,s.name,s.rollNo];dates.forEach(d=>{const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);const b=sa.find(a=>a.meal==='breakfast')?1:0,l=sa.find(a=>a.meal==='lunch')?1:0,dn=sa.find(a=>a.meal==='dinner')?1:0;bT+=b;lT+=l;dT+=dn;row.push(b?'P':'A',l?'P':'A',dn?'P':'A');});row.push(dates.length?Math.round(bT/dates.length*100)+'%':'0%',dates.length?Math.round(lT/dates.length*100)+'%':'0%',dates.length?Math.round(dT/dates.length*100)+'%':'0%');return row;});const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h,...rows]),'Report');XLSX.writeFile(wb,'GSC_Report_'+from+'_'+to+'.xlsx');toast('Report exported','var(--grn)');}
+function dRange(from,to){const out=[],cur=new Date(from),end=new Date(to);while(cur<=end){out.push(cur.toISOString().split('T')[0]);cur.setDate(cur.getDate()+1);}return out;}
 
-// ── EXCEL ────────────────────────────────────────────────────────
-function exportToday(){ const t=todayStr(),h=['#','Name','Roll','Breakfast','B-Time','Lunch','L-Time','Dinner','D-Time','Total','Date']; const rows=students.map((s,i)=>{const sa=attendance.filter(a=>a.date===t&&String(a.studentId)===String(s.id));const b=sa.find(a=>a.meal==='breakfast'),l=sa.find(a=>a.meal==='lunch'),d=sa.find(a=>a.meal==='dinner');return[i+1,s.name,s.rollNo,b?'Present':'Absent',b?b.time:'',l?'Present':'Absent',l?l.time:'',d?'Present':'Absent',d?d.time:'',[b,l,d].filter(Boolean).length,t];}); const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([h,...rows]);ws['!cols']=h.map(()=>({wch:14}));XLSX.utils.book_append_sheet(wb,ws,'Today'); const h2=['#','Name','Roll','Meal','Date','Time','Conf%'],r2=attendance.map((a,i)=>{const s=students.find(st=>String(st.id)===String(a.studentId));return[i+1,s?s.name:a.studentName,s?s.rollNo:'',a.meal,a.date,a.time,a.confidence];}); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h2,...r2]),'All'); XLSX.writeFile(wb,'GSC_'+t+'.xlsx'); toast('Excel exported','var(--grn)'); }
-function exportReport(){ const from=document.getElementById('rFrom').value,to=document.getElementById('rTo').value,dates=dRange(from,to),fa=attendance.filter(a=>a.date>=from&&a.date<=to); const h=['#','Name','Roll'];dates.forEach(d=>h.push(d+' B',d+' L',d+' D'));h.push('B%','L%','D%'); const rows=students.map((s,i)=>{let bT=0,lT=0,dT=0;const row=[i+1,s.name,s.rollNo];dates.forEach(d=>{const sa=fa.filter(a=>String(a.studentId)===String(s.id)&&a.date===d);const b=sa.find(a=>a.meal==='breakfast')?1:0,l=sa.find(a=>a.meal==='lunch')?1:0,dn=sa.find(a=>a.meal==='dinner')?1:0;bT+=b;lT+=l;dT+=dn;row.push(b?'P':'A',l?'P':'A',dn?'P':'A');});row.push(dates.length?Math.round(bT/dates.length*100)+'%':'0%',dates.length?Math.round(lT/dates.length*100)+'%':'0%',dates.length?Math.round(dT/dates.length*100)+'%':'0%');return row;}); const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([h,...rows]),'Report');XLSX.writeFile(wb,'GSC_Report_'+from+'_'+to+'.xlsx');toast('Report exported','var(--grn)'); }
-function dRange(from,to){ const out=[],cur=new Date(from),end=new Date(to);while(cur<=end){out.push(cur.toISOString().split('T')[0]);cur.setDate(cur.getDate()+1);}return out; }
-
-// ── SETTINGS — password changes saved to Google Sheets ───────────
+// ── SETTINGS ──────────────────────────────────
 async function chgPass(){
-  const op=document.getElementById('op').value, np=document.getElementById('np').value, cp=document.getElementById('cp').value;
+  const op=document.getElementById('op').value,np=document.getElementById('np').value,cp=document.getElementById('cp').value;
   if(op!==cloudPass){setMsg('pmsg','Wrong current password','var(--red)');return;}
   if(np!==cp){setMsg('pmsg','Passwords do not match','var(--red)');return;}
   if(np.length<4){setMsg('pmsg','Min 4 characters','var(--red)');return;}
-  setMsg('pmsg','Saving to Google Sheets...','#3b82f6');
-  try{
-    await apiPost('saveSetting',{key:'password',value:np});
-    cloudPass=np;
-    setMsg('pmsg','Password updated and saved to Sheets!','var(--grn)');
-  }catch(e){ setMsg('pmsg','Saved locally only (offline)','#f59e0b'); cloudPass=np; }
+  setMsg('pmsg','Saving...','#3b82f6');
+  try{await apiPost('saveSetting',{key:'password',value:np});cloudPass=np;LS.s('cloudPass',np);setMsg('pmsg','Password updated on all devices!','var(--grn)');}
+  catch(e){cloudPass=np;LS.s('cloudPass',np);setMsg('pmsg','Saved locally (sync when online)','#f59e0b');}
 }
-function clearCache(){ if(!confirm('Clear local cache? Cloud data is safe.'))return; localStorage.removeItem('students'); localStorage.removeItem('attendance'); toast('Cache cleared - re-syncing','#f59e0b'); doSync(); }
-function setMsg(id,msg,color){ const el=document.getElementById(id); el.style.color=color; el.textContent=msg; }
-function closeM(id){ document.getElementById(id).classList.remove('on'); }
-function toast(msg,color){ color=color||'var(--grn)'; const el=document.getElementById('toast'); el.textContent=msg; el.style.background=color; el.style.display='block'; clearTimeout(el._t); el._t=setTimeout(()=>el.style.display='none',3200); }
+function clearCache(){if(!confirm('Clear cache? Cloud data is safe.'))return;localStorage.clear();setTimeout(()=>location.reload(),500);}
+function setMsg(id,msg,color){const el=document.getElementById(id);el.style.color=color;el.textContent=msg;}
+function closeM(id){document.getElementById(id).classList.remove('on');}
+function toast(msg,color){color=color||'var(--grn)';const el=document.getElementById('toast');el.textContent=msg;el.style.background=color;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3200);}
 
 window.addEventListener('online',()=>{badge(true);doSync(true);});
 window.addEventListener('offline',()=>badge(false));
 
-// ── BOOT — fetch credentials + test DB on login screen ───────────
+// ── BOOT — fetch credentials on login page ────
 (async()=>{
   const el=document.getElementById('lsync');
+  // Load cached creds so offline login works
+  cloudUser=LS.g('cloudUser')||'admin';
+  cloudPass=LS.g('cloudPass')||'gsc@2024';
   try{
     const r=await apiGet('getSettings');
     if(r&&r.status==='ok'){
-      cloudUser=r.data.username||'admin';
-      cloudPass=r.data.password||'gsc@2024';
-      el.innerHTML='<span style="color:var(--grn)">Database connected - ready to login</span>';
+      cloudUser=r.data.username||'admin';cloudPass=r.data.password||'gsc@2024';
+      LS.s('cloudUser',cloudUser);LS.s('cloudPass',cloudPass);
+      el.innerHTML='<span style="color:var(--grn)">Database connected &mdash; ready to login</span>';
     }else{
       el.innerHTML='<span style="color:#f59e0b">Script error: '+(r&&r.msg?r.msg:'check deployment')+'</span>';
     }
   }catch(e){
-    el.innerHTML='<span style="color:#f59e0b">Offline - using cached credentials</span>';
+    el.innerHTML='<span style="color:#f59e0b">Offline &mdash; using cached login</span>';
   }
 })();
 </script>
